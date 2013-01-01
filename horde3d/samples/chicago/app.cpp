@@ -51,7 +51,7 @@ Application::Application( const std::string &appPath )
 bool Application::init()
 {	
 	// Initialize engine
-	if( !h3dInit(H3DRenderers::OpenGL_ES_2_0) )
+    if( !h3dInit(H3DRenderers::OpenGL_2_0) )
 	{	
 		h3dutDumpMessages();
 		return false;
