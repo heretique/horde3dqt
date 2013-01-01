@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
 
-SUBDIRS += chicago \
-    glfw \
-    knight  
+SUBDIRS += glfw \
+    chicago \
+    knight
