@@ -19,7 +19,7 @@ unix|win32: LIBS += -L$$PWD/../../../Libs -lglfw -lhorde3d -lhorde3dutils -lopen
 
 INCLUDEPATH += $$PWD/../../../Libs \
     $$PWD/../../bindings/c++ \
-    $$PWD/../glfw
+    $$PWD/../../../3rdparty/glfw
 
 DEPENDPATH += $$PWD/../../../Libs
 

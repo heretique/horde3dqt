@@ -82,6 +82,11 @@ bool Modules::init(int rendererType)
 	if( _sceneManager == 0x0 ) _sceneManager = new SceneManager();
 	if( _resourceManager == 0x0 ) _resourceManager = new ResourceManager();
 	if( _renderer == 0x0 ) _renderer = rdMan().createRenderer(_rendererType);
+    if (_renderer == 0x0)
+    {
+        log().writeError("Renderer: %d, not found or not supported", _rendererType);
+        return false;
+    }
 	// Init modules
 	if( !renderer().init() ) return false;
 	gRDI = renderer().renderDevice();

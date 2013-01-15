@@ -3,7 +3,7 @@ QT       -= core gui
 TARGET = glfw
 TEMPLATE = lib
 CONFIG += staticlib
-DESTDIR = $$PWD/../../../Libs
+DESTDIR = $$PWD/../../Libs
 
 DEFINES -= UNICODE
 

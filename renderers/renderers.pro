@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
 
-SUBDIRS = openglESRenderer \
+SUBDIRS = \
+    openglESRenderer \
     openglRenderer 
