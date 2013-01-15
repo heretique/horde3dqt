@@ -34,3 +34,6 @@ horde3d/binaries/Win32/knight.exe_manifest.rc
 horde3d/binaries/Win32/knight.exe_manifest.res
 horde3d/binaries/Win32/knight.ilk
 horde3d/binaries/Win32/knight.pdb
+horde3d/binaries/Win32/chicagoPvr.exe.embed.manifest
+horde3d/binaries/Win32/chicagoPvr.exe_manifest.rc
+horde3d/binaries/Win32/chicagoPvr.pdb

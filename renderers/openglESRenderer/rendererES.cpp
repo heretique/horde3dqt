@@ -1247,22 +1247,22 @@ namespace Horde3DOpenGLESRenderer {
 		if( _rd->currentRenderBufferHandle() != 0x0 )
 		{
 			// Store state of glDrawBuffers
-			for( uint32 i = 0; i < 4; ++i ) glGetIntegerv( GL_DRAW_BUFFER0 + i, (int *)&prevBuffers[i] );
+//			for( uint32 i = 0; i < 4; ++i ) glGetIntegerv( GL_DRAW_BUFFER0 + i, (int *)&prevBuffers[i] );
 
 			const RDIRenderBuffer &rb = _rd->getRenderBuffer(_rd->currentRenderBufferHandle());
 			uint32 buffers[4], cnt = 0;
 
 			if( depth && rb.depthTex != 0 ) mask |= CLR_DEPTH;
 
-			if( buf0 && rb.colTexs[0] != 0 ) buffers[cnt++] = GL_COLOR_ATTACHMENT0_EXT;
-			if( buf1 && rb.colTexs[1] != 0 ) buffers[cnt++] = GL_COLOR_ATTACHMENT1_EXT;
-			if( buf2 && rb.colTexs[2] != 0 ) buffers[cnt++] = GL_COLOR_ATTACHMENT2_EXT;
-			if( buf3 && rb.colTexs[3] != 0 ) buffers[cnt++] = GL_COLOR_ATTACHMENT3_EXT;
+//			if( buf0 && rb.colTexs[0] != 0 ) buffers[cnt++] = GL_COLOR_ATTACHMENT0_EXT;
+//			if( buf1 && rb.colTexs[1] != 0 ) buffers[cnt++] = GL_COLOR_ATTACHMENT1_EXT;
+//			if( buf2 && rb.colTexs[2] != 0 ) buffers[cnt++] = GL_COLOR_ATTACHMENT2_EXT;
+//			if( buf3 && rb.colTexs[3] != 0 ) buffers[cnt++] = GL_COLOR_ATTACHMENT3_EXT;
 
 			if( cnt > 0 )
 			{	
 				mask |= CLR_COLOR;
-				glDrawBuffers( cnt, buffers );
+//				glDrawBuffers( cnt, buffers );
 			}
 		}
 		else
@@ -1277,8 +1277,8 @@ namespace Horde3DOpenGLESRenderer {
 		glDisable( GL_SCISSOR_TEST );
 
 		// Restore state of glDrawBuffers
-		if( _rd->currentRenderBufferHandle() != 0x0 )
-			glDrawBuffers( 4, prevBuffers );
+//		if( _rd->currentRenderBufferHandle() != 0x0 )
+//			glDrawBuffers( 4, prevBuffers );
 	}
 
 
@@ -1565,7 +1565,7 @@ namespace Horde3DOpenGLESRenderer {
 		if( Modules::config().wireframeMode && !Modules::config().debugViewMode )
 		{
 			glDisable( GL_CULL_FACE );
-			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+//			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 		}
 		else
 		{
@@ -1598,7 +1598,7 @@ namespace Horde3DOpenGLESRenderer {
 		// Reset states
 		if( Modules::config().wireframeMode && !Modules::config().debugViewMode )
 		{
-			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+//			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		}
 	}
 
@@ -2101,7 +2101,7 @@ namespace Horde3DOpenGLESRenderer {
 
 		_rd->setRenderBuffer( 0 );
 		setMaterial( 0x0, "" );
-		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+//		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
 		_rd->clear( CLR_DEPTH | CLR_COLOR );
 
@@ -2165,7 +2165,7 @@ namespace Horde3DOpenGLESRenderer {
 		glPointSize( 1.0f );*/
 
 		// Draw light volumes
-		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+//		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		glEnable( GL_BLEND );
 		glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 		glCullFace( GL_FRONT );

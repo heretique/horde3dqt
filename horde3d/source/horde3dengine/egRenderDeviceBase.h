@@ -77,6 +77,20 @@ namespace Horde3D
 		bool  texFloat;
 		bool  texNPOT;
 		bool  rtMultisampling;
+        bool  texDepth;
+        bool  texBGRA8;
+        bool  texPVRTC;
+        bool  texDXT1;
+        bool  texATC;
+        bool  tex3DC;
+        bool  texETC;
+        bool  texPVRTC2;
+        bool  tex3D;
+        bool  texAnisotropic;
+        bool  MRT;
+        bool  texS3TC;
+        bool  occQuery;
+        bool  timerQuery;
 	};
 
 
@@ -147,7 +161,24 @@ namespace Horde3D
 			DXT5,
 			RGBA16F,
 			RGBA32F,
-			DEPTH
+            DEPTH,
+            PVRTC_2BPP,
+            PVRTC_A2BPP,
+            PVRTC_4BPP,
+            PVRTC_A4BPP,
+            RGB5_A1,
+            RGB565,
+            RGBA4,
+            ATC_RGB,
+            ATC_RGBeA,
+            ATC_RGBiA,
+            T3DC_X,
+            T3DC_XY,
+            ETC,
+            PVRTC2_2BPP,
+            PVRTC2_A2BPP,
+            PVRTC2_4BPP,
+            PVRTC2_A4BPP
 		};
 	};
 

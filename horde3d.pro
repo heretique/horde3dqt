@@ -1,5 +1,7 @@
 TEMPLATE = subdirs
 
-SUBDIRS = renderers \
+SUBDIRS = \
+    3rdparty \
+    renderers \
     extensions \
     horde3d

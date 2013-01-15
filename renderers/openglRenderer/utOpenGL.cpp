@@ -213,7 +213,7 @@ bool isExtensionSupported( const char *extName )
 }
 
 
-void getOpenGLVersion()
+void getOpenGLESVersion()
 {
 	char version[8];
 	size_t len = strlen( (char *)glGetString( GL_VERSION ) );
@@ -261,7 +261,7 @@ bool initOpenGLExtensions()
 {
 	bool r = true;
 	
-	getOpenGLVersion();
+	getOpenGLESVersion();
 	
 	// GL 1.2
 	r &= (glBlendColor = (PFNGLBLENDCOLORPROC) platGetProcAddress( "glBlendColor" )) != 0x0;

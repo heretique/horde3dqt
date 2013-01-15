@@ -54,6 +54,7 @@ bool Application::init()
     if( !h3dInit(H3DRenderers::OpenGL_2_0) )
 	{	
 		h3dutDumpMessages();
+        h3dRelease();
 		return false;
 	}
 

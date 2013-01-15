@@ -38,8 +38,8 @@ OpenGLESGPUTimer::OpenGLESGPUTimer() : _numQueries( 0 ),  _queryFrame( 0 ), _tim
 
 OpenGLESGPUTimer::~OpenGLESGPUTimer()
 {
-	if( !_queryPool.empty() )
-		glDeleteQueries( (uint32)_queryPool.size(), &_queryPool[0] );
+//	if( !_queryPool.empty() )
+//		glDeleteQueries( (uint32)_queryPool.size(), &_queryPool[0] );
 }
 
 IGPUTimer* OpenGLESGPUTimer::factoryFunc()
@@ -49,77 +49,77 @@ IGPUTimer* OpenGLESGPUTimer::factoryFunc()
 
 void OpenGLESGPUTimer::beginQuery( uint32 frameID )
 {
-	if( !glExt::ARB_timer_query ) return;
-	ASSERT( !_activeQuery );
+//	if( !glExt::ARB_timer_query ) return;
+//	ASSERT( !_activeQuery );
 	
-	if( _queryFrame != frameID )
-	{
-		if( !updateResults() ) return;
+//	if( _queryFrame != frameID )
+//	{
+//		if( !updateResults() ) return;
 
-		_queryFrame = frameID;
-		_numQueries = 0;
-	}
+//		_queryFrame = frameID;
+//		_numQueries = 0;
+//	}
 	
-	// Create new query pair if necessary
-	uint32 queryObjs[2];
-	if( _numQueries++ * 2 == _queryPool.size() )
-	{
-		glGenQueries( 2, queryObjs );
-		_queryPool.push_back( queryObjs[0] );
-		_queryPool.push_back( queryObjs[1] );
-	}
-	else
-	{
-		queryObjs[0] = _queryPool[(_numQueries - 1) * 2];
-	}
+//	// Create new query pair if necessary
+//	uint32 queryObjs[2];
+//	if( _numQueries++ * 2 == _queryPool.size() )
+//	{
+//		glGenQueries( 2, queryObjs );
+//		_queryPool.push_back( queryObjs[0] );
+//		_queryPool.push_back( queryObjs[1] );
+//	}
+//	else
+//	{
+//		queryObjs[0] = _queryPool[(_numQueries - 1) * 2];
+//	}
 	
-	_activeQuery = true;
-	 glQueryCounter( queryObjs[0], GL_TIMESTAMP );
+//	_activeQuery = true;
+//	 glQueryCounter( queryObjs[0], GL_TIMESTAMP );
 }
 
 
 void OpenGLESGPUTimer::endQuery()
 {
-	if( _activeQuery )
-	{	
-		glQueryCounter( _queryPool[_numQueries * 2 - 1], GL_TIMESTAMP );
-		_activeQuery = false;
-	}
+//	if( _activeQuery )
+//	{
+//		glQueryCounter( _queryPool[_numQueries * 2 - 1], GL_TIMESTAMP );
+//		_activeQuery = false;
+//	}
 }
 
 
 bool OpenGLESGPUTimer::updateResults()
 {
-	if( !glExt::ARB_timer_query ) return false;
-	
-	if( _numQueries == 0 )
-	{
-		_time = 0;
-		return true;
-	}
-	
-	// Make sure that last query is available
-	GLint available;
-	glGetQueryObjectiv( _queryPool[_numQueries * 2 - 1], GL_QUERY_RESULT_AVAILABLE, &available );
-	if( !available ) return false;
-	
-	//  Accumulate time
-	GLuint64 timeStart = 0, timeEnd = 0, timeAccum = 0;
-	for( uint32 i = 0; i < _numQueries; ++i )
-	{
-		glGetQueryObjectui64v( _queryPool[i * 2], GL_QUERY_RESULT, &timeStart );
-		glGetQueryObjectui64v( _queryPool[i * 2 + 1], GL_QUERY_RESULT, &timeEnd );
-		timeAccum += timeEnd - timeStart;
-	}
-	
-	_time = (float)((double)timeAccum / 1000000.0);
-	return true;
+//    if( !glExt::ARB_timer_query ) return false;
+
+//	if( _numQueries == 0 )
+//	{
+//		_time = 0;
+//		return true;
+//	}
+
+//	// Make sure that last query is available
+//	GLint available;
+//	glGetQueryObjectiv( _queryPool[_numQueries * 2 - 1], GL_QUERY_RESULT_AVAILABLE, &available );
+//	if( !available ) return false;
+
+//	//  Accumulate time
+//	GLuint64 timeStart = 0, timeEnd = 0, timeAccum = 0;
+//	for( uint32 i = 0; i < _numQueries; ++i )
+//	{
+//		glGetQueryObjectui64v( _queryPool[i * 2], GL_QUERY_RESULT, &timeStart );
+//		glGetQueryObjectui64v( _queryPool[i * 2 + 1], GL_QUERY_RESULT, &timeEnd );
+//		timeAccum += timeEnd - timeStart;
+//	}
+
+//	_time = (float)((double)timeAccum / 1000000.0);
+    return true;
 }
 
 
 void OpenGLESGPUTimer::reset()
 {
-	_time = glExt::ARB_timer_query ? 0.f : -1.f;
+//	_time = glExt::ARB_timer_query ? 0.f : -1.f;
 }
 
 
@@ -177,32 +177,10 @@ bool OpenGLESRenderDevice::init()
 		failed = true;
 	}
 
-	// Check that OpenGL 2.0 is available
+    // Check that OpenGL ES 2.0 is available
 	if( glExt::majorVersion * 10 + glExt::minorVersion < 20 )
 	{
-		Modules::log().writeError( "OpenGL 2.0 not available" );
-		failed = true;
-	}
-	
-	// Check that required extensions are supported
-	if( !glExt::EXT_framebuffer_object )
-	{
-		Modules::log().writeError( "Extension EXT_framebuffer_object not supported" );
-		failed = true;
-	}
-	if( !glExt::EXT_texture_filter_anisotropic )
-	{
-		Modules::log().writeError( "Extension EXT_texture_filter_anisotropic not supported" );
-		failed = true;
-	}
-	if( !glExt::EXT_texture_compression_s3tc )
-	{
-		Modules::log().writeError( "Extension EXT_texture_compression_s3tc not supported" );
-		failed = true;
-	}
-	if( !glExt::EXT_texture_sRGB )
-	{
-		Modules::log().writeError( "Extension EXT_texture_sRGB not supported" );
+        Modules::log().writeError( "OpenGL ES 2.0 not available" );
 		failed = true;
 	}
 	
@@ -215,21 +193,54 @@ bool OpenGLESRenderDevice::init()
 		return false;
 	}
 	
-	// Get capabilities
-	_caps.texFloat = glExt::ARB_texture_float ? 1 : 0;
-	_caps.texNPOT = glExt::ARB_texture_non_power_of_two ? 1 : 0;
-	_caps.rtMultisampling = glExt::EXT_framebuffer_multisample ? 1 : 0;
+    // Get capabilities
+    _caps.texFloat = glExt::OES_texture_float ? 1 : 0;
+    _caps.texNPOT = glExt::OES_texture_npot ? 1 : 0;
 
-	// Find supported depth format (some old ATI cards only support 16 bit depth for FBOs)
-	_depthFormat = GL_DEPTH_COMPONENT24;
-	uint32 testBuf = createRenderBuffer( 32, 32, TextureFormats::BGRA8, true, 1, 0 ); 
-	if( testBuf == 0 )
-	{	
-		_depthFormat = GL_DEPTH_COMPONENT16;
-		Modules::log().writeWarning( "Render target depth precision limited to 16 bit" );
-	}
-	else
-		destroyRenderBuffer( testBuf );
+    _caps.rtMultisampling = glExt::EXT_multisampled_render_to_texture ? 1 : 0;
+    if( !_caps.rtMultisampling )
+            _caps.rtMultisampling = glExt::APPLE_framebuffer_multisample ? 1 : 0;
+    if( !_caps.rtMultisampling )
+            _caps.rtMultisampling = glExt::ANGLE_framebuffer_multisample ? 1 : 0;
+
+
+    _caps.texBGRA8 = glExt::EXT_texture_format_BGRA8888 ? 1 : 0;
+    if( !_caps.texBGRA8 )
+            _caps.texBGRA8 = glExt::APPLE_texture_format_BGRA8888 ? 1 : 0;
+
+    _caps.texDepth = glExt::OES_depth_texture ? 1 : 0;
+    _caps.texPVRTC = glExt::IMG_texture_compression_pvrtc ? 1 : 0;
+    _caps.texPVRTC2 = glExt::IMG_texture_compression_pvrtc2 ? 1 : 0;
+    _caps.texDXT1 = glExt::EXT_texture_compression_dxt1 ? 1 : 0;
+    _caps.texS3TC = glExt::EXT_texture_compression_s3tc ? 1 : 0;
+
+    if( !_caps.texS3TC )
+            _caps.texS3TC = glExt::ANGLE_texture_compression_dxt5 ? 1 : 0;
+
+    _caps.texATC = glExt::AMD_compressed_ATC_texture ? 1 : 0;
+    _caps.tex3DC = glExt::AMD_compressed_3DC_texture ? 1 : 0;
+    _caps.texETC = glExt::OES_compressed_ETC1_RGB8_texture ? 1 : 0;
+    _caps.tex3D = glExt::OES_texture_3D ? 1 : 0;
+
+    _caps.occQuery = glExt::EXT_occlusion_query_boolean ? 1 : 0;
+    if( !_caps.occQuery )
+            Modules::log().writeWarning( "Extension EXT_occlusion_query_boolean not supported" );
+
+    _caps.timerQuery = glExt::ANGLE_timer_query;
+
+    _caps.texAnisotropic = glExt::EXT_texture_filter_anisotropic ? 1 : 0;
+    if( !_caps.texAnisotropic )
+            Modules::log().writeWarning( "Extension EXT_texture_filter_anisotropic not supported" );
+
+    _caps.MRT = glExt::NV_draw_buffers ? 1 : 0;
+    if( !_caps.MRT )
+            Modules::log().writeWarning( "Multiple render targets not supported" );
+
+    _depthFormat = GL_DEPTH_COMPONENT16;
+    if (glExt::OES_depth24)
+        _depthFormat = GL_DEPTH_COMPONENT24_OES;
+    if (glExt::OES_depth32)
+        _depthFormat = GL_DEPTH_COMPONENT32_OES;
 	
 	initStates();
 	resetStates();
@@ -263,7 +274,7 @@ uint32 OpenGLESRenderDevice::registerVertexLayout( uint32 numAttribs, VertexLayo
 void OpenGLESRenderDevice::beginRendering()
 {	
 	//	Get the currently bound frame buffer object. 
-	glGetIntegerv( GL_FRAMEBUFFER_BINDING_EXT, &_defaultFBO );
+    glGetIntegerv( GL_FRAMEBUFFER_BINDING, &_defaultFBO );
 }
 
 uint32 OpenGLESRenderDevice::createVertexBuffer( uint32 size, const void *data )
@@ -334,23 +345,41 @@ void OpenGLESRenderDevice::updateBufferData( uint32 bufObj, uint32 offset, uint3
 
 uint32 OpenGLESRenderDevice::calcTextureSize( TextureFormats::List format, int width, int height, int depth )
 {
-	switch( format )
-	{
-	case TextureFormats::BGRA8:
-		return width * height * depth * 4;
-	case TextureFormats::DXT1:
-		return std::max( width / 4, 1 ) * std::max( height / 4, 1 ) * depth * 8;
-	case TextureFormats::DXT3:
-		return std::max( width / 4, 1 ) * std::max( height / 4, 1 ) * depth * 16;
-	case TextureFormats::DXT5:
-		return std::max( width / 4, 1 ) * std::max( height / 4, 1 ) * depth * 16;
-	case TextureFormats::RGBA16F:
-		return width * height * depth * 8;
-	case TextureFormats::RGBA32F:
-		return width * height * depth * 16;
-	default:
-		return 0;
-	}
+    switch( format )
+    {
+    case TextureFormats::BGRA8:
+            return width * height * depth * 4;
+    case TextureFormats::DXT1:
+            return std::max( width / 4, 1 ) * std::max( height / 4, 1 ) * depth * 8;
+    case TextureFormats::DXT3:
+            return std::max( width / 4, 1 ) * std::max( height / 4, 1 ) * depth * 16;
+    case TextureFormats::DXT5:
+            return std::max( width / 4, 1 ) * std::max( height / 4, 1 ) * depth * 16;
+    case TextureFormats::RGBA16F:
+            return width * height * depth * 8;
+    case TextureFormats::RGBA32F:
+            return width * height * depth * 16;
+    case TextureFormats::PVRTC_2BPP:
+    case TextureFormats::PVRTC_A2BPP:
+    case TextureFormats::PVRTC2_2BPP:
+    case TextureFormats::PVRTC2_A2BPP:
+            return (std::max( width, 16 ) * std::max( height, 8 ) * 2 + 7) / 8;
+    case TextureFormats::PVRTC_4BPP:
+    case TextureFormats::PVRTC_A4BPP:
+    case TextureFormats::PVRTC2_4BPP:
+    case TextureFormats::PVRTC2_A4BPP:
+            return (std::max( width, 8 ) * std::max( height, 8 ) * 4 + 7) / 8;
+    case TextureFormats::ETC:
+            return (std::max( width + 3, 2 ) * std::max( height + 3, 2 )) * 8; // wonder if this is correct?
+    case TextureFormats::RGB5_A1:
+                    return width * height * depth * 2;
+    case TextureFormats::RGB565:
+                    return width * height * depth * 2;
+    case TextureFormats::RGBA4:
+                    return width * height * depth * 2;
+    default:
+            return 0;
+    }
 }
 
 
@@ -365,132 +394,320 @@ uint32 OpenGLESRenderDevice::createTexture( TextureTypes::List type, int width, 
 			Modules::log().writeWarning( "Texture has non-power-of-two dimensions although NPOT is not supported by GPU" );
 	}
 	
-	RDITexture tex;
-	tex.type = type;
-	tex.format = format;
-	tex.width = width;
-	tex.height = height;
-	tex.depth = (type == TextureTypes::Tex3D ? depth : 1);
-	tex.sRGB = sRGB && Modules::config().sRGBLinearization;
-	tex.genMips = genMips;
-	tex.hasMips = hasMips;
+    RDITexture tex;
+    tex.type = type;
+    tex.format = format;
+    tex.width = width;
+    tex.height = height;
+    if( type == TextureTypes::Tex3D && !_caps.tex3D )
+    {
+            return 0;
+            Modules::log().writeWarning( "3D textures are not supported on the GPU" );
+    }
+    tex.depth = (type == TextureTypes::Tex3D ? depth : 1);
+//      tex.sRGB = sRGB && Modules::config().sRGBLinearization;
+    tex.sRGB = false;
+    tex.genMips = genMips;
+    tex.hasMips = hasMips;;
 	
-	switch( format )
-	{
-	case TextureFormats::BGRA8:
-		tex.glFmt = tex.sRGB ? GL_SRGB8_ALPHA8_EXT : GL_RGBA8;
-		break;
-	case TextureFormats::DXT1:
-		tex.glFmt = tex.sRGB ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-		break;
-	case TextureFormats::DXT3:
-		tex.glFmt = tex.sRGB ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT : GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-		break;
-	case TextureFormats::DXT5:
-		tex.glFmt = tex.sRGB ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-		break;
-	case TextureFormats::RGBA16F:
-		tex.glFmt = GL_RGBA16F_ARB;
-		break;
-	case TextureFormats::RGBA32F:
-		tex.glFmt = GL_RGBA32F_ARB;
-		break;
-	case TextureFormats::DEPTH:
-		tex.glFmt = _depthFormat;
-		break;
-	default:
-		ASSERT( 0 );
-		break;
-	};
-	
-	glGenTextures( 1, &tex.glObj );
-	glActiveTexture( GL_TEXTURE15 );
-	glBindTexture( tex.type, tex.glObj );
-	
-	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
-	
-	tex.samplerState = 0;
-	applySamplerState( tex );
-	
-	glBindTexture( tex.type, 0 );
-	if( _texSlots[15].texObj )
-		glBindTexture( _textures.getRef( _texSlots[15].texObj ).type, _textures.getRef( _texSlots[15].texObj ).glObj );
+    switch( format )
+    {
+    case TextureFormats::BGRA8:
+            if( _caps.texBGRA8 )
+                    tex.glFmt = GL_BGRA_EXT;
+            else
+                    tex.glFmt = GL_RGBA;
+            break;
+    case TextureFormats::DXT1:
+//              tex.glFmt = tex.sRGB ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+            if( !_caps.texDXT1 || !_caps.texS3TC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: DXT1" );
+                    return 0;
+            }
+            tex.glFmt = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+            break;
+    case TextureFormats::DXT3:
+            if( !_caps.texS3TC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: DXT3" );
+                    return 0;
+            }
+//            tex.glFmt = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+            break;
+    case TextureFormats::DXT5:
+            if( !_caps.texS3TC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: DXT5" );
+                    return 0;
+            }
+//            tex.glFmt = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+            break;
+    case TextureFormats::RGBA16F:
+            if( !_caps.texFloat )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: RGBA16F" );
+                    return 0;
+            }
+            tex.glFmt = GL_RGBA;
+            break;
+    case TextureFormats::RGBA32F:
+            if( !_caps.texFloat )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: RGBA32F" );
+                    return 0;
+            }
+            tex.glFmt = GL_RGBA;
+            break;
+    case TextureFormats::DEPTH:
+            if( !_caps.texDepth )
+            {
+                    Modules::log().writeWarning( "Depth texture format is unsupported" );
+                    return 0;
+            }
+            tex.glFmt = GL_DEPTH_COMPONENT;
+            break;
+    case TextureFormats::RGBA4:
+            tex.glFmt = GL_RGBA;
+            break;
+    case TextureFormats::RGB5_A1:
+            tex.glFmt = GL_RGBA;
+            break;
+    case TextureFormats::RGB565:
+            tex.glFmt = GL_RGB;
+            break;
+    case TextureFormats::PVRTC_2BPP:
+            if( !_caps.texPVRTC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: PVRTC2" );
+                    return 0;
+            }
+            tex.glFmt = GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
+            break;
+    case TextureFormats::PVRTC_4BPP:
+            if( !_caps.texPVRTC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: PVRTC4" );
+                    return 0;
+            }
+            tex.glFmt = GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
+            break;
+    case TextureFormats::PVRTC_A2BPP:
+            if( !_caps.texPVRTC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: PVRTCA2" );
+                    return 0;
+            }
+            tex.glFmt = GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
+            break;
+    case TextureFormats::PVRTC_A4BPP:
+            if( !_caps.texPVRTC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: PVRTCA4" );
+                    return 0;
+            }
+            tex.glFmt = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+            break;
+    case TextureFormats::ATC_RGB:
+            if( !_caps.texATC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: ATC RGB" );
+                    return 0;
+            }
+            tex.glFmt = GL_ATC_RGB_AMD;
+            break;
+    case TextureFormats::ATC_RGBeA:
+            if( !_caps.texATC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: ATC RGB explicit A" );
+                    return 0;
+            }
+            tex.glFmt = GL_ATC_RGBA_EXPLICIT_ALPHA_AMD;
+            break;
+    case TextureFormats::ATC_RGBiA:
+            if( !_caps.texATC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: ATC RGB interpolated A" );
+                    return 0;
+            }
+            tex.glFmt = GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD;
+            break;
+    case TextureFormats::T3DC_X:
+            if( !_caps.tex3DC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: 3DC X" );
+                    return 0;
+            }
+            tex.glFmt = GL_3DC_X_AMD;
+            break;
+    case TextureFormats::T3DC_XY:
+            if( !_caps.tex3DC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: 3DC XY" );
+                    return 0;
+            }
+            tex.glFmt = GL_3DC_XY_AMD;
+            break;
+    case TextureFormats::ETC:
+            if( !_caps.texETC )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: ETC" );
+                    return 0;
+            }
+            tex.glFmt = GL_ETC1_RGB8_OES;
+            break;
+    case TextureFormats::PVRTC2_2BPP:
+            if( !_caps.texPVRTC2 )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: PVRTC2_2BPP" );
+                    return 0;
+            }
+//            tex.glFmt = GL_COMPRESSED_RGB_PVRTC_2BPPV2_IMG;
+            break;
+    case TextureFormats::PVRTC2_4BPP:
+            if( !_caps.texPVRTC2 )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: PVRTC2_4BPP" );
+                    return 0;
+            }
+//            tex.glFmt = GL_COMPRESSED_RGB_PVRTC_4BPPV2_IMG;
+            break;
+    case TextureFormats::PVRTC2_A2BPP:
+            if( !_caps.texPVRTC2 )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: PVRTC2_A2BPP" );
+                    return 0;
+            }
+//            tex.glFmt = GL_COMPRESSED_RGBA_PVRTC_2BPPV2_IMG;
+            break;
+    case TextureFormats::PVRTC2_A4BPP:
+            if( !_caps.texPVRTC2 )
+            {
+                    Modules::log().writeWarning( "Unsupported texture format: PVRTC2_A4BPP" );
+                    return 0;
+            }
+//            tex.glFmt = GL_COMPRESSED_RGBA_PVRTC_4BPPV2_IMG;
+            break;
+    default:
+            ASSERT( 0 );
+            break;
+    };
 
-	// Calculate memory requirements
-	tex.memSize = calcTextureSize( format, width, height, depth );
-	if( hasMips || genMips ) tex.memSize += ftoi_r( tex.memSize * 1.0f / 3.0f );
-	if( type == TextureTypes::TexCube ) tex.memSize *= 6;
-	_textureMem += tex.memSize;
-	
-	return _textures.add( tex );
+    glGenTextures( 1, &tex.glObj );
+    glActiveTexture( GL_TEXTURE7 );
+    glBindTexture( tex.type, tex.glObj );
+
+//      float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+//      glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
+
+    tex.samplerState = 0;
+    applySamplerState( tex );
+
+    glBindTexture( tex.type, 0 );
+    if( _texSlots[7].texObj )
+            glBindTexture( _textures.getRef( _texSlots[7].texObj ).type, _textures.getRef( _texSlots[7].texObj ).glObj );
+
+    // Calculate memory requirements
+    tex.memSize = calcTextureSize( format, width, height, depth );
+    if( hasMips || genMips ) tex.memSize += ftoi_r( tex.memSize * 1.0f / 3.0f );
+    if( type == TextureTypes::TexCube ) tex.memSize *= 6;
+    _textureMem += tex.memSize;
+
+    return _textures.add( tex );
 }
 
 
 void OpenGLESRenderDevice::uploadTextureData( uint32 texObj, int slice, int mipLevel, const void *pixels )
 {
-	const RDITexture &tex = _textures.getRef( texObj );
-	TextureFormats::List format = tex.format;
+    const RDITexture &tex = _textures.getRef( texObj );
+    TextureFormats::List format = tex.format;
 
-	glActiveTexture( GL_TEXTURE15 );
-	glBindTexture( tex.type, tex.glObj );
-	
-	int inputFormat = GL_BGRA, inputType = GL_UNSIGNED_BYTE;
-	bool compressed = (format == TextureFormats::DXT1) || (format == TextureFormats::DXT3) ||
-	                  (format == TextureFormats::DXT5);
-	
-	switch( format )
-	{
-	case TextureFormats::RGBA16F:
-		inputFormat = GL_RGBA;
-		inputType = GL_FLOAT;
-		break;
-	case TextureFormats::RGBA32F:
-		inputFormat = GL_RGBA;
-		inputType = GL_FLOAT;
-		break;
-	case TextureFormats::DEPTH:
-		inputFormat = GL_DEPTH_COMPONENT;
-		inputType = GL_FLOAT;
-	};
-	
-	// Calculate size of next mipmap using "floor" convention
-	int width = std::max( tex.width >> mipLevel, 1 ), height = std::max( tex.height >> mipLevel, 1 );
-	
-	if( tex.type == TextureTypes::Tex2D || tex.type == TextureTypes::TexCube )
-	{
-		int target = (tex.type == TextureTypes::Tex2D) ?
-			GL_TEXTURE_2D : (GL_TEXTURE_CUBE_MAP_POSITIVE_X + slice);
-		
-		if( compressed )
-			glCompressedTexImage2D( target, mipLevel, tex.glFmt, width, height, 0,
-			                        calcTextureSize( format, width, height, 1 ), pixels );	
-		else
-			glTexImage2D( target, mipLevel, tex.glFmt, width, height, 0, inputFormat, inputType, pixels );
-	}
-	else if( tex.type == TextureTypes::Tex3D )
-	{
-		int depth = std::max( tex.depth >> mipLevel, 1 );
-		
-		if( compressed )
-			glCompressedTexImage3D( GL_TEXTURE_3D, mipLevel, tex.glFmt, width, height, depth, 0,
-			                        calcTextureSize( format, width, height, depth ), pixels );	
-		else
-			glTexImage3D( GL_TEXTURE_3D, mipLevel, tex.glFmt, width, height, depth, 0,
-			              inputFormat, inputType, pixels );
-	}
+    glActiveTexture( GL_TEXTURE15 );
+    glBindTexture( tex.type, tex.glObj );
 
-	if( tex.genMips && (tex.type != GL_TEXTURE_CUBE_MAP || slice == 5) )
-	{
-		// Note: for cube maps mips are only generated when the side with the highest index is uploaded
-		glEnable( tex.type );  // Workaround for ATI driver bug
-		glGenerateMipmapEXT( tex.type );
-		glDisable( tex.type );
-	}
+    int inputFormat = GL_BGRA, inputType = GL_UNSIGNED_BYTE;
+    bool compressed = (format == TextureFormats::DXT1) ||
+                      (format == TextureFormats::DXT3) ||
+                      (format == TextureFormats::DXT5) ||
+                      (format == TextureFormats::PVRTC_2BPP) ||
+                      (format == TextureFormats::PVRTC_4BPP) ||
+                      (format == TextureFormats::PVRTC_A2BPP) ||
+                      (format == TextureFormats::PVRTC_A4BPP) ||
+                      (format == TextureFormats::ATC_RGB) ||
+                      (format == TextureFormats::ATC_RGBeA) ||
+                      (format == TextureFormats::ATC_RGBiA) ||
+                      (format == TextureFormats::T3DC_X) ||
+                      (format == TextureFormats::T3DC_XY) ||
+                      (format == TextureFormats::ETC) ||
+                      (format == TextureFormats::PVRTC2_2BPP) ||
+                      (format == TextureFormats::PVRTC2_4BPP) ||
+                      (format == TextureFormats::PVRTC2_A2BPP) ||
+                      (format == TextureFormats::PVRTC2_A4BPP);
 
-	glBindTexture( tex.type, 0 );
-	if( _texSlots[15].texObj )
-		glBindTexture( _textures.getRef( _texSlots[15].texObj ).type, _textures.getRef( _texSlots[15].texObj ).glObj );
+    switch( format )
+    {
+    case TextureFormats::RGBA16F:
+            inputFormat = GL_RGBA;
+            inputType = GL_HALF_FLOAT_OES;
+            break;
+    case TextureFormats::RGBA32F:
+            inputFormat = GL_RGBA;
+            inputType = GL_FLOAT;
+            break;
+    case TextureFormats::DEPTH:
+            inputFormat = GL_DEPTH_COMPONENT;
+            inputType = GL_UNSIGNED_INT;
+    case TextureFormats::RGB5_A1:
+            inputFormat = GL_RGBA;
+            inputType = GL_UNSIGNED_SHORT_5_5_5_1;
+            break;
+    case TextureFormats::RGB565:
+            inputFormat = GL_RGB;
+            inputType = GL_UNSIGNED_SHORT_5_6_5;
+            break;
+    case TextureFormats::RGBA4:
+            inputFormat = GL_RGBA;
+            inputType = GL_UNSIGNED_SHORT_4_4_4_4;
+            break;
+    };
+
+    // Calculate size of next mipmap using "floor" convention
+    int width = std::max( tex.width >> mipLevel, 1 ), height = std::max( tex.height >> mipLevel, 1 );
+
+    if( tex.type == TextureTypes::Tex2D || tex.type == TextureTypes::TexCube )
+    {
+        int target = (tex.type == TextureTypes::Tex2D) ?
+            GL_TEXTURE_2D : (GL_TEXTURE_CUBE_MAP_POSITIVE_X + slice);
+
+        if( compressed )
+            glCompressedTexImage2D( target, mipLevel, tex.glFmt, width, height, 0,
+                                    calcTextureSize( format, width, height, 1 ), pixels );
+        else
+            glTexImage2D( target, mipLevel, tex.glFmt, width, height, 0, inputFormat, inputType, pixels );
+    }
+    else if( tex.type == TextureTypes::Tex3D && glExt::OES_texture_3D)
+    {
+        int depth = std::max( tex.depth >> mipLevel, 1 );
+
+        if( compressed )
+            glExt::glCompressedTexImage3DOES( GL_TEXTURE_3D_OES, mipLevel, tex.glFmt, width, height, depth, 0,
+                                    calcTextureSize( format, width, height, depth ), pixels );
+        else
+            glExt::glTexImage3DOES( GL_TEXTURE_3D_OES, mipLevel, tex.glFmt, width, height, depth, 0,
+                          inputFormat, inputType, pixels );
+    }
+
+    if( tex.genMips && (tex.type != GL_TEXTURE_CUBE_MAP || slice == 5) )
+    {
+        // Note: for cube maps mips are only generated when the side with the highest index is uploaded
+//        glEnable( tex.type );  // Workaround for ATI driver bug
+        glGenerateMipmap( tex.type );
+//        glDisable( tex.type );
+    }
+
+    glBindTexture( tex.type, 0 );
+    if( _texSlots[15].texObj )
+        glBindTexture( _textures.getRef( _texSlots[15].texObj ).type, _textures.getRef( _texSlots[15].texObj ).glObj );
 }
 
 
@@ -508,51 +725,14 @@ void OpenGLESRenderDevice::destroyTexture( uint32 texObj )
 
 void OpenGLESRenderDevice::updateTextureData( uint32 texObj, int slice, int mipLevel, const void *pixels )
 {
-	uploadTextureData( texObj, slice, mipLevel, pixels );
+    uploadTextureData( texObj, slice, mipLevel, pixels );
 }
 
 
 bool OpenGLESRenderDevice::getTextureData( uint32 texObj, int slice, int mipLevel, void *buffer )
 {
-	const RDITexture &tex = _textures.getRef( texObj );
-	
-	int target = tex.type == TextureTypes::TexCube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
-	if( target == GL_TEXTURE_CUBE_MAP ) target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + slice;
-	
-	int fmt, type, compressed = 0;
-	glActiveTexture( GL_TEXTURE15 );
-	glBindTexture( tex.type, tex.glObj );
-
-	switch( tex.format )
-	{
-	case TextureFormats::BGRA8:
-		fmt = GL_BGRA;
-		type = GL_UNSIGNED_BYTE;
-		break;
-	case TextureFormats::DXT1:
-	case TextureFormats::DXT3:
-	case TextureFormats::DXT5:
-		compressed = 1;
-		break;
-	case TextureFormats::RGBA16F:
-	case TextureFormats::RGBA32F:
-		fmt = GL_RGBA;
-		type = GL_FLOAT;
-		break;
-	default:
-		return false;
-	};
-
-	if( compressed )
-		glGetCompressedTexImage( target, mipLevel, buffer );
-	else
-		glGetTexImage( target, mipLevel, fmt, type, buffer );
-
-	glBindTexture( tex.type, 0 );
-	if( _texSlots[15].texObj )
-		glBindTexture( _textures.getRef( _texSlots[15].texObj ).type, _textures.getRef( _texSlots[15].texObj ).glObj );
-
-	return true;
+    Modules::log().writeWarning( "getTextureData is not supported with OpenGL ES 2.0 renderer" );
+    return false;
 }
 
 
@@ -780,139 +960,155 @@ void OpenGLESRenderDevice::setShaderSampler( int loc, uint32 texUnit )
 uint32 OpenGLESRenderDevice::createRenderBuffer( uint32 width, uint32 height, TextureFormats::List format,
                                          bool depth, uint32 numColBufs, uint32 samples )
 {
-	if( (format == TextureFormats::RGBA16F || format == TextureFormats::RGBA32F) && !_caps.texFloat )
-	{
-		return 0;
-	}
+    if( (format == TextureFormats::RGBA16F || format == TextureFormats::RGBA32F) && !_caps.texFloat )
+    {
+        return 0;
+    }
 
-	if( numColBufs > RDIRenderBuffer::MaxColorAttachmentCount ) return 0;
+    if( numColBufs > RDIRenderBuffer::MaxColorAttachmentCount ) return 0;
 
-	uint32 maxSamples = 0;
-	if( _caps.rtMultisampling )
-	{
-		GLint value;
-		glGetIntegerv( GL_MAX_SAMPLES_EXT, &value );
-		maxSamples = (uint32)value;
-	}
-	if( samples > maxSamples )
-	{
-		samples = maxSamples;
-		Modules::log().writeWarning( "GPU does not support desired multisampling quality for render target" );
-	}
+    uint32 maxSamples = 0;
+    if( _caps.rtMultisampling )
+    {
+        GLint value;
+        if (glExt::ANGLE_framebuffer_multisample)
+            glGetIntegerv( GL_MAX_SAMPLES_ANGLE, &value );
+        else if (glExt::APPLE_framebuffer_multisample)
+            glGetIntegerv( GL_MAX_SAMPLES_APPLE, &value );
+        else if (glExt::IMG_multisampled_render_to_texture)
+            glGetIntegerv( GL_MAX_SAMPLES_IMG, &value );
 
-	RDIRenderBuffer rb;
-	rb.width = width;
-	rb.height = height;
-	rb.samples = samples;
+        maxSamples = (uint32)value;
+    }
+    if( samples > maxSamples )
+    {
+        samples = maxSamples;
+        Modules::log().writeWarning( "GPU does not support desired multisampling quality for render target" );
+    }
 
-	// Create framebuffers
-	glGenFramebuffersEXT( 1, &rb.fbo );
-	if( samples > 0 ) glGenFramebuffersEXT( 1, &rb.fboMS );
+    RDIRenderBuffer rb;
+    rb.width = width;
+    rb.height = height;
+    rb.samples = samples;
 
-	if( numColBufs > 0 )
-	{
-		// Attach color buffers
-		for( uint32 j = 0; j < numColBufs; ++j )
-		{
-			glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fbo );
-			// Create a color texture
-			uint32 texObj = createTexture( TextureTypes::Tex2D, rb.width, rb.height, 1, format, false, false, false, false );
-			ASSERT( texObj != 0 );
-			uploadTextureData( texObj, 0, 0, 0x0 );
-			rb.colTexs[j] = texObj;
-			RDITexture &tex = _textures.getRef( texObj );
-			// Attach the texture
-			glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + j, GL_TEXTURE_2D, tex.glObj, 0 );
+    // Create framebuffers
+    glGenFramebuffers( 1, &rb.fbo );
+    if( samples > 0 ) glGenFramebuffers( 1, &rb.fboMS );
 
-			if( samples > 0 )
-			{
-				glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fboMS );
-				// Create a multisampled renderbuffer
-				glGenRenderbuffersEXT( 1, &rb.colBufs[j] );
-				glBindRenderbufferEXT( GL_RENDERBUFFER_EXT, rb.colBufs[j] );
-				glRenderbufferStorageMultisampleEXT( GL_RENDERBUFFER_EXT, rb.samples, tex.glFmt, rb.width, rb.height );
-				// Attach the renderbuffer
-				glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + j,
-				                              GL_RENDERBUFFER_EXT, rb.colBufs[j] );
-			}
-		}
+    if( numColBufs > 0 )
+    {
+        // Attach color buffers
+        for( uint32 j = 0; j < numColBufs; ++j )
+        {
+            glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
+            // Create a color texture
+            uint32 texObj = createTexture( TextureTypes::Tex2D, rb.width, rb.height, 1, format, false, false, false, false );
+            ASSERT( texObj != 0 );
+            uploadTextureData( texObj, 0, 0, 0x0 );
+            rb.colTexs[j] = texObj;
+            RDITexture &tex = _textures.getRef( texObj );
+            // Attach the texture
+            glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + j, GL_TEXTURE_2D, tex.glObj, 0 );
 
-		uint32 buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT,
-		                     GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT };
-		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fbo );
-		glDrawBuffers( numColBufs, buffers );
-		
-		if( samples > 0 )
-		{
-			glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fboMS );
-			glDrawBuffers( numColBufs, buffers );
-		}
-	}
-	else
-	{	
-		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fbo );
-		glDrawBuffer( GL_NONE );
-		glReadBuffer( GL_NONE );
-		
-		if( samples > 0 )
-		{
-			glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fboMS );
-			glDrawBuffer( GL_NONE );
-			glReadBuffer( GL_NONE );
-		}
-	}
+            if( samples > 0 )
+            {
+                glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS );
+                // Create a multisampled renderbuffer
+                glGenRenderbuffers( 1, &rb.colBufs[j] );
+                glBindRenderbuffer( GL_RENDERBUFFER, rb.colBufs[j] );
+                if (glExt::ANGLE_framebuffer_multisample)
+                    glExt::glRenderbufferStorageMultisampleANGLE( GL_RENDERBUFFER, rb.samples, tex.glFmt, rb.width, rb.height );
+                else if (glExt::APPLE_framebuffer_multisample)
+                    glExt::glRenderbufferStorageMultisampleAPPLE( GL_RENDERBUFFER, rb.samples, tex.glFmt, rb.width, rb.height );
+                else if (glExt::IMG_multisampled_render_to_texture)
+                    glExt::glRenderbufferStorageMultisampleIMG( GL_RENDERBUFFER, rb.samples, tex.glFmt, rb.width, rb.height );
+                // Attach the renderbuffer
+                glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + j,
+                                              GL_RENDERBUFFER, rb.colBufs[j] );
+            }
+        }
 
-	// Attach depth buffer
-	if( depth )
-	{
-		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fbo );
-		// Create a depth texture
-		uint32 texObj = createTexture( TextureTypes::Tex2D, rb.width, rb.height, 1, TextureFormats::DEPTH, false, false, false, false );
-		ASSERT( texObj != 0 );
-		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE );
-		uploadTextureData( texObj, 0, 0, 0x0 );
-		rb.depthTex = texObj;
-		RDITexture &tex = _textures.getRef( texObj );
-		// Attach the texture
-		glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, tex.glObj, 0 );
+//        uint32 buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1_EXT,
+//                             GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT };
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
+//        glDrawBuffers( numColBufs, buffers );
 
-		if( samples > 0 )
-		{
-			glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fboMS );
-			// Create a multisampled renderbuffer
-			glGenRenderbuffersEXT( 1, &rb.depthBuf );
-			glBindRenderbufferEXT( GL_RENDERBUFFER_EXT, rb.depthBuf );
-			glRenderbufferStorageMultisampleEXT( GL_RENDERBUFFER_EXT, rb.samples, _depthFormat, rb.width, rb.height );
-			// Attach the renderbuffer
-			glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
-			                              GL_RENDERBUFFER_EXT, rb.depthBuf );
-		}
-	}
+        if( samples > 0 )
+        {
+            glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS );
+//            glDrawBuffers( numColBufs, buffers );
+        }
+    }
+    else
+    {
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
+//        glDrawBuffer( GL_NONE );
+//        glReadBuffer( GL_NONE );
 
-	uint32 rbObj = _rendBufs.add( rb );
-	
-	// Check if FBO is complete
-	bool valid = true;
-	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fbo );
-	uint32 status = glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
-	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _defaultFBO );
-	if( status != GL_FRAMEBUFFER_COMPLETE_EXT ) valid = false;
-	
-	if( samples > 0 )
-	{
-		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fboMS );
-		status = glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
-		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _defaultFBO );
-		if( status != GL_FRAMEBUFFER_COMPLETE_EXT ) valid = false;
-	}
+        if( samples > 0 )
+        {
+            glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS );
+//            glDrawBuffer( GL_NONE );
+//            glReadBuffer( GL_NONE );
+        }
+    }
 
-	if( !valid )
-	{
-		destroyRenderBuffer( rbObj );
-		return 0;
-	}
-	
-	return rbObj;
+    // Attach depth buffer
+    if( depth )
+    {
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
+        // Create a depth texture
+        uint32 texObj = createTexture( TextureTypes::Tex2D, rb.width, rb.height, 1, TextureFormats::DEPTH, false, false, false, false );
+        ASSERT( texObj != 0 );
+//        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE );
+        uploadTextureData( texObj, 0, 0, 0x0 );
+        rb.depthTex = texObj;
+        RDITexture &tex = _textures.getRef( texObj );
+        // Attach the texture
+        glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex.glObj, 0 );
+
+        if( samples > 0 )
+        {
+            glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS );
+            // Create a multisampled renderbuffer
+            glGenRenderbuffers( 1, &rb.depthBuf );
+            glBindRenderbuffer( GL_RENDERBUFFER, rb.depthBuf );
+            if (glExt::ANGLE_framebuffer_multisample)
+                glExt::glRenderbufferStorageMultisampleANGLE( GL_RENDERBUFFER, rb.samples, _depthFormat, rb.width, rb.height );
+            else if (glExt::APPLE_framebuffer_multisample)
+                glExt::glRenderbufferStorageMultisampleAPPLE( GL_RENDERBUFFER, rb.samples, _depthFormat, rb.width, rb.height );
+            else if (glExt::IMG_multisampled_render_to_texture)
+                glExt::glRenderbufferStorageMultisampleIMG( GL_RENDERBUFFER, rb.samples, _depthFormat, rb.width, rb.height );
+            // Attach the renderbuffer
+            glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                          GL_RENDERBUFFER, rb.depthBuf );
+        }
+    }
+
+    uint32 rbObj = _rendBufs.add( rb );
+
+    // Check if FBO is complete
+    bool valid = true;
+    glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
+    uint32 status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
+    if( status != GL_FRAMEBUFFER_COMPLETE ) valid = false;
+
+    if( samples > 0 )
+    {
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS );
+        status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+        glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
+        if( status != GL_FRAMEBUFFER_COMPLETE ) valid = false;
+    }
+
+    if( !valid )
+    {
+        destroyRenderBuffer( rbObj );
+        return 0;
+    }
+
+    return rbObj;
 }
 
 
@@ -920,21 +1116,21 @@ void OpenGLESRenderDevice::destroyRenderBuffer( uint32 rbObj )
 {
 	RDIRenderBuffer &rb = _rendBufs.getRef( rbObj );
 	
-	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _defaultFBO );
+    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
 	
 	if( rb.depthTex != 0 ) destroyTexture( rb.depthTex );
-	if( rb.depthBuf != 0 ) glDeleteRenderbuffersEXT( 1, &rb.depthBuf );
+    if( rb.depthBuf != 0 ) glDeleteRenderbuffers( 1, &rb.depthBuf );
 	rb.depthTex = rb.depthBuf = 0;
 		
 	for( uint32 i = 0; i < RDIRenderBuffer::MaxColorAttachmentCount; ++i )
 	{
 		if( rb.colTexs[i] != 0 ) destroyTexture( rb.colTexs[i] );
-		if( rb.colBufs[i] != 0 ) glDeleteRenderbuffersEXT( 1, &rb.colBufs[i] );
+        if( rb.colBufs[i] != 0 ) glDeleteRenderbuffers( 1, &rb.colBufs[i] );
 		rb.colTexs[i] = rb.colBufs[i] = 0;
 	}
 
-	if( rb.fbo != 0 ) glDeleteFramebuffersEXT( 1, &rb.fbo );
-	if( rb.fboMS != 0 ) glDeleteFramebuffersEXT( 1, &rb.fboMS );
+    if( rb.fbo != 0 ) glDeleteFramebuffers( 1, &rb.fbo );
+    if( rb.fboMS != 0 ) glDeleteFramebuffers( 1, &rb.fboMS );
 	rb.fbo = rb.fboMS = 0;
 
 	_rendBufs.remove( rbObj );
@@ -957,16 +1153,16 @@ void OpenGLESRenderDevice::resolveRenderBuffer( uint32 rbObj )
 	
 	if( rb.fboMS == 0 ) return;
 	
-	glBindFramebufferEXT( GL_READ_FRAMEBUFFER_EXT, rb.fboMS );
-	glBindFramebufferEXT( GL_DRAW_FRAMEBUFFER_EXT, rb.fbo );
+//    glBindFramebuffer( GL_READ_FRAMEBUFFER_EXT, rb.fboMS );
+//    glBindFramebuffer( GL_DRAW_FRAMEBUFFER_EXT, rb.fbo );
 
 	bool depthResolved = false;
 	for( uint32 i = 0; i < RDIRenderBuffer::MaxColorAttachmentCount; ++i )
 	{
 		if( rb.colBufs[i] != 0 )
 		{
-			glReadBuffer( GL_COLOR_ATTACHMENT0_EXT + i );
-			glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT + i );
+//			glReadBuffer( GL_COLOR_ATTACHMENT0_EXT + i );
+//			glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT + i );
 			
 			int mask = GL_COLOR_BUFFER_BIT;
 			if( !depthResolved && rb.depthBuf != 0 )
@@ -974,20 +1170,20 @@ void OpenGLESRenderDevice::resolveRenderBuffer( uint32 rbObj )
 				mask |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 				depthResolved = true;
 			}
-			glBlitFramebufferEXT( 0, 0, rb.width, rb.height, 0, 0, rb.width, rb.height, mask, GL_NEAREST );
+//			glBlitFramebufferEXT( 0, 0, rb.width, rb.height, 0, 0, rb.width, rb.height, mask, GL_NEAREST );
 		}
 	}
 
 	if( !depthResolved && rb.depthBuf != 0 )
 	{
-		glReadBuffer( GL_NONE );
-		glDrawBuffer( GL_NONE );
-		glBlitFramebufferEXT( 0, 0, rb.width, rb.height, 0, 0, rb.width, rb.height,
-							  GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST );
+//		glReadBuffer( GL_NONE );
+//		glDrawBuffer( GL_NONE );
+//		glBlitFramebufferEXT( 0, 0, rb.width, rb.height, 0, 0, rb.width, rb.height,
+//							  GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST );
 	}
 
-	glBindFramebufferEXT( GL_READ_FRAMEBUFFER_EXT, _defaultFBO );
-	glBindFramebufferEXT( GL_DRAW_FRAMEBUFFER_EXT, _defaultFBO );
+//    glBindFramebuffer( GL_READ_FRAMEBUFFER_EXT, _defaultFBO );
+//    glBindFramebuffer( GL_DRAW_FRAMEBUFFER_EXT, _defaultFBO );
 }
 
 
@@ -1001,11 +1197,11 @@ void OpenGLESRenderDevice::setRenderBuffer( uint32 rbObj )
 	
 	if( rbObj == 0 )
 	{
-		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _defaultFBO );
-		if( _defaultFBO == 0 ) glDrawBuffer( _outputBufferIndex == 1 ? GL_BACK_RIGHT : GL_BACK_LEFT );
+        glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
+//		if( _defaultFBO == 0 ) glDrawBuffer( _outputBufferIndex == 1 ? GL_BACK_RIGHT : GL_BACK_LEFT );
 		_fbWidth = _vpWidth + _vpX;
 		_fbHeight = _vpHeight + _vpY;
-		glDisable( GL_MULTISAMPLE );
+//		glDisable( GL_MULTISAMPLE );
 	}
 	else
 	{
@@ -1015,13 +1211,13 @@ void OpenGLESRenderDevice::setRenderBuffer( uint32 rbObj )
 		
 		RDIRenderBuffer &rb = _rendBufs.getRef( rbObj );
 
-		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fboMS != 0 ? rb.fboMS : rb.fbo );
-		ASSERT( glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT ) == GL_FRAMEBUFFER_COMPLETE_EXT );
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS != 0 ? rb.fboMS : rb.fbo );
+//        ASSERT( glCheckFramebufferStatus( GL_FRAMEBUFFER ) == GL_FRAMEBUFFER_COMPLETE_EXT );
 		_fbWidth = rb.width;
 		_fbHeight = rb.height;
 
-		if( rb.fboMS != 0 ) glEnable( GL_MULTISAMPLE );
-		else glDisable( GL_MULTISAMPLE );
+//		if( rb.fboMS != 0 ) glEnable( GL_MULTISAMPLE );
+//		else glDisable( GL_MULTISAMPLE );
 	}
 }
 
@@ -1043,8 +1239,8 @@ bool OpenGLESRenderDevice::getRenderBufferData( uint32 rbObj, int bufIndex, int 
 		
 		x = _vpX; y = _vpY; w = _vpWidth; h = _vpHeight;
 
-		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _defaultFBO );
-		if( bufIndex != 32 ) glReadBuffer( GL_BACK_LEFT );
+        glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
+//		if( bufIndex != 32 ) glReadBuffer( GL_BACK_LEFT );
 		//format = GL_BGRA;
 		//type = GL_UNSIGNED_BYTE;
 	}
@@ -1064,8 +1260,8 @@ bool OpenGLESRenderDevice::getRenderBufferData( uint32 rbObj, int bufIndex, int 
 
 		x = 0; y = 0; w = rb.width; h = rb.height;
 		
-		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, rb.fbo );
-		if( bufIndex != 32 ) glReadBuffer( GL_COLOR_ATTACHMENT0_EXT + bufIndex );
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
+//		if( bufIndex != 32 ) glReadBuffer( GL_COLOR_ATTACHMENT0_EXT + bufIndex );
 	}
 
 	if( bufIndex == 32 )
@@ -1085,7 +1281,7 @@ bool OpenGLESRenderDevice::getRenderBufferData( uint32 rbObj, int bufIndex, int 
 		glReadPixels( x, y, w, h, format, type, dataBuffer );
 		retVal = true;
 	}
-	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _defaultFBO );
+    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
 
 	return retVal;
 }
@@ -1097,8 +1293,8 @@ bool OpenGLESRenderDevice::getRenderBufferData( uint32 rbObj, int bufIndex, int 
 
 uint32 OpenGLESRenderDevice::createOcclusionQuery()
 {
-	uint32 queryObj;
-	glGenQueries( 1, &queryObj );
+    uint32 queryObj = 0;
+//	glGenQueries( 1, &queryObj );
 	return queryObj;
 }
 
@@ -1107,26 +1303,26 @@ void OpenGLESRenderDevice::destroyQuery( uint32 queryObj )
 {
 	if( queryObj == 0 ) return;
 	
-	glDeleteQueries( 1, &queryObj );
+//	glDeleteQueries( 1, &queryObj );
 }
 
 
 void OpenGLESRenderDevice::beginQuery( uint32 queryObj )
 {
-	glBeginQuery( GL_SAMPLES_PASSED, queryObj );
+//	glBeginQuery( GL_SAMPLES_PASSED, queryObj );
 }
 
 
 void OpenGLESRenderDevice::endQuery( uint32 /*queryObj*/ )
 {
-	glEndQuery( GL_SAMPLES_PASSED );
+//	glEndQuery( GL_SAMPLES_PASSED );
 }
 
 
 uint32 OpenGLESRenderDevice::getQueryResult( uint32 queryObj )
 {
 	uint32 samples = 0;
-	glGetQueryObjectuiv( queryObj, GL_QUERY_RESULT, &samples );
+//	glGetQueryObjectuiv( queryObj, GL_QUERY_RESULT, &samples );
 	return samples;
 }
 
@@ -1142,7 +1338,7 @@ void OpenGLESRenderDevice::checkGLError()
 	ASSERT( error != GL_INVALID_VALUE );
 	ASSERT( error != GL_INVALID_OPERATION );
 	ASSERT( error != GL_OUT_OF_MEMORY );
-	ASSERT( error != GL_STACK_OVERFLOW && error != GL_STACK_UNDERFLOW );
+//	ASSERT( error != GL_STACK_OVERFLOW && error != GL_STACK_UNDERFLOW );
 }
 
 
@@ -1201,7 +1397,7 @@ void OpenGLESRenderDevice::applySamplerState( RDITexture &tex )
 	const uint32 magFilters[] = { GL_LINEAR, GL_LINEAR, GL_NEAREST };
 	const uint32 minFiltersMips[] = { GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST_MIPMAP_NEAREST };
 	const uint32 maxAniso[] = { 1, 2, 4, 0, 8, 0, 0, 0, 16 };
-	const uint32 wrapModes[] = { GL_CLAMP_TO_EDGE, GL_REPEAT, GL_CLAMP_TO_BORDER };
+    const uint32 wrapModes[] = { GL_CLAMP_TO_EDGE, GL_REPEAT, GL_CLAMP_TO_EDGE };
 
 	if( tex.hasMips )
 		glTexParameteri( target, GL_TEXTURE_MIN_FILTER, minFiltersMips[(state & SS_FILTER_MASK) >> SS_FILTER_START] );
@@ -1209,19 +1405,23 @@ void OpenGLESRenderDevice::applySamplerState( RDITexture &tex )
 		glTexParameteri( target, GL_TEXTURE_MIN_FILTER, magFilters[(state & SS_FILTER_MASK) >> SS_FILTER_START] );
 
 	glTexParameteri( target, GL_TEXTURE_MAG_FILTER, magFilters[(state & SS_FILTER_MASK) >> SS_FILTER_START] );
-	glTexParameteri( target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso[(state & SS_ANISO_MASK) >> SS_ANISO_START] );
+
+    if (glExt::EXT_texture_filter_anisotropic)
+        glTexParameteri( target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso[(state & SS_ANISO_MASK) >> SS_ANISO_START] );
+
 	glTexParameteri( target, GL_TEXTURE_WRAP_S, wrapModes[(state & SS_ADDRU_MASK) >> SS_ADDRU_START] );
 	glTexParameteri( target, GL_TEXTURE_WRAP_T, wrapModes[(state & SS_ADDRV_MASK) >> SS_ADDRV_START] );
-	glTexParameteri( target, GL_TEXTURE_WRAP_R, wrapModes[(state & SS_ADDRW_MASK) >> SS_ADDRW_START] );
+    if (glExt::OES_texture_3D)
+        glTexParameteri( target, GL_TEXTURE_WRAP_R_OES, wrapModes[(state & SS_ADDRW_MASK) >> SS_ADDRW_START] );
 	
 	if( !(state & SS_COMP_LEQUAL) )
 	{
-		glTexParameteri( target, GL_TEXTURE_COMPARE_MODE, GL_NONE );
+//		glTexParameteri( target, GL_TEXTURE_COMPARE_MODE, GL_NONE );
 	}
 	else
 	{
-		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE );
-		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL );
+//		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE );
+//		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL );
 	}
 }
 
@@ -1296,7 +1496,8 @@ bool OpenGLESRenderDevice::commitStates( uint32 filter )
 				else
 				{
 					glBindTexture( GL_TEXTURE_CUBE_MAP, 0 );
-					glBindTexture( GL_TEXTURE_3D, 0 );
+                    if (glExt::OES_texture_3D)
+                        glBindTexture( GL_TEXTURE_3D_OES, 0 );
 					glBindTexture( GL_TEXTURE_2D, 0 );
 				}
 			}
@@ -1328,7 +1529,7 @@ void OpenGLESRenderDevice::resetStates()
 	for( uint32 i = 0; i < (uint32)maxVertexAttribs; ++i )
 		glDisableVertexAttribArray( i );
 
-	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _defaultFBO );
+    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
 
 	_pendingMask = 0xFFFFFFFF;
 	commitStates();
@@ -1346,7 +1547,7 @@ void OpenGLESRenderDevice::clear( uint32 flags, float *colorRGBA, float depth )
 	if( flags & CLR_DEPTH )
 	{
 		mask |= GL_DEPTH_BUFFER_BIT;
-		glClearDepth( depth );
+        glClearDepthf( depth );
 	}
 	if( flags & CLR_COLOR )
 	{
@@ -1382,9 +1583,7 @@ void OpenGLESRenderDevice::drawIndexed( RDIPrimType primType, uint32 firstIndex,
 	if( commitStates() )
 	{
 		firstIndex *= (_indexFormat == IDXFMT_16) ? sizeof( short ) : sizeof( int );
-		
-		glDrawRangeElements( (uint32)primType, firstVert, firstVert + numVerts,
-		                     numIndices, _indexFormat, (char *)0 + firstIndex );
+        glDrawElements( (uint32)primType, numIndices, _indexFormat, (char *)0 + firstIndex );
 	}
 
 	CHECK_GL_ERROR

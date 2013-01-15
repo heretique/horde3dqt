@@ -185,7 +185,7 @@ int main( int argc, char** argv )
 		while( glfwGetTime() - startTime < 5.0 ) {}  // Sleep
 		
 		std::cout << "Unable to initalize engine" << std::endl;
-		std::cout << "Make sure you have an OpenGL 2.0 compatible graphics card";
+        std::cout << "Make sure you have an OpenGL 2.0 compatible graphics card\n";
 		glfwTerminate();
 		return -1;
 	}
