@@ -48,124 +48,6 @@ Application::Application( const std::string &appPath )
 }
 
 
-bool Application::init()
-{	
-	// Initialize engine
-    if( !h3dInit(H3DRenderers::OpenGL_2_0) )
-	{	
-		h3dutDumpMessages();
-        h3dRelease();
-		return false;
-	}
-
-	// Set options
-	h3dSetOption( H3DOptions::LoadTextures, 1 );
-	h3dSetOption( H3DOptions::TexCompression, 0 );
-	h3dSetOption( H3DOptions::MaxAnisotropy, 4 );
-	h3dSetOption( H3DOptions::ShadowMapSize, 2048 );
-	h3dSetOption( H3DOptions::FastAnimation, 1 );
-
-	// Add resources
-	// Pipelines
-	_forwardPipeRes = h3dAddResource( H3DResTypes::Pipeline, "pipelines/forward.pipeline.xml", 0 );
-	_deferredPipeRes = h3dAddResource( H3DResTypes::Pipeline, "pipelines/deferred.pipeline.xml", 0 );
-	// Overlays
-	_fontMatRes = h3dAddResource( H3DResTypes::Material, "overlays/font.material.xml", 0 );
-	_panelMatRes = h3dAddResource( H3DResTypes::Material, "overlays/panel.material.xml", 0 );
-	_logoMatRes = h3dAddResource( H3DResTypes::Material, "overlays/logo.material.xml", 0 );
-	// Shader for deferred shading
-	H3DRes lightMatRes = h3dAddResource( H3DResTypes::Material, "materials/light.material.xml", 0 );
-	// Environment
-	H3DRes envRes = h3dAddResource( H3DResTypes::SceneGraph, "models/platform/platform.scene.xml", 0 );
-	// Skybox
-	H3DRes skyBoxRes = h3dAddResource( H3DResTypes::SceneGraph, "models/skybox/skybox.scene.xml", 0 );
-	
-	// Load resources
-	h3dutLoadResourcesFromDisk( _contentDir.c_str() );
-
-	// Add scene nodes
-	// Add camera
-	_cam = h3dAddCameraNode( H3DRootNode, "Camera", _forwardPipeRes );
-	//h3dSetNodeParamI( _cam, H3DCamera::OccCullingI, 1 );
-	// Add environment
-	H3DNode env = h3dAddNodes( H3DRootNode, envRes );
-	h3dSetNodeTransform( env, 0, 0, 0, 0, 0, 0, 0.23f, 0.23f, 0.23f );
-	// Add skybox
-	H3DNode sky = h3dAddNodes( H3DRootNode, skyBoxRes );
-	h3dSetNodeTransform( sky, 0, 0, 0, 0, 0, 0, 210, 50, 210 );
-	h3dSetNodeFlags( sky, H3DNodeFlags::NoCastShadow, true );
-	// Add light source
-	H3DNode light = h3dAddLightNode( H3DRootNode, "Light1", lightMatRes, "LIGHTING", "SHADOWMAP" );
-	h3dSetNodeTransform( light, 0, 20, 50, -30, 0, 0, 1, 1, 1 );
-	h3dSetNodeParamF( light, H3DLight::RadiusF, 0, 200 );
-	h3dSetNodeParamF( light, H3DLight::FovF, 0, 90 );
-	h3dSetNodeParamI( light, H3DLight::ShadowMapCountI, 3 );
-	h3dSetNodeParamF( light, H3DLight::ShadowSplitLambdaF, 0, 0.9f );
-	h3dSetNodeParamF( light, H3DLight::ShadowMapBiasF, 0, 0.001f );
-	h3dSetNodeParamF( light, H3DLight::ColorF3, 0, 0.9f );
-	h3dSetNodeParamF( light, H3DLight::ColorF3, 1, 0.7f );
-	h3dSetNodeParamF( light, H3DLight::ColorF3, 2, 0.75f );
-
-	_crowdSim = new CrowdSim( _contentDir );
-	_crowdSim->init();
-
-	return true;
-}
-
-
-void Application::mainLoop( float fps )
-{
-	_curFPS = fps;
-	
-	h3dSetOption( H3DOptions::DebugViewMode, _debugViewMode ? 1.0f : 0.0f );
-	h3dSetOption( H3DOptions::WireframeMode, _wireframeMode ? 1.0f : 0.0f );
-	
-	if( !_freezeMode )
-	{
-		_crowdSim->update( _curFPS );
-	}
-	
-	// Set camera parameters
-	h3dSetNodeTransform( _cam, _x, _y, _z, _rx ,_ry, 0, 1, 1, 1 );
-	
-	// Show stats
-	h3dutShowFrameStats( _fontMatRes, _panelMatRes, _statMode );
-	if( _statMode > 0 )
-	{
-		if( h3dGetNodeParamI( _cam, H3DCamera::PipeResI ) == _forwardPipeRes )
-			h3dutShowText( "Pipeline: forward", 0.03f, 0.24f, 0.026f, 1, 1, 1, _fontMatRes );
-		else
-			h3dutShowText( "Pipeline: deferred", 0.03f, 0.24f, 0.026f, 1, 1, 1, _fontMatRes );
-	}
-
-	// Show logo
-	const float ww = (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportWidthI ) /
-	                 (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportHeightI );
-	const float ovLogo[] = { ww-0.4f, 0.8f, 0, 1,  ww-0.4f, 1, 0, 0,  ww, 1, 1, 0,  ww, 0.8f, 1, 1 };
-	h3dShowOverlays( ovLogo, 4, 1.f, 1.f, 1.f, 1.f, _logoMatRes, 0 );
-	
-	// Render scene
-	h3dRender( _cam );
-
-	// Finish rendering of frame
-	h3dFinalizeFrame();
-
-	// Remove all overlays
-	h3dClearOverlays();
-
-	// Write all messages to log file
-	h3dutDumpMessages();
-}
-
-
-void Application::release()
-{
-	delete _crowdSim; _crowdSim = 0x0;
-	
-	// Release engine
-	h3dRelease();
-}
-
 
 void Application::resize( int width, int height )
 {
@@ -271,11 +153,74 @@ bool Application::InitApplication()
 
 bool Application::InitView()
 {
+    // Initialize engine
+    if( !h3dInit(H3DRenderers::OpenGL_ES_2_0) )
+    {
+        h3dutDumpMessages();
+        h3dRelease();
+        return false;
+    }
+
+    // Set options
+    h3dSetOption( H3DOptions::LoadTextures, 1 );
+    h3dSetOption( H3DOptions::TexCompression, 0 );
+    h3dSetOption( H3DOptions::MaxAnisotropy, 4 );
+    h3dSetOption( H3DOptions::ShadowMapSize, 2048 );
+    h3dSetOption( H3DOptions::FastAnimation, 1 );
+
+    // Add resources
+    // Pipelines
+    _forwardPipeRes = h3dAddResource( H3DResTypes::Pipeline, "pipelines/forward.pipeline.xml", 0 );
+    _deferredPipeRes = h3dAddResource( H3DResTypes::Pipeline, "pipelines/deferred.pipeline.xml", 0 );
+    // Overlays
+    _fontMatRes = h3dAddResource( H3DResTypes::Material, "overlays/font.material.xml", 0 );
+    _panelMatRes = h3dAddResource( H3DResTypes::Material, "overlays/panel.material.xml", 0 );
+    _logoMatRes = h3dAddResource( H3DResTypes::Material, "overlays/logo.material.xml", 0 );
+    // Shader for deferred shading
+    H3DRes lightMatRes = h3dAddResource( H3DResTypes::Material, "materials/light.material.xml", 0 );
+    // Environment
+    H3DRes envRes = h3dAddResource( H3DResTypes::SceneGraph, "models/platform/platform.scene.xml", 0 );
+    // Skybox
+    H3DRes skyBoxRes = h3dAddResource( H3DResTypes::SceneGraph, "models/skybox/skybox.scene.xml", 0 );
+
+    // Load resources
+    h3dutLoadResourcesFromDisk( _contentDir.c_str() );
+
+    // Add scene nodes
+    // Add camera
+    _cam = h3dAddCameraNode( H3DRootNode, "Camera", _forwardPipeRes );
+    //h3dSetNodeParamI( _cam, H3DCamera::OccCullingI, 1 );
+    // Add environment
+    H3DNode env = h3dAddNodes( H3DRootNode, envRes );
+    h3dSetNodeTransform( env, 0, 0, 0, 0, 0, 0, 0.23f, 0.23f, 0.23f );
+    // Add skybox
+    H3DNode sky = h3dAddNodes( H3DRootNode, skyBoxRes );
+    h3dSetNodeTransform( sky, 0, 0, 0, 0, 0, 0, 210, 50, 210 );
+    h3dSetNodeFlags( sky, H3DNodeFlags::NoCastShadow, true );
+    // Add light source
+    H3DNode light = h3dAddLightNode( H3DRootNode, "Light1", lightMatRes, "LIGHTING", "SHADOWMAP" );
+    h3dSetNodeTransform( light, 0, 20, 50, -30, 0, 0, 1, 1, 1 );
+    h3dSetNodeParamF( light, H3DLight::RadiusF, 0, 200 );
+    h3dSetNodeParamF( light, H3DLight::FovF, 0, 90 );
+    h3dSetNodeParamI( light, H3DLight::ShadowMapCountI, 3 );
+    h3dSetNodeParamF( light, H3DLight::ShadowSplitLambdaF, 0, 0.9f );
+    h3dSetNodeParamF( light, H3DLight::ShadowMapBiasF, 0, 0.001f );
+    h3dSetNodeParamF( light, H3DLight::ColorF3, 0, 0.9f );
+    h3dSetNodeParamF( light, H3DLight::ColorF3, 1, 0.7f );
+    h3dSetNodeParamF( light, H3DLight::ColorF3, 2, 0.75f );
+
+    _crowdSim = new CrowdSim( _contentDir );
+    _crowdSim->init();
+
     return true;
 }
 
 bool Application::ReleaseView()
 {
+    delete _crowdSim; _crowdSim = 0x0;
+
+    // Release engine
+    h3dRelease();
     return true;
 }
 
@@ -286,5 +231,45 @@ bool Application::QuitApplication()
 
 bool Application::RenderScene()
 {
+    _curFPS = 0;
+
+    h3dSetOption( H3DOptions::DebugViewMode, _debugViewMode ? 1.0f : 0.0f );
+    h3dSetOption( H3DOptions::WireframeMode, _wireframeMode ? 1.0f : 0.0f );
+
+    if( !_freezeMode )
+    {
+        _crowdSim->update( _curFPS );
+    }
+
+    // Set camera parameters
+    h3dSetNodeTransform( _cam, _x, _y, _z, _rx ,_ry, 0, 1, 1, 1 );
+
+    // Show stats
+    h3dutShowFrameStats( _fontMatRes, _panelMatRes, _statMode );
+    if( _statMode > 0 )
+    {
+        if( h3dGetNodeParamI( _cam, H3DCamera::PipeResI ) == _forwardPipeRes )
+            h3dutShowText( "Pipeline: forward", 0.03f, 0.24f, 0.026f, 1, 1, 1, _fontMatRes );
+        else
+            h3dutShowText( "Pipeline: deferred", 0.03f, 0.24f, 0.026f, 1, 1, 1, _fontMatRes );
+    }
+
+    // Show logo
+    const float ww = (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportWidthI ) /
+                     (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportHeightI );
+    const float ovLogo[] = { ww-0.4f, 0.8f, 0, 1,  ww-0.4f, 1, 0, 0,  ww, 1, 1, 0,  ww, 0.8f, 1, 1 };
+    h3dShowOverlays( ovLogo, 4, 1.f, 1.f, 1.f, 1.f, _logoMatRes, 0 );
+
+    // Render scene
+    h3dRender( _cam );
+
+    // Finish rendering of frame
+    h3dFinalizeFrame();
+
+    // Remove all overlays
+    h3dClearOverlays();
+
+    // Write all messages to log file
+    h3dutDumpMessages();
     return true;
 }
