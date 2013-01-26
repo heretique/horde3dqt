@@ -46,8 +46,8 @@ void main(void)
 [[FS_SHADOWMAP]]
 // =================================================================================================
 
-uniform float shadowBias;
-varying float dist;
+uniform mediump float shadowBias;
+varying mediump float dist;
 
 void main( void )
 {
@@ -77,12 +77,12 @@ void main(void)
 // =================================================================================================
 
 uniform sampler2D albedoMap;
-varying vec4 color;
-varying vec2 texCoords;
+varying mediump vec4 color;
+varying mediump vec2 texCoords;
 
 void main( void )
 {
-	vec4 albedo = texture2D( albedoMap, texCoords );
+	mediump vec4 albedo = texture2D( albedoMap, texCoords );
 	
 	gl_FragColor = albedo * color;
 }

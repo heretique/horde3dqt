@@ -6,12 +6,14 @@ samplerCube albedoMap = sampler_state
 	Address = Clamp;
 };
 
+/*
 // Contexts
 context ATTRIBPASS
 {
 	VertexShader = compile GLSL VS_GENERAL;
 	PixelShader = compile GLSL FS_ATTRIBPASS;
 }
+*/
 
 context AMBIENT
 {
@@ -28,7 +30,7 @@ context AMBIENT
 uniform mat4 viewProjMat;
 uniform vec3 viewerPos;
 attribute vec3 vertPos;
-varying vec3 viewVec;
+varying mediump vec3 viewVec;
 
 void main(void)
 {
@@ -61,11 +63,11 @@ void main( void )
 // =================================================================================================
 
 uniform samplerCube albedoMap;
-varying vec3 viewVec;
+varying mediump vec3 viewVec;
 
 void main( void )
 {
-	vec3 albedo = textureCube( albedoMap, viewVec ).rgb;
+	mediump vec3 albedo = textureCube( albedoMap, viewVec ).rgb;
 	
 	gl_FragColor.rgb = albedo;
 }

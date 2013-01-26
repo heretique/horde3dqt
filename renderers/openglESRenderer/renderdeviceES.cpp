@@ -26,6 +26,28 @@ namespace Horde3DOpenGLESRenderer {
 #	define CHECK_GL_ERROR
 #endif
 
+
+uint32 getNativeTextureType(int type)
+{
+    uint32 textureType = GL_TEXTURE_2D;
+    switch(type)
+    {
+    case TextureTypes::Tex2D:
+        textureType = GL_TEXTURE_2D;
+        break;
+    case TextureTypes::Tex3D:
+        textureType = GL_TEXTURE_3D_OES;
+        break;
+    case TextureTypes::TexCube:
+        textureType = GL_TEXTURE_CUBE_MAP;
+        break;
+    default:
+        Modules::log().writeError( "[Horde3DOpenGLESRenderer::getNativeTextureType] - Unknown texture type" );
+        break;
+    }
+    return textureType;
+}
+
 // =================================================================================================
 // GPUTimer
 // =================================================================================================
@@ -403,12 +425,11 @@ uint32 OpenGLESRenderDevice::createTexture( TextureTypes::List type, int width, 
     tex.height = height;
     if( type == TextureTypes::Tex3D && !_caps.tex3D )
     {
-        return 0;
         Modules::log().writeWarning( "3D textures are not supported on the GPU" );
+        return 0;
     }
     tex.depth = (type == TextureTypes::Tex3D ? depth : 1);
-    //      tex.sRGB = sRGB && Modules::config().sRGBLinearization;
-    tex.sRGB = false;
+    tex.sRGB = sRGB && Modules::config().sRGBLinearization;
     tex.genMips = genMips;
     tex.hasMips = hasMips;;
 
@@ -467,7 +488,7 @@ uint32 OpenGLESRenderDevice::createTexture( TextureTypes::List type, int width, 
             Modules::log().writeWarning( "Depth texture format is unsupported" );
             return 0;
         }
-        tex.glFmt = GL_DEPTH_COMPONENT;
+        tex.glFmt = _depthFormat;
         break;
     case TextureFormats::RGBA4:
         tex.glFmt = GL_RGBA;
@@ -597,7 +618,7 @@ uint32 OpenGLESRenderDevice::createTexture( TextureTypes::List type, int width, 
 
     glGenTextures( 1, &tex.glObj );
     glActiveTexture( GL_TEXTURE7 );
-    glBindTexture( tex.type, tex.glObj );
+    glBindTexture( getNativeTextureType(tex.type), tex.glObj );
 
     //      float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     //      glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
@@ -605,9 +626,9 @@ uint32 OpenGLESRenderDevice::createTexture( TextureTypes::List type, int width, 
     tex.samplerState = 0;
     applySamplerState( tex );
 
-    glBindTexture( tex.type, 0 );
-    if( _texSlots[7].texObj )
-        glBindTexture( _textures.getRef( _texSlots[7].texObj ).type, _textures.getRef( _texSlots[7].texObj ).glObj );
+    glBindTexture( getNativeTextureType(tex.type), 0 );
+    if( _texSlots[TEXTURE_SLOTS - 1].texObj )
+        glBindTexture( getNativeTextureType(_textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).type), _textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).glObj );
 
     // Calculate memory requirements
     tex.memSize = calcTextureSize( format, width, height, depth );
@@ -624,10 +645,15 @@ void OpenGLESRenderDevice::uploadTextureData( uint32 texObj, int slice, int mipL
     const RDITexture &tex = _textures.getRef( texObj );
     TextureFormats::List format = tex.format;
 
-    glActiveTexture( GL_TEXTURE15 );
-    glBindTexture( tex.type, tex.glObj );
+    glActiveTexture( GL_TEXTURE7 );
+    glBindTexture( getNativeTextureType(tex.type), tex.glObj );
 
-    int inputFormat = GL_BGRA, inputType = GL_UNSIGNED_BYTE;
+    int inputFormat;
+    if( _caps.texBGRA8 )
+        inputFormat = GL_BGRA_EXT;
+    else
+        inputFormat = GL_RGBA;
+    int inputType = GL_UNSIGNED_BYTE;
     bool compressed = (format == TextureFormats::DXT1) ||
             (format == TextureFormats::DXT3) ||
             (format == TextureFormats::DXT5) ||
@@ -659,6 +685,7 @@ void OpenGLESRenderDevice::uploadTextureData( uint32 texObj, int slice, int mipL
     case TextureFormats::DEPTH:
         inputFormat = GL_DEPTH_COMPONENT;
         inputType = GL_UNSIGNED_INT;
+        break;
     case TextureFormats::RGB5_A1:
         inputFormat = GL_RGBA;
         inputType = GL_UNSIGNED_SHORT_5_5_5_1;
@@ -701,15 +728,12 @@ void OpenGLESRenderDevice::uploadTextureData( uint32 texObj, int slice, int mipL
 
     if( tex.genMips && (tex.type != GL_TEXTURE_CUBE_MAP || slice == 5) )
     {
-        // Note: for cube maps mips are only generated when the side with the highest index is uploaded
-        //        glEnable( tex.type );  // Workaround for ATI driver bug
-        glGenerateMipmap( tex.type );
-        //        glDisable( tex.type );
+        glGenerateMipmap( getNativeTextureType( tex.type ) );
     }
 
-    glBindTexture( tex.type, 0 );
-    if( _texSlots[15].texObj )
-        glBindTexture( _textures.getRef( _texSlots[15].texObj ).type, _textures.getRef( _texSlots[15].texObj ).glObj );
+    glBindTexture( getNativeTextureType(tex.type), 0 );
+    if( _texSlots[TEXTURE_SLOTS - 1].texObj )
+        glBindTexture( getNativeTextureType(_textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).type), _textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).glObj );
 }
 
 
@@ -849,7 +873,7 @@ uint32 OpenGLESRenderDevice::createShader( const char *vertexShaderSrc, const ch
         RDIVertexLayout &vl = _vertexLayouts[i];
         bool allAttribsFound = true;
 
-        for( uint32 j = 0; j < 16; ++j )
+        for( uint32 j = 0; j < VERTEX_BUFFER_SLOTS; ++j )
             shader.inputLayouts[i].attribIndices[j] = -1;
 
         for( int j = 0; j < attribCount; ++j )
@@ -972,7 +996,7 @@ uint32 OpenGLESRenderDevice::createRenderBuffer( uint32 width, uint32 height, Te
     uint32 maxSamples = 0;
     if( _caps.rtMultisampling )
     {
-        GLint value;
+        GLint value = 0;
         if (glExt::ANGLE_framebuffer_multisample)
             glGetIntegerv( GL_MAX_SAMPLES_ANGLE, &value );
         else if (glExt::APPLE_framebuffer_multisample)
@@ -1030,22 +1054,18 @@ uint32 OpenGLESRenderDevice::createRenderBuffer( uint32 width, uint32 height, Te
             }
         }
 
-        //        uint32 buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1_EXT,
-        //                             GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT };
+//        uint32 buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0 + 1,
+//                             GL_COLOR_ATTACHMENT0 + 2, GL_COLOR_ATTACHMENT0 + 3 };
         glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
-        //        glDrawBuffers( numColBufs, buffers );
 
         if( samples > 0 )
         {
             glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS );
-            //            glDrawBuffers( numColBufs, buffers );
         }
     }
     else
     {
         glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
-        //        glDrawBuffer( GL_NONE );
-        //        glReadBuffer( GL_NONE );
 
         if( samples > 0 )
         {
@@ -1106,6 +1126,7 @@ uint32 OpenGLESRenderDevice::createRenderBuffer( uint32 width, uint32 height, Te
 
     if( !valid )
     {
+        Modules::log().writeError("Error in framebuffer status: 0x%x", status);
         destroyRenderBuffer( rbObj );
         return 0;
     }
@@ -1208,7 +1229,7 @@ void OpenGLESRenderDevice::setRenderBuffer( uint32 rbObj )
     else
     {
         // Unbind all textures to make sure that no FBO attachment is bound any more
-        for( uint32 i = 0; i < 16; ++i ) setTexture( i, 0, 0 );
+        for( uint32 i = 0; i < TEXTURE_SLOTS; ++i ) setTexture( i, 0, 0 );
         commitStates( PM_TEXTURES );
 
         RDIRenderBuffer &rb = _rendBufs.getRef( rbObj );
@@ -1376,7 +1397,7 @@ bool OpenGLESRenderDevice::applyVertexLayout()
         }
     }
 
-    for( uint32 i = 0; i < 16; ++i )
+    for( uint32 i = 0; i < VERTEX_BUFFER_SLOTS; ++i )
     {
         uint32 curBit = 1 << i;
         if( (newVertexAttribMask & curBit) != (_activeVertexAttribsMask & curBit) )
@@ -1394,7 +1415,7 @@ bool OpenGLESRenderDevice::applyVertexLayout()
 void OpenGLESRenderDevice::applySamplerState( RDITexture &tex )
 {
     uint32 state = tex.samplerState;
-    uint32 target = tex.type;
+    uint32 target = getNativeTextureType( tex.type );
 
     const uint32 magFilters[] = { GL_LINEAR, GL_LINEAR, GL_NEAREST };
     const uint32 minFiltersMips[] = { GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST_MIPMAP_NEAREST };
@@ -1479,7 +1500,7 @@ bool OpenGLESRenderDevice::commitStates( uint32 filter )
         // Bind textures and set sampler state
         if( mask & PM_TEXTURES )
         {
-            for( uint32 i = 0; i < 16; ++i )
+            for( uint32 i = 0; i < TEXTURE_SLOTS; ++i )
             {
                 glActiveTexture( GL_TEXTURE0 + i );
 
@@ -1523,7 +1544,7 @@ void OpenGLESRenderDevice::resetStates()
     _curIndexBuf = 1; _newIndexBuf = 0;
     _curVertLayout = 1; _newVertLayout = 0;
 
-    for( uint32 i = 0; i < 16; ++i )
+    for( uint32 i = 0; i < TEXTURE_SLOTS; ++i )
         setTexture( i, 0, 0 );
 
     _activeVertexAttribsMask = 0;

@@ -9,7 +9,8 @@
 //
 // *************************************************************************************************
 
-uniform 	vec4 skinMatRows[75*3];
+uniform 	vec4 skinMatRows[75*3]; // Might want to reduce to 32*3 because iPhoneOS only supports
+									// up to 128 uniforms :(
 attribute 	vec4 joints, weights;
 
 
