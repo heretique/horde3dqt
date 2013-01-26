@@ -898,7 +898,9 @@ void ShaderResource::compileCombination( ShaderContext &context, ShaderCombinati
 	// Output shader log
 	if( gRDI->getShaderLog() != "" )
 		Modules::log().writeInfo( "Shader resource '%s': ShaderLog: %s", _name.c_str(), gRDI->getShaderLog().c_str() );
-}
+    else
+        Modules::log().writeInfo( "---- C O M P I L E D . S H A D E R . %s@%s[%i] ----",
+            _name.c_str(), context.id.c_str(), sc.combMask );}
 
 
 void ShaderResource::compileContexts()

@@ -36,7 +36,7 @@ mat3 calcTanToWorldMat( const vec3 tangent, const vec3 bitangent, const vec3 nor
 
 vec3 calcTanVec( const vec3 vec, const vec3 tangent, const vec3 bitangent, const vec3 normal )
 {
-	vec3 v;
+	mediump vec3 v;
 	v.x = dot( vec, tangent );
 	v.y = dot( vec, bitangent );
 	v.z = dot( vec, normal );

@@ -47,9 +47,9 @@ context FINALPASS
 [[VS_FSQUAD]]
 // =================================================================================================
 
-uniform mat4 projMat;
-attribute vec3 vertPos;
-varying vec2 texCoords;
+uniform mediump mat4 projMat;
+attribute mediump vec3 vertPos;
+varying mediump vec2 texCoords;
 				
 void main( void )
 {
@@ -63,20 +63,20 @@ void main( void )
 
 #include "shaders/utilityLib/fragPostProcess.glsl"
 
-uniform sampler2D buf0;
-uniform vec2 frameBufSize;
+uniform mediump sampler2D buf0;
+uniform lowp vec2 frameBufSize;
 //uniform float hdrExposure;
-uniform float hdrBrightThres;
-uniform float hdrBrightOffset;
-varying vec2 texCoords;
+uniform lowp float hdrBrightThres;
+uniform lowp float hdrBrightOffset;
+varying mediump vec2 texCoords;
 
 void main( void )
 {
-	vec2 texSize = frameBufSize * 4.0;
-	vec2 coord2 = texCoords + vec2( 2, 2 ) / texSize;
+	lowp vec2 texSize = frameBufSize * 4.0;
+	mediump vec2 coord2 = texCoords + vec2( 2, 2 ) / texSize;
 	
 	// Average using bilinear filtering
-	vec4 sum = getTex2DBilinear( buf0, texCoords, texSize );
+	mediump vec4 sum = getTex2DBilinear( buf0, texCoords, texSize );
 	sum += getTex2DBilinear( buf0, coord2, texSize );
 	sum += getTex2DBilinear( buf0, vec2( coord2.x, texCoords.y ), texSize );
 	sum += getTex2DBilinear( buf0, vec2( texCoords.x, coord2.y ), texSize );
@@ -99,9 +99,9 @@ void main( void )
 #include "shaders/utilityLib/fragPostProcess.glsl"
 
 uniform sampler2D buf0;
-uniform vec2 frameBufSize;
-uniform vec4 blurParams;
-varying vec2 texCoords;
+uniform lowp vec2 frameBufSize;
+uniform lowp vec4 blurParams;
+varying mediump vec2 texCoords;
 
 void main( void )
 {
@@ -112,18 +112,18 @@ void main( void )
 [[FS_FINALPASS]]
 // =================================================================================================
 
-uniform sampler2D buf0, buf1;
-uniform vec2 frameBufSize;
-uniform float hdrExposure;
-varying vec2 texCoords;
+uniform mediump sampler2D buf0, buf1;
+uniform mediump vec2 frameBufSize;
+uniform mediump float hdrExposure;
+varying mediump vec2 texCoords;
 
 void main( void )
 {
-	vec4 col0 = texture2D( buf0, texCoords );	// HDR color
-	vec4 col1 = texture2D( buf1, texCoords );	// Bloom
+	mediump vec4 col0 = texture2D( buf0, texCoords );	// HDR color
+	mediump vec4 col1 = texture2D( buf1, texCoords );	// Bloom
 	
 	// Tonemap (using photographic exposure mapping)
-	vec4 col = 1.0 - exp2( -hdrExposure * col0 );
+	mediump vec4 col = 1.0 - exp2( -hdrExposure * col0 );
 	
 	gl_FragColor = col + col1;
 }

@@ -15,10 +15,10 @@ context OVERLAY
 
 [[VS_OVERLAY]]
 
-uniform mat4 projMat;
-attribute vec2 vertPos;
-attribute vec2 texCoords0;
-varying vec2 texCoords;
+uniform mediump mat4 projMat;
+attribute mediump vec2 vertPos;
+attribute mediump vec2 texCoords0;
+varying mediump vec2 texCoords;
 
 void main( void )
 {
@@ -29,13 +29,13 @@ void main( void )
 
 [[FS_OVERLAY]]
 
-uniform vec4 olayColor;
-uniform sampler2D albedoMap;
-varying vec2 texCoords;
+uniform mediump vec4 olayColor;
+uniform mediump sampler2D albedoMap;
+varying mediump vec2 texCoords;
 
 void main( void )
 {
-	vec4 albedo = texture2D( albedoMap, texCoords );
+	mediump vec4 albedo = texture2D( albedoMap, texCoords );
 	
 	gl_FragColor = albedo * olayColor;
 }

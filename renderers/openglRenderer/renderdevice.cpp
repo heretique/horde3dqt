@@ -45,7 +45,7 @@ namespace Horde3DOpenGLRenderer {
 			textureType = GL_TEXTURE_CUBE_MAP;
 			break;
 		default:
-            Modules::log().writeError( "[Horde3DOpenGLRenderer::getNativeTextureType] - Unknown texture format" );
+            Modules::log().writeError( "[Horde3DOpenGLRenderer::getNativeTextureType] - Unknown texture type" );
 			break;
 		}
 		return textureType;
@@ -426,7 +426,7 @@ uint32 OpenGLRenderDevice::createTexture( TextureTypes::List type, int width, in
 	};
 	
 	glGenTextures( 1, &tex.glObj );
-	glActiveTexture( GL_TEXTURE15 );
+    glActiveTexture( GL_TEXTURE15 );
 	glBindTexture( getNativeTextureType(tex.type), tex.glObj );
 	
 	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -436,8 +436,8 @@ uint32 OpenGLRenderDevice::createTexture( TextureTypes::List type, int width, in
 	applySamplerState( tex );
 	
 	glBindTexture( getNativeTextureType(tex.type), 0 );
-	if( _texSlots[15].texObj )
-		glBindTexture( getNativeTextureType(_textures.getRef( _texSlots[15].texObj ).type), _textures.getRef( _texSlots[15].texObj ).glObj );
+    if( _texSlots[15].texObj )
+        glBindTexture( getNativeTextureType(_textures.getRef( _texSlots[15].texObj ).type), _textures.getRef( _texSlots[15].texObj ).glObj );
 
 	// Calculate memory requirements
 	tex.memSize = calcTextureSize( format, width, height, depth );
@@ -454,7 +454,7 @@ void OpenGLRenderDevice::uploadTextureData( uint32 texObj, int slice, int mipLev
 	const RDITexture &tex = _textures.getRef( texObj );
 	TextureFormats::List format = tex.format;
 
-	glActiveTexture( GL_TEXTURE15 );
+    glActiveTexture( GL_TEXTURE15 );
 	glBindTexture( getNativeTextureType(tex.type), tex.glObj );
 	
 	int inputFormat = GL_BGRA, inputType = GL_UNSIGNED_BYTE;
@@ -511,8 +511,8 @@ void OpenGLRenderDevice::uploadTextureData( uint32 texObj, int slice, int mipLev
 	}
 
 	glBindTexture( getNativeTextureType( tex.type ), 0 );
-	if( _texSlots[15].texObj )
-		glBindTexture( getNativeTextureType( _textures.getRef( _texSlots[15].texObj ).type ), _textures.getRef( _texSlots[15].texObj ).glObj );
+    if( _texSlots[15].texObj )
+        glBindTexture( getNativeTextureType( _textures.getRef( _texSlots[15].texObj ).type ), _textures.getRef( _texSlots[15].texObj ).glObj );
 }
 
 
@@ -542,7 +542,7 @@ bool OpenGLRenderDevice::getTextureData( uint32 texObj, int slice, int mipLevel,
 	if( target == GL_TEXTURE_CUBE_MAP ) target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + slice;
 	
 	int fmt, type, compressed = 0;
-	glActiveTexture( GL_TEXTURE15 );
+    glActiveTexture( GL_TEXTURE15 );
 	glBindTexture( getNativeTextureType( tex.type ), tex.glObj );
 
 	switch( tex.format )
@@ -571,8 +571,8 @@ bool OpenGLRenderDevice::getTextureData( uint32 texObj, int slice, int mipLevel,
 		glGetTexImage( target, mipLevel, fmt, type, buffer );
 
 	glBindTexture( getNativeTextureType( tex.type ), 0 );
-	if( _texSlots[15].texObj )
-		glBindTexture( getNativeTextureType( _textures.getRef( _texSlots[15].texObj ).type ), _textures.getRef( _texSlots[15].texObj ).glObj );
+    if( _texSlots[15].texObj )
+        glBindTexture( getNativeTextureType( _textures.getRef( _texSlots[15].texObj ).type ), _textures.getRef( _texSlots[15].texObj ).glObj );
 
 	return true;
 }

@@ -20,6 +20,9 @@ namespace Horde3DOpenGLESRenderer {
 
 	using namespace Horde3D;
 
+#define TEXTURE_SLOTS 8
+#define VERTEX_BUFFER_SLOTS 16
+
 	class OpenGLESGPUTimer : public IGPUTimer
 	{
 	public:
@@ -125,12 +128,12 @@ namespace Horde3DOpenGLESRenderer {
 		void setIndexBuffer( uint32 bufObj, RDIIndexFormat idxFmt )
 		{ _indexFormat = (uint32)idxFmt; _newIndexBuf = bufObj; _pendingMask |= PM_INDEXBUF; }
 		void setVertexBuffer( uint32 slot, uint32 vbObj, uint32 offset, uint32 stride )
-		{ ASSERT( slot < 16 ); _vertBufSlots[slot] = RDIVertBufSlot( vbObj, offset, stride );
+        { ASSERT( slot < VERTEX_BUFFER_SLOTS ); _vertBufSlots[slot] = RDIVertBufSlot( vbObj, offset, stride );
 		_pendingMask |= PM_VERTLAYOUT; }
 		void setVertexLayout( uint32 vlObj )
 		{ _newVertLayout = vlObj; }
 		void setTexture( uint32 slot, uint32 texObj, uint16 samplerState )
-		{ ASSERT( slot < 16 ); _texSlots[slot] = RDITexSlot( texObj, samplerState );
+        { ASSERT( slot < TEXTURE_SLOTS ); _texSlots[slot] = RDITexSlot( texObj, samplerState );
 		_pendingMask |= PM_TEXTURES; }
 
 		bool commitStates( uint32 filter = 0xFFFFFFFF );
@@ -188,8 +191,8 @@ namespace Horde3DOpenGLESRenderer {
 		RDIObjects< RDIShader >        _shaders;
 		RDIObjects< RDIRenderBuffer >  _rendBufs;
 
-		RDIVertBufSlot    _vertBufSlots[16];
-		RDITexSlot        _texSlots[16];
+        RDIVertBufSlot    _vertBufSlots[VERTEX_BUFFER_SLOTS];
+        RDITexSlot        _texSlots[TEXTURE_SLOTS];
 		uint32            _prevShaderId, _curShaderId;
 		uint32            _curVertLayout, _newVertLayout;
 		uint32            _curIndexBuf, _newIndexBuf;

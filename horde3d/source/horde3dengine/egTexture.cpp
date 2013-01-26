@@ -104,7 +104,8 @@ void TextureResource::initializationFunc()
 
 	defTex3DObject = gRDI->createTexture( TextureTypes::Tex3D, 4, 4, 4,
 	                                      TextureFormats::BGRA8, true, true, false, false );
-	gRDI->uploadTextureData( defTex3DObject, 0, 0, texData2 );
+    if (defTex3DObject)
+        gRDI->uploadTextureData( defTex3DObject, 0, 0, texData2 );
 	delete[] texData2;
 }
 
