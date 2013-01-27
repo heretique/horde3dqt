@@ -151,12 +151,9 @@ void Application::mouseStateHandler()
     {
         float dx = touchLocation[0] - _touchLocation[0];
         float dy = touchLocation[1] - _touchLocation[1];
-        if (dx > 0.0f && dy > 0.0f)
-        {
-            mouseMoveEvent(dx, dy);
-            _touchLocation[0] = touchLocation[0];
-            _touchLocation[1] = touchLocation[1];
-        }
+        mouseMoveEvent(dx, dy);
+        _touchLocation[0] = touchLocation[0];
+        _touchLocation[1] = touchLocation[1];
     }
 }
 
@@ -166,10 +163,10 @@ void Application::mouseMoveEvent( float dX, float dY )
     if( _freezeMode == 2 ) return;
 
     // Look left/right
-    _ry -= dX / 100 * 30;
+    _ry -= dX * 30;
 
     // Loop up/down but only in a limited range
-    _rx += dY / 100 * 30;
+    _rx += dY * 30;
     if( _rx > 90 ) _rx = 90;
     if( _rx < -90 ) _rx = -90;
 }
@@ -269,7 +266,7 @@ bool Application::QuitApplication()
 
 bool Application::RenderScene()
 {
-    _curFPS = 0;
+    _curFPS = 60.0f;
 
     keyStateHandler();
     mouseStateHandler();
