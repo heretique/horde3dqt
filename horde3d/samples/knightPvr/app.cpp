@@ -25,136 +25,153 @@ using namespace std;
 // Convert from degrees to radians
 inline float degToRad( float f ) 
 {
-	return f * (3.1415926f / 180.0f);
+    return f * (3.1415926f / 180.0f);
 }
 
 
 Application::Application( const std::string &appPath )
 {
-	for( unsigned int i = 0; i < 320; ++i )
-	{	
-		_keys[i] = false;
-		_prevKeys[i] = false;
-	}
+    for( unsigned int i = 0; i < 320; ++i )
+    {
+        _keys[i] = false;
+        _prevKeys[i] = false;
+    }
 
-	_x = 5; _y = 3; _z = 19; _rx = 7; _ry = 15; _velocity = 10.0f;
-	_curFPS = 30;
+    _x = 5; _y = 3; _z = 19; _rx = 7; _ry = 15; _velocity = 10.0f;
+    _curFPS = 30;
 
-	_statMode = 0;
-	_freezeMode = 0; _debugViewMode = false; _wireframeMode = false;
-	_animTime = 0; _weight = 1.0f;
-	_cam = 0;
+    _statMode = 0;
+    _freezeMode = 0; _debugViewMode = false; _wireframeMode = false;
+    _animTime = 0; _weight = 1.0f;
+    _cam = 0;
 
-	_contentDir = appPath + "../Content";
+    _contentDir = appPath + "../Content";
+    _touchLocation[0] = 0.0f;
+    _touchLocation[1] = 0.0f;
 }
 
 void Application::resize( int width, int height )
 {
-	// Resize viewport
-	h3dSetNodeParamI( _cam, H3DCamera::ViewportXI, 0 );
-	h3dSetNodeParamI( _cam, H3DCamera::ViewportYI, 0 );
-	h3dSetNodeParamI( _cam, H3DCamera::ViewportWidthI, width );
-	h3dSetNodeParamI( _cam, H3DCamera::ViewportHeightI, height );
-	
-	// Set virtual camera parameters
-	h3dSetupCameraView( _cam, 45.0f, (float)width / height, 0.1f, 1000.0f );
-	h3dResizePipelineBuffers( _hdrPipeRes, width, height );
-	h3dResizePipelineBuffers( _forwardPipeRes, width, height );
-}
+    // Resize viewport
+    h3dSetNodeParamI( _cam, H3DCamera::ViewportXI, 0 );
+    h3dSetNodeParamI( _cam, H3DCamera::ViewportYI, 0 );
+    h3dSetNodeParamI( _cam, H3DCamera::ViewportWidthI, width );
+    h3dSetNodeParamI( _cam, H3DCamera::ViewportHeightI, height );
 
+    // Set virtual camera parameters
+    h3dSetupCameraView( _cam, 45.0f, (float)width / height, 0.1f, 1000.0f );
+    h3dResizePipelineBuffers( _hdrPipeRes, width, height );
+    h3dResizePipelineBuffers( _forwardPipeRes, width, height );
+}
 
 void Application::keyStateHandler()
 {
-	// ----------------
-	// Key-press events
-	// ----------------
-	if( _keys[32] && !_prevKeys[32] )  // Space
-	{
-		if( ++_freezeMode == 3 ) _freezeMode = 0;
-	}
+    // ----------------
+    // Key-press events
+    // ----------------
+//    if( _keys[32] && !_prevKeys[32] )  // Space
+//    {
+//        if( ++_freezeMode == 3 ) _freezeMode = 0;
+//    }
 
-	if( _keys[260] && !_prevKeys[260] )  // F3
-	{
-		if( h3dGetNodeParamI( _cam, H3DCamera::PipeResI ) == _hdrPipeRes )
-			h3dSetNodeParamI( _cam, H3DCamera::PipeResI, _forwardPipeRes );
-		else
-			h3dSetNodeParamI( _cam, H3DCamera::PipeResI, _hdrPipeRes );
-	}
-	
-	if( _keys[264] && !_prevKeys[264] )  // F7
-		_debugViewMode = !_debugViewMode;
+    if( PVRShellIsKeyPressed(PVRShellKeyNameF3) )  // F3
+    {
+        if( h3dGetNodeParamI( _cam, H3DCamera::PipeResI ) == _hdrPipeRes )
+            h3dSetNodeParamI( _cam, H3DCamera::PipeResI, _forwardPipeRes );
+        else
+            h3dSetNodeParamI( _cam, H3DCamera::PipeResI, _hdrPipeRes );
+    }
 
-	if( _keys[265] && !_prevKeys[265] )  // F8
-		_wireframeMode = !_wireframeMode;
-	
-	if( _keys[263] && !_prevKeys[263] )  // F6
-	{
-		_statMode += 1;
-		if( _statMode > H3DUTMaxStatMode ) _statMode = 0;
-	}
-	
-	// --------------
-	// Key-down state
-	// --------------
-	if( _freezeMode != 2 )
-	{
-		float curVel = _velocity / _curFPS;
-		
-		if( _keys[287] ) curVel *= 5;	// LShift
-		
-		if( _keys['W'] )
-		{
-			// Move forward
-			_x -= sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-			_y -= sinf( -degToRad( _rx ) ) * curVel;
-			_z -= cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-		}
-		if( _keys['S'] )
-		{
-			// Move backward
-			_x += sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-			_y += sinf( -degToRad( _rx ) ) * curVel;
-			_z += cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-		}
-		if( _keys['A'] )
-		{
-			// Strafe left
-			_x += sinf( degToRad( _ry - 90) ) * curVel;
-			_z += cosf( degToRad( _ry - 90 ) ) * curVel;
-		}
-		if( _keys['D'] )
-		{
-			// Strafe right
-			_x += sinf( degToRad( _ry + 90 ) ) * curVel;
-			_z += cosf( degToRad( _ry + 90 ) ) * curVel;
-		}
-		if( _keys['1'] )
-		{
-			// Change blend weight
-			_weight += 2 / _curFPS;
-			if( _weight > 1 ) _weight = 1;
-		}
-		if( _keys['2'] )
-		{
-			// Change blend weight
-			_weight -= 2 / _curFPS;
-			if( _weight < 0 ) _weight = 0;
-		}
-	}
+    if( PVRShellIsKeyPressed(PVRShellKeyNameF7) )  // F7
+        _debugViewMode = !_debugViewMode;
+
+    if( PVRShellIsKeyPressed(PVRShellKeyNameF8) )  // F8
+        _wireframeMode = !_wireframeMode;
+
+    if( PVRShellIsKeyPressed(PVRShellKeyNameF6) )  // F6
+    {
+        _statMode += 1;
+        if( _statMode > H3DUTMaxStatMode ) _statMode = 0;
+    }
+
+    // --------------
+    // Key-down state
+    // --------------
+//    if( _freezeMode != 2 )
+//    {
+//        float curVel = _velocity / _curFPS;
+
+//        if( _keys[287] ) curVel *= 5;	// LShift
+
+//        if( _keys['W'] )
+//        {
+//            // Move forward
+//            _x -= sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+//            _y -= sinf( -degToRad( _rx ) ) * curVel;
+//            _z -= cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+//        }
+//        if( _keys['S'] )
+//        {
+//            // Move backward
+//            _x += sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+//            _y += sinf( -degToRad( _rx ) ) * curVel;
+//            _z += cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+//        }
+//        if( _keys['A'] )
+//        {
+//            // Strafe left
+//            _x += sinf( degToRad( _ry - 90) ) * curVel;
+//            _z += cosf( degToRad( _ry - 90 ) ) * curVel;
+//        }
+//        if( _keys['D'] )
+//        {
+//            // Strafe right
+//            _x += sinf( degToRad( _ry + 90 ) ) * curVel;
+//            _z += cosf( degToRad( _ry + 90 ) ) * curVel;
+//        }
+//        if( _keys['1'] )
+//        {
+//            // Change blend weight
+//            _weight += 2 / _curFPS;
+//            if( _weight > 1 ) _weight = 1;
+//        }
+//        if( _keys['2'] )
+//        {
+//            // Change blend weight
+//            _weight -= 2 / _curFPS;
+//            if( _weight < 0 ) _weight = 0;
+//        }
+//    }
+}
+
+void Application::mouseStateHandler()
+{
+    float *touchLocation = (float*)PVRShellGet( prefPointerLocation);
+    if (touchLocation)
+    {
+        float dx = touchLocation[0] - _touchLocation[0];
+        float dy = touchLocation[1] - _touchLocation[1];
+        if (dx > 0.0f && dy > 0.0f)
+        {
+            mouseMoveEvent(dx, dy);
+            _touchLocation[0] = touchLocation[0];
+            _touchLocation[1] = touchLocation[1];
+        }
+    }
 }
 
 
 void Application::mouseMoveEvent( float dX, float dY )
 {
-	if( _freezeMode == 2 ) return;
-	
-	// Look left/right
-	_ry -= dX / 100 * 30;
-	
-	// Loop up/down but only in a limited range
-	_rx += dY / 100 * 30;
-	if( _rx > 90 ) _rx = 90; 
-	if( _rx < -90 ) _rx = -90;
+    if( _freezeMode == 2 ) return;
+
+    // Look left/right
+    _ry -= dX / 100 * 30;
+
+    // Loop up/down but only in a limited range
+    _rx += dY / 100 * 30;
+    if( _rx > 90 ) _rx = 90;
+    if( _rx < -90 ) _rx = -90;
 }
 
 bool Application::InitApplication()
@@ -254,6 +271,9 @@ bool Application::RenderScene()
 {
     _curFPS = 0;
 
+    keyStateHandler();
+    mouseStateHandler();
+
     h3dSetOption( H3DOptions::DebugViewMode, _debugViewMode ? 1.0f : 0.0f );
     h3dSetOption( H3DOptions::WireframeMode, _wireframeMode ? 1.0f : 0.0f );
 
@@ -287,7 +307,7 @@ bool Application::RenderScene()
 
     // Show logo
     const float ww = (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportWidthI ) /
-                     (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportHeightI );
+            (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportHeightI );
     const float ovLogo[] = { ww-0.4f, 0.8f, 0, 1,  ww-0.4f, 1, 0, 0,  ww, 1, 1, 0,  ww, 0.8f, 1, 1 };
     h3dShowOverlays( ovLogo, 4, 1.f, 1.f, 1.f, 1.f, _logoMatRes, 0 );
 

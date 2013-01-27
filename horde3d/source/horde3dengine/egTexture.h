@@ -82,7 +82,13 @@ public:
 protected:
 	bool raiseError( const std::string &msg );
 	bool checkDDS( const char *data, int size );
-	bool loadDDS( const char *data, int size );
+	bool checkPVR( const char *data, int size );
+    bool loadDDS( const char *data, int size );
+	bool loadPVR( const char *data, int size );
+#if defined( H3D_CRUNCH_SUPPORT )
+	bool checkCRN( const char *data, int size );
+	bool loadCRN( const char *data, int size );
+#endif
 	bool loadSTBI( const char *data, int size );
 	int getMipCount();
 	

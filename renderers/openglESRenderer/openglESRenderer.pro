@@ -5,7 +5,8 @@ TEMPLATE = lib
 CONFIG += staticlib
 DESTDIR = $$PWD/../../Libs
 
-DEFINES += BUILD_OGLES2 #BUILD_OGLES3
+DEFINES += BUILD_OGLES2 \
+           #BUILD_OGLES3
 
 INCLUDEPATH += ../../horde3d/source/shared \
     ../../horde3d/source/horde3dengine

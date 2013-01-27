@@ -19,6 +19,10 @@
 
 #include "utDebug.h"
 
+#if defined( H3D_CRUNCH_SUPPORT )
+#include "crn_decomp.h"
+#endif
+
 
 namespace Horde3D {
 
@@ -70,6 +74,112 @@ struct DDSHeader
 	uint32  dwReserved2;
 } ddsHeader;
 
+// PVRv2
+
+struct PVRHeader
+{
+	uint32 dwHeaderSize;
+	uint32 dwHeight;
+	uint32 dwWidth;
+	uint32 dwMipMapCount;
+	uint32 dwFlags;
+	uint32 dwTextureDataSize;
+	uint32 dwBitCount;
+	uint32 dwRBitMask;
+	uint32 dwGBitMask;
+	uint32 dwBBitMask;
+	uint32 dwABitMask;
+	uint32 dwPVR;
+	uint32 dwNumSurfs;
+} pvrHeader;
+ 
+enum PVRPixType
+{
+	OGL_RGBA_4444= 0x10,
+	OGL_RGBA_5551,
+	OGL_RGBA_8888,
+	OGL_RGB_565,
+	OGL_RGB_555,
+	OGL_RGB_888,
+	OGL_I_8,
+	OGL_AI_88,
+	OGL_PVRTC2,
+	OGL_PVRTC4,
+	OGL_PVRTC2_2,
+	OGL_PVRTC2_4,
+
+	D3D_DXT1 = 0x20,
+	D3D_DXT2,
+	D3D_DXT3,
+	D3D_DXT4,
+	D3D_DXT5,
+
+	D3D_RGB_332,
+	D3D_AI_44,
+	D3D_LVU_655,
+	D3D_XLVU_8888,
+	D3D_QWVU_8888,
+
+	//10 bits per channel
+	D3D_ABGR_2101010,
+	D3D_ARGB_2101010,
+	D3D_AWVU_2101010,
+
+	//16 bits per channel
+	D3D_GR_1616,
+	D3D_VU_1616,
+	D3D_ABGR_16161616,
+
+	//HDR formats
+	D3D_R16F,
+	D3D_GR_1616F,
+	D3D_ABGR_16161616F,
+
+	//32 bits per channel
+	D3D_R32F,
+	D3D_GR_3232F,
+	D3D_ABGR_32323232F,
+
+	// Ericsson
+	ETC_RGB_4BPP,
+	ETC_RGBA_EXPLICIT,
+	ETC_RGBA_INTERPOLATED,
+
+	MGLPT_NOTYPE = 0xff
+
+} pvrPixType;
+
+
+const unsigned int PVRTEX_MIPMAP		= (1<<8);		// has mip map levels
+const unsigned int PVRTEX_TWIDDLE		= (1<<9);		// is twiddled
+const unsigned int PVRTEX_BUMPMAP		= (1<<10);		// has normals encoded for a bump map
+const unsigned int PVRTEX_TILING		= (1<<11);		// is bordered for tiled pvr
+const unsigned int PVRTEX_CUBEMAP		= (1<<12);		// is a cubemap/skybox
+const unsigned int PVRTEX_FALSEMIPCOL	= (1<<13);		//
+const unsigned int PVRTEX_VOLUME		= (1<<14);
+const unsigned int PVRTEX_PIXELTYPE		= 0xff;			// pixel type is always in the last 16bits of the flags
+const unsigned int PVRTEX_IDENTIFIER	= 0x21525650;	// the pvr identifier is the characters 'P','V','R'
+
+// KTX
+const unsigned char ktxIdentifier[12] = {0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A};
+
+struct KTXHeader
+{
+	unsigned char identifier[12];
+	uint32 endianness;
+    uint32 glType;
+    uint32 glTypeSize;
+    uint32 glFormat;
+    uint32 glInternalFormat;
+    uint32 glBaseInternalFormat;
+    uint32 pixelWidth;
+    uint32 pixelHeight;
+    uint32 pixelDepth;
+    uint32 numberOfArrayElements;
+    uint32 numberOfFaces;
+    uint32 numberOfMipmapLevels;
+    uint32 bytesOfKeyValueData;
+} ktxHeader;
 
 unsigned char *TextureResource::mappedData = 0x0;
 int TextureResource::mappedWriteImage = -1;
@@ -97,16 +207,17 @@ void TextureResource::initializationFunc()
 	{
 		gRDI->uploadTextureData( defTexCubeObject, i, 0, texData );
 	}
+	if( gRDI->getCaps().tex3D )
+	{
+		unsigned char *texData2 = new unsigned char[256];
+		memcpy( texData2, texData, 64 ); memcpy( texData2 + 64, texData, 64 );
+		memcpy( texData2 + 128, texData, 64 ); memcpy( texData2 + 192, texData, 64 );
 
-	unsigned char *texData2 = new unsigned char[256];
-	memcpy( texData2, texData, 64 ); memcpy( texData2 + 64, texData, 64 );
-	memcpy( texData2 + 128, texData, 64 ); memcpy( texData2 + 192, texData, 64 );
-
-	defTex3DObject = gRDI->createTexture( TextureTypes::Tex3D, 4, 4, 4,
-	                                      TextureFormats::BGRA8, true, true, false, false );
-    if (defTex3DObject)
-        gRDI->uploadTextureData( defTex3DObject, 0, 0, texData2 );
-	delete[] texData2;
+		defTex3DObject = gRDI->createTexture( TextureTypes::Tex3D, 4, 4, 4,
+											  TextureFormats::BGRA8, true, true, false, false );
+		gRDI->uploadTextureData( defTex3DObject, 0, 0, texData2 );
+		delete[] texData2;
+	}
 }
 
 
@@ -222,6 +333,22 @@ bool TextureResource::checkDDS( const char *data, int size )
 {
 	return size > 128 && *((uint32 *)data) == FOURCC( 'D', 'D', 'S', ' ' );
 }
+
+
+bool TextureResource::checkPVR( const char *data, int size )
+{
+	return size > 52 && *((uint32 *)data ) == FOURCC( 0x34, 0x00, 0x00, 0x00 ); // 0x34 == "52" 
+}
+
+
+#if defined( H3D_CRUNCH_SUPPORT )
+
+bool TextureResource::checkCRN( const char *data, int size )
+{
+	crnd::crn_texture_info tex_info;
+	return crnd::crnd_get_texture_info( (crn_uint8*)data, (crn_uint32)size, &tex_info);
+}
+#endif
 
 
 bool TextureResource::loadDDS( const char *data, int size )
@@ -402,6 +529,219 @@ bool TextureResource::loadDDS( const char *data, int size )
 	return true;
 }
 
+bool TextureResource::loadPVR( const char *data, int size )
+{
+	ASSERT_STATIC( sizeof( PVRHeader ) == 52 );
+
+	memcpy( &pvrHeader, data, 52 );
+
+	// Check header
+	if( pvrHeader.dwPVR != PVRTEX_IDENTIFIER )
+	{
+		return raiseError( "Invalid PVR header" );
+	}
+
+	// Store properties
+	_width = pvrHeader.dwWidth;
+	_height = pvrHeader.dwHeight;
+	_texFormat = TextureFormats::Unknown;
+	_texObject = 0;
+	_sRGB = (_flags & ResourceFlags::TexSRGB) != 0;
+	int mipCount = pvrHeader.dwFlags & PVRTEX_MIPMAP ? pvrHeader.dwMipMapCount + 1: 1;
+	_hasMipMaps = mipCount > 1 ? true : false;
+
+	// Get texture type
+	if( pvrHeader.dwFlags & PVRTEX_CUBEMAP )
+		_texType = TextureTypes::TexCube;
+	else
+		_texType = TextureTypes::Tex2D;
+
+	// Get pixel format
+	switch( pvrHeader.dwFlags & PVRTEX_PIXELTYPE )
+	{
+	case OGL_RGBA_4444:
+		_texFormat = TextureFormats::RGBA4;
+		break;
+	case OGL_RGBA_5551:
+		_texFormat = TextureFormats::RGB5_A1;
+		break;
+	case OGL_RGBA_8888:
+		_texFormat = TextureFormats::BGRA8;
+		break;
+	case D3D_DXT1:
+		_texFormat = TextureFormats::DXT1;
+		break;
+	case D3D_DXT3:
+		_texFormat = TextureFormats::DXT3;
+		break;
+	case D3D_DXT5:
+		_texFormat = TextureFormats::DXT5;
+		break;
+	case OGL_RGB_565:
+		_texFormat = TextureFormats::RGB565;
+		break;
+	case OGL_PVRTC2:
+		_texFormat = pvrHeader.dwABitMask == 0 ? TextureFormats::PVRTC_2BPP : TextureFormats::PVRTC_A2BPP;
+//				_texFormat = TextureFormats::PVRTC2;
+		break;
+	case OGL_PVRTC4:
+		_texFormat = pvrHeader.dwABitMask == 0 ? TextureFormats::PVRTC_4BPP : TextureFormats::PVRTC_A4BPP;
+//				_texFormat = TextureFormats::PVRTC4;
+		break;
+	case ETC_RGB_4BPP:
+		_texFormat = TextureFormats::ETC;
+		break;
+	}
+
+	if( _texFormat == TextureFormats::Unknown )
+			return raiseError( "Unsupported PVR pixel format" );
+
+	// Create texture
+	_texObject = gRDI->createTexture( _texType, _width, _height, _depth, _texFormat,
+									  mipCount > 1, false, false, _sRGB );
+
+	// Upload texture subresources
+	int numSlices = _texType == TextureTypes::TexCube ? 6 : 1;
+	unsigned char *pixels = (unsigned char *)(data + 52);
+
+	for( int i = 0; i < numSlices; ++i )
+	{
+			int width = _width, height = _height;
+
+			for( int j = 0; j < mipCount; ++j )
+			{
+					size_t mipSize =  gRDI->calcTextureSize( _texFormat, width, height, 1 );
+					if( pixels + mipSize > (unsigned char *)data + size )
+							return raiseError( "Corrupt PVR" );
+
+					 // Upload data directly
+					 gRDI->uploadTextureData( _texObject, i, j, pixels );
+
+					pixels += mipSize;
+					if( width > 1 ) width >>= 1;
+					if( height > 1 ) height >>= 1;
+			}
+	}
+
+	ASSERT( pixels == (unsigned char *)data + size );
+	
+	return true;
+}
+
+
+#if defined( H3D_CRUNCH_SUPPORT )
+bool TextureResource::loadCRN( const char *data, int size )
+{
+	crnd::crn_texture_info tex_info;
+	if (!crnd::crnd_get_texture_info( (crn_uint8*)data, (crn_uint32)size, &tex_info))
+	{
+		raiseError( "Invalid CRN file" );
+		return 0;
+	}
+
+	// Where CRN will decompress the DXTC cube data
+	void *pixels[6];
+
+	// Store properties
+	_width = tex_info.m_width;
+	_height = tex_info.m_height;
+	_depth = 1;
+	_texFormat = TextureFormats::Unknown;
+	_texObject = 0;
+	_sRGB = (_flags & ResourceFlags::TexSRGB) != 0;
+	int mipCount = tex_info.m_levels;
+	int numSlices = 1;
+	uint32 dxtFormat = crnd::crnd_crn_format_to_fourcc( tex_info.m_format );
+	_hasMipMaps = mipCount > 1 ? true : false;
+	int blockSize = 1, bytesPerBlock = 4;
+
+	// Get texture type
+	if( tex_info.m_faces > 1 )
+	{
+		numSlices = tex_info.m_faces;
+		if( numSlices != 6 )
+			return raiseError( "Wrong number of cube texture faces (should be 6)" );
+		else
+			_texType = TextureTypes::TexCube;
+	}
+	else
+		_texType = TextureTypes::Tex2D;
+
+	switch( dxtFormat )
+	{
+	case FOURCC( 'D', 'X', 'T', '1' ):
+		_texFormat = TextureFormats::DXT1;
+		blockSize = 4; bytesPerBlock = 8;
+		break;
+	case FOURCC( 'D', 'X', 'T', '3' ):
+		_texFormat = TextureFormats::DXT3;
+		blockSize = 4; bytesPerBlock = 16;
+		break;
+	case FOURCC( 'D', 'X', 'T', '5' ):
+		_texFormat = TextureFormats::DXT5;
+		blockSize = 4; bytesPerBlock = 16;
+		break;
+	case D3DFMT_A16B16G16R16F: 
+		_texFormat = TextureFormats::RGBA16F;
+		bytesPerBlock = 8;
+		break;
+	case D3DFMT_A32B32G32R32F: 
+		_texFormat = TextureFormats::RGBA32F;
+		bytesPerBlock = 16;
+		break;
+	}
+
+	if( _texFormat == TextureFormats::Unknown )
+		return raiseError( "Unsupported CRN pixel format" );
+	
+	crnd::crnd_unpack_context pContext = crnd::crnd_unpack_begin((crn_uint8*)data, (crn_uint32)size );
+	if (!pContext)
+	{
+		raiseError( "Cannot unpack CRN file" );
+		return 0;
+	}
+	
+	// Create texture
+	_texObject = gRDI->createTexture( _texType, _width, _height, _depth, _texFormat,
+									  mipCount > 1, false, false, _sRGB );
+	
+	int width = _width, height = _height, depth = _depth;
+	
+	for( int i = 0; i < mipCount; ++i )
+	{
+		uint32 mipSize = max( width / blockSize, 1 ) * max( height / blockSize, 1 ) *
+			             depth * bytesPerBlock;
+		uint32 rowSize = max( width / blockSize, 1 ) * bytesPerBlock;
+		
+		for( int j = 0; j < numSlices; ++j )
+		{
+			pixels[j] = 0x0;
+			pixels[j] = new crn_uint8[mipSize];
+		}
+
+		if( !crnd::crnd_unpack_level(pContext, pixels, mipSize, rowSize, i) )
+			return raiseError( "Corrupt CRN" );
+		
+		for( int j = 0; j < numSlices; ++j )
+		{
+			gRDI->uploadTextureData( _texObject, j, i, pixels[j] );
+			
+			if( pixels[j] != 0x0 ) delete[] pixels[j];
+			if( width > 1 ) width >>= 1;
+			if( height > 1 ) height >>= 1;
+			if( depth > 1 ) depth >>= 1;
+		}
+	}
+
+	for( int i = 0; i < numSlices; ++i )
+		if( pixels[i] != 0x0 ) delete[] pixels[i];
+
+	if( !crnd::crnd_unpack_end(pContext) )
+		return raiseError( "Error closing CRN decompressor" );
+
+	return true;
+}
+#endif
 
 bool TextureResource::loadSTBI( const char *data, int size )
 {
@@ -448,6 +788,12 @@ bool TextureResource::load( const char *data, int size )
 
 	if( checkDDS( data, size ) )
 		return loadDDS( data, size );
+	else if( checkPVR( data, size ) )
+		return loadPVR( data, size );
+#if defined( H3D_CRUNCH_SUPPORT )
+	else if( checkCRN( data, size ) )
+		return loadCRN( data, size );
+#endif
 	else
 		return loadSTBI( data, size );
 }

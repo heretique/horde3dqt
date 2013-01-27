@@ -152,8 +152,8 @@ OpenGLRenderDevice::OpenGLRenderDevice()
 {
 	_numVertexLayouts = 0;
 	
-	_vpX = 0; _vpY = 0; _vpWidth = 320; _vpHeight = 240;
-	_scX = 0; _scY = 0; _scWidth = 320; _scHeight = 240;
+    _vpX = 0; _vpY = 0; _vpWidth = 512; _vpHeight = 512;
+    _scX = 0; _scY = 0; _scWidth = 512; _scHeight = 512;
 	_prevShaderId = _curShaderId = 0;
 	_curRendBuf = 0; _outputBufferIndex = 0;
 	_textureMem = 0; _bufferMem = 0;

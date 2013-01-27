@@ -738,10 +738,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case 0x36:
 			pData->KeyPressed(PVRShellKeyNameACTION2);
 			break;
-		case VK_F11:
-		case 0xC2:
-			pData->KeyPressed(PVRShellKeyNameScreenshot);
-			break;
+        case VK_F1:
+            pData->KeyPressed(PVRShellKeyNameF1);
+            break;
+        case VK_F2:
+            pData->KeyPressed(PVRShellKeyNameF2);
+            break;
+        case VK_F3:
+            pData->KeyPressed(PVRShellKeyNameF3);
+            break;
+        case VK_F4:
+            pData->KeyPressed(PVRShellKeyNameF4);
+            break;
+        case VK_F5:
+            pData->KeyPressed(PVRShellKeyNameF5);
+            break;
+        case VK_F6:
+            pData->KeyPressed(PVRShellKeyNameF6);
+            break;
+        case VK_F7:
+            pData->KeyPressed(PVRShellKeyNameF7);
+            break;
+        case VK_F8:
+            pData->KeyPressed(PVRShellKeyNameF8);
+            break;
+        case VK_F9:
+            pData->KeyPressed(PVRShellKeyNameF9);
+            break;
+        case VK_F10:
+            pData->KeyPressed(PVRShellKeyNameF10);
+            break;
+        case VK_F11:
+        case 0xC2:
+            pData->KeyPressed(PVRShellKeyNameScreenshot);
+            break;
+        case VK_F12:
+            pData->KeyPressed(PVRShellKeyNameF12);
+            break;
 		}
 	}
 	default:

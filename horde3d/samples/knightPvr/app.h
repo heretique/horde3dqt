@@ -33,8 +33,8 @@ public:
 	const char *getTitle() { return "Knight - Horde3D Sample"; }
 	
 	void resize( int width, int height );
-
 	void keyStateHandler();
+    void mouseStateHandler();
 	void mouseMoveEvent( float dX, float dY );
 
 private:
@@ -56,6 +56,7 @@ private:
 	H3DNode            _cam, _knight, _particleSys;
 
 	std::string        _contentDir;
+    float              _touchLocation[2];
 
 public:
     virtual bool InitApplication();

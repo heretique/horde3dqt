@@ -166,7 +166,7 @@ namespace Horde3DOpenGLESRenderer {
 		bool linkShaderProgram( uint32 programObj );
 		void resolveRenderBuffer( uint32 rbObj );
 
-		void checkGLError();
+        void checkGLError(const char* file, int line);
 		bool applyVertexLayout();
 		void applySamplerState( RDITexture &tex );
 

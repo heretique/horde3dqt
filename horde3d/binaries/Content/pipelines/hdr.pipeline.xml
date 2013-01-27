@@ -15,7 +15,7 @@
 		</Stage>
 		
 		<Stage id="Lighting">
-			<DoForwardLightLoop class="~Translucent" />
+			<DoForwardLightLoop class="~Translucent" noShadows="true" />
 		</Stage>
 		
 		<Stage id="Translucent">

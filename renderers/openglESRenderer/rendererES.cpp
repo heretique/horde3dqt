@@ -383,7 +383,7 @@ bool OpenGLESRenderer::createShaderComb( const char *vertexShader, const char *f
 
     // Set standard uniforms
     int loc =_rd-> getShaderSamplerLoc( shdObj, "shadowMap" );
-    if( loc >= 0 ) _rd->setShaderSampler( loc, 12 );
+    if( loc >= 0 ) _rd->setShaderSampler( loc, TEXTURE_SLOTS - 2 );
 
     // Misc general uniforms
     sc.uni_frameBufSize = _rd->getShaderConstLoc( shdObj, "frameBufSize" );
@@ -809,12 +809,12 @@ void OpenGLESRenderer::setupShadowMap( bool noShadows )
     // Bind shadow map
     if( !noShadows && _curLight->shadowMapCount() > 0 )
     {
-        _rd->setTexture( 12, _rd->getRenderBufferTex( _shadowRB, 32 ), sampState );
+        _rd->setTexture( TEXTURE_SLOTS - 2, _rd->getRenderBufferTex( _shadowRB, 32 ), sampState );
         _smSize = (float)Modules::config().shadowMapSize;
     }
     else
     {
-        _rd->setTexture( 12, _defShadowMap, sampState );
+        _rd->setTexture( TEXTURE_SLOTS - 2, _defShadowMap, sampState );
         _smSize = 4;
     }
 }
