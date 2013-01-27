@@ -28,7 +28,7 @@ CameraNode::CameraNode( const CameraNodeTpl &cameraTpl ) :
 	_pipelineRes = cameraTpl.pipeRes;
 	_outputTex = cameraTpl.outputTex;
 	_outputBufferIndex = cameraTpl.outputBufferIndex;
-	_vpX = 0; _vpY = 0; _vpWidth = 320; _vpHeight = 240;
+    _vpX = 0; _vpY = 0; _vpWidth = 512; _vpHeight = 512;
 	_frustLeft = cameraTpl.leftPlane;
 	_frustRight = cameraTpl.rightPlane;
 	_frustBottom = cameraTpl.bottomPlane;

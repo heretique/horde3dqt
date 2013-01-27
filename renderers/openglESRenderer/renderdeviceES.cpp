@@ -16,12 +16,13 @@
 #include "egCom.h"
 #include "utMath.h"
 #include "utDebug.h"
+#include <iostream>
 
 
 namespace Horde3DOpenGLESRenderer {
 
 #ifdef H3D_VALIDATE_DRAWCALLS
-#	define CHECK_GL_ERROR checkGLError();
+#	define CHECK_GL_ERROR checkGLError(__FILE__, __LINE__);
 #else
 #	define CHECK_GL_ERROR
 #endif
@@ -46,6 +47,38 @@ uint32 getNativeTextureType(int type)
         break;
     }
     return textureType;
+}
+
+uint32 getNativeIndexType(int type) {
+    uint32 indexType = GL_UNSIGNED_BYTE;
+    switch(type)
+    {
+    case IDXFMT_16:
+        indexType = GL_UNSIGNED_SHORT;
+        break;
+    case IDXFMT_32:
+    default:
+        Modules::log().writeError( "[Horde3DOpenGLESRenderer::getNativeIndexType] - Unknown index type" );
+        break;
+    }
+    return indexType;
+}
+
+uint32 getNativePrimitiveType(int type) {
+    uint32 primType = GL_TRIANGLES;
+    switch(type)
+    {
+    case PRIM_TRILIST:
+        primType = GL_TRIANGLES;
+        break;
+    case PRIM_TRISTRIP:
+        primType = GL_TRIANGLE_STRIP;
+        break;
+    default:
+        Modules::log().writeError( "[Horde3DOpenGLESRenderer::getNativePrimitiveType] - Unknown primitive type" );
+        break;
+    }
+    return primType;
 }
 
 // =================================================================================================
@@ -153,8 +186,8 @@ OpenGLESRenderDevice::OpenGLESRenderDevice()
 {
     _numVertexLayouts = 0;
 
-    _vpX = 0; _vpY = 0; _vpWidth = 320; _vpHeight = 240;
-    _scX = 0; _scY = 0; _scWidth = 320; _scHeight = 240;
+    _vpX = 0; _vpY = 0; _vpWidth = 512; _vpHeight = 512;
+    _scX = 0; _scY = 0; _scWidth = 512; _scHeight = 512;
     _prevShaderId = _curShaderId = 0;
     _curRendBuf = 0; _outputBufferIndex = 0;
     _textureMem = 0; _bufferMem = 0;
@@ -178,6 +211,7 @@ IRenderDevice* OpenGLESRenderDevice::factoryFunc()
 void OpenGLESRenderDevice::initStates()
 {
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+    CHECK_GL_ERROR
 }
 
 
@@ -298,7 +332,7 @@ uint32 OpenGLESRenderDevice::registerVertexLayout( uint32 numAttribs, VertexLayo
 void OpenGLESRenderDevice::beginRendering()
 {	
     //	Get the currently bound frame buffer object.
-    glGetIntegerv( GL_FRAMEBUFFER_BINDING, &_defaultFBO );
+    glGetIntegerv( GL_FRAMEBUFFER_BINDING, &_defaultFBO ); CHECK_GL_ERROR
 }
 
 uint32 OpenGLESRenderDevice::createVertexBuffer( uint32 size, const void *data )
@@ -307,10 +341,10 @@ uint32 OpenGLESRenderDevice::createVertexBuffer( uint32 size, const void *data )
 
     buf.type = GL_ARRAY_BUFFER;
     buf.size = size;
-    glGenBuffers( 1, &buf.glObj );
-    glBindBuffer( buf.type, buf.glObj );
-    glBufferData( buf.type, size, data, GL_DYNAMIC_DRAW );
-    glBindBuffer( buf.type, 0 );
+    glGenBuffers( 1, &buf.glObj ); CHECK_GL_ERROR
+    glBindBuffer( buf.type, buf.glObj ); CHECK_GL_ERROR
+    glBufferData( buf.type, size, data, GL_DYNAMIC_DRAW ); CHECK_GL_ERROR
+    glBindBuffer( buf.type, 0 ); CHECK_GL_ERROR
 
     _bufferMem += size;
     return _buffers.add( buf );
@@ -323,10 +357,10 @@ uint32 OpenGLESRenderDevice::createIndexBuffer( uint32 size, const void *data )
 
     buf.type = GL_ELEMENT_ARRAY_BUFFER;
     buf.size = size;
-    glGenBuffers( 1, &buf.glObj );
-    glBindBuffer( buf.type, buf.glObj );
-    glBufferData( buf.type, size, data, GL_DYNAMIC_DRAW );
-    glBindBuffer( buf.type, 0 );
+    glGenBuffers( 1, &buf.glObj ); CHECK_GL_ERROR
+    glBindBuffer( buf.type, buf.glObj ); CHECK_GL_ERROR
+    glBufferData( buf.type, size, data, GL_DYNAMIC_DRAW ); CHECK_GL_ERROR
+    glBindBuffer( buf.type, 0 ); CHECK_GL_ERROR
 
     _bufferMem += size;
     return _buffers.add( buf );
@@ -338,7 +372,7 @@ void OpenGLESRenderDevice::destroyBuffer( uint32 bufObj )
     if( bufObj == 0 ) return;
 
     RDIBuffer &buf = _buffers.getRef( bufObj );
-    glDeleteBuffers( 1, &buf.glObj );
+    glDeleteBuffers( 1, &buf.glObj ); CHECK_GL_ERROR
 
     _bufferMem -= buf.size;
     _buffers.remove( bufObj );
@@ -350,16 +384,16 @@ void OpenGLESRenderDevice::updateBufferData( uint32 bufObj, uint32 offset, uint3
     const RDIBuffer &buf = _buffers.getRef( bufObj );
     ASSERT( offset + size <= buf.size );
 
-    glBindBuffer( buf.type, buf.glObj );
+    glBindBuffer( buf.type, buf.glObj ); CHECK_GL_ERROR
 
     if( offset == 0 &&  size == buf.size )
     {
         // Replacing the whole buffer can help the driver to avoid pipeline stalls
-        glBufferData( buf.type, size, data, GL_DYNAMIC_DRAW );
+        glBufferData( buf.type, size, data, GL_DYNAMIC_DRAW ); CHECK_GL_ERROR
         return;
     }
 
-    glBufferSubData( buf.type, offset, size, data );
+    glBufferSubData( buf.type, offset, size, data ); CHECK_GL_ERROR
 }
 
 
@@ -616,9 +650,9 @@ uint32 OpenGLESRenderDevice::createTexture( TextureTypes::List type, int width, 
         break;
     };
 
-    glGenTextures( 1, &tex.glObj );
-    glActiveTexture( GL_TEXTURE7 );
-    glBindTexture( getNativeTextureType(tex.type), tex.glObj );
+    glGenTextures( 1, &tex.glObj ); CHECK_GL_ERROR
+    glActiveTexture( GL_TEXTURE7 ); CHECK_GL_ERROR
+    glBindTexture( getNativeTextureType(tex.type), tex.glObj ); CHECK_GL_ERROR
 
     //      float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     //      glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
@@ -626,9 +660,9 @@ uint32 OpenGLESRenderDevice::createTexture( TextureTypes::List type, int width, 
     tex.samplerState = 0;
     applySamplerState( tex );
 
-    glBindTexture( getNativeTextureType(tex.type), 0 );
+    glBindTexture( getNativeTextureType(tex.type), 0 ); CHECK_GL_ERROR
     if( _texSlots[TEXTURE_SLOTS - 1].texObj )
-        glBindTexture( getNativeTextureType(_textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).type), _textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).glObj );
+        glBindTexture( getNativeTextureType(_textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).type), _textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).glObj ); CHECK_GL_ERROR
 
     // Calculate memory requirements
     tex.memSize = calcTextureSize( format, width, height, depth );
@@ -645,8 +679,8 @@ void OpenGLESRenderDevice::uploadTextureData( uint32 texObj, int slice, int mipL
     const RDITexture &tex = _textures.getRef( texObj );
     TextureFormats::List format = tex.format;
 
-    glActiveTexture( GL_TEXTURE7 );
-    glBindTexture( getNativeTextureType(tex.type), tex.glObj );
+    glActiveTexture( GL_TEXTURE7 ); CHECK_GL_ERROR
+    glBindTexture( getNativeTextureType(tex.type), tex.glObj ); CHECK_GL_ERROR
 
     int inputFormat;
     if( _caps.texBGRA8 )
@@ -676,7 +710,7 @@ void OpenGLESRenderDevice::uploadTextureData( uint32 texObj, int slice, int mipL
     {
     case TextureFormats::RGBA16F:
         inputFormat = GL_RGBA;
-        inputType = GL_HALF_FLOAT_OES;
+        inputType = GL_UNSIGNED_BYTE;
         break;
     case TextureFormats::RGBA32F:
         inputFormat = GL_RGBA;
@@ -708,32 +742,34 @@ void OpenGLESRenderDevice::uploadTextureData( uint32 texObj, int slice, int mipL
         int target = (tex.type == TextureTypes::Tex2D) ?
                     GL_TEXTURE_2D : (GL_TEXTURE_CUBE_MAP_POSITIVE_X + slice);
 
-        if( compressed )
+        if( compressed ) {
             glCompressedTexImage2D( target, mipLevel, tex.glFmt, width, height, 0,
-                                    calcTextureSize( format, width, height, 1 ), pixels );
-        else
-            glTexImage2D( target, mipLevel, tex.glFmt, width, height, 0, inputFormat, inputType, pixels );
+                                    calcTextureSize( format, width, height, 1 ), pixels ); CHECK_GL_ERROR
+        } else {
+            glTexImage2D( target, mipLevel, tex.glFmt, width, height, 0, inputFormat, inputType, pixels ); CHECK_GL_ERROR
+        }
     }
     else if( tex.type == TextureTypes::Tex3D && glExt::OES_texture_3D)
     {
         int depth = std::max( tex.depth >> mipLevel, 1 );
 
-        if( compressed )
+        if( compressed ) {
             glExt::glCompressedTexImage3DOES( GL_TEXTURE_3D_OES, mipLevel, tex.glFmt, width, height, depth, 0,
-                                              calcTextureSize( format, width, height, depth ), pixels );
-        else
+                                              calcTextureSize( format, width, height, depth ), pixels ); CHECK_GL_ERROR
+        } else {
             glExt::glTexImage3DOES( GL_TEXTURE_3D_OES, mipLevel, tex.glFmt, width, height, depth, 0,
-                                    inputFormat, inputType, pixels );
+                                    inputFormat, inputType, pixels ); CHECK_GL_ERROR
+        }
     }
 
     if( tex.genMips && (tex.type != GL_TEXTURE_CUBE_MAP || slice == 5) )
     {
-        glGenerateMipmap( getNativeTextureType( tex.type ) );
+        glGenerateMipmap( getNativeTextureType( tex.type ) ); CHECK_GL_ERROR
     }
 
-    glBindTexture( getNativeTextureType(tex.type), 0 );
+    glBindTexture( getNativeTextureType(tex.type), 0 ); CHECK_GL_ERROR
     if( _texSlots[TEXTURE_SLOTS - 1].texObj )
-        glBindTexture( getNativeTextureType(_textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).type), _textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).glObj );
+        glBindTexture( getNativeTextureType(_textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).type), _textures.getRef( _texSlots[TEXTURE_SLOTS - 1].texObj ).glObj ); CHECK_GL_ERROR
 }
 
 
@@ -742,7 +778,7 @@ void OpenGLESRenderDevice::destroyTexture( uint32 texObj )
     if( texObj == 0 ) return;
 
     const RDITexture &tex = _textures.getRef( texObj );
-    glDeleteTextures( 1, &tex.glObj );
+    glDeleteTextures( 1, &tex.glObj ); CHECK_GL_ERROR
 
     _textureMem -= tex.memSize;
     _textures.remove( texObj );
@@ -751,7 +787,7 @@ void OpenGLESRenderDevice::destroyTexture( uint32 texObj )
 
 void OpenGLESRenderDevice::updateTextureData( uint32 texObj, int slice, int mipLevel, const void *pixels )
 {
-    uploadTextureData( texObj, slice, mipLevel, pixels );
+    uploadTextureData( texObj, slice, mipLevel, pixels ); CHECK_GL_ERROR
 }
 
 
@@ -777,52 +813,52 @@ uint32 OpenGLESRenderDevice::createShaderProgram( const char *vertexShaderSrc, c
 
     // Vertex shader
     uint32 vs = glCreateShader( GL_VERTEX_SHADER );
-    glShaderSource( vs, 1, &vertexShaderSrc, 0x0 );
-    glCompileShader( vs );
-    glGetShaderiv( vs, GL_COMPILE_STATUS, &status );
+    glShaderSource( vs, 1, &vertexShaderSrc, 0x0 ); CHECK_GL_ERROR
+    glCompileShader( vs ); CHECK_GL_ERROR
+    glGetShaderiv( vs, GL_COMPILE_STATUS, &status ); CHECK_GL_ERROR
     if( !status )
     {
         // Get info
-        glGetShaderiv( vs, GL_INFO_LOG_LENGTH, &infologLength );
+        glGetShaderiv( vs, GL_INFO_LOG_LENGTH, &infologLength ); CHECK_GL_ERROR
         if( infologLength > 1 )
         {
             infoLog = new char[infologLength];
-            glGetShaderInfoLog( vs, infologLength, &charsWritten, infoLog );
+            glGetShaderInfoLog( vs, infologLength, &charsWritten, infoLog ); CHECK_GL_ERROR
             _shaderLog = _shaderLog + "[Vertex Shader]\n" + infoLog;
             delete[] infoLog; infoLog = 0x0;
         }
 
-        glDeleteShader( vs );
+        glDeleteShader( vs ); CHECK_GL_ERROR
         return 0;
     }
 
     // Fragment shader
     uint32 fs = glCreateShader( GL_FRAGMENT_SHADER );
-    glShaderSource( fs, 1, &fragmentShaderSrc, 0x0 );
-    glCompileShader( fs );
-    glGetShaderiv( fs, GL_COMPILE_STATUS, &status );
+    glShaderSource( fs, 1, &fragmentShaderSrc, 0x0 ); CHECK_GL_ERROR
+    glCompileShader( fs ); CHECK_GL_ERROR
+    glGetShaderiv( fs, GL_COMPILE_STATUS, &status ); CHECK_GL_ERROR
     if( !status )
     {
-        glGetShaderiv( fs, GL_INFO_LOG_LENGTH, &infologLength );
+        glGetShaderiv( fs, GL_INFO_LOG_LENGTH, &infologLength ); CHECK_GL_ERROR
         if( infologLength > 1 )
         {
             infoLog = new char[infologLength];
-            glGetShaderInfoLog( fs, infologLength, &charsWritten, infoLog );
+            glGetShaderInfoLog( fs, infologLength, &charsWritten, infoLog ); CHECK_GL_ERROR
             _shaderLog = _shaderLog + "[Fragment Shader]\n" + infoLog;
             delete[] infoLog; infoLog = 0x0;
         }
 
-        glDeleteShader( vs );
-        glDeleteShader( fs );
+        glDeleteShader( vs ); CHECK_GL_ERROR
+        glDeleteShader( fs ); CHECK_GL_ERROR
         return 0;
     }
 
     // Shader program
-    uint32 program = glCreateProgram();
-    glAttachShader( program, vs );
-    glAttachShader( program, fs );
-    glDeleteShader( vs );
-    glDeleteShader( fs );
+    uint32 program = glCreateProgram(); CHECK_GL_ERROR
+    glAttachShader( program, vs ); CHECK_GL_ERROR
+    glAttachShader( program, fs ); CHECK_GL_ERROR
+    glDeleteShader( vs ); CHECK_GL_ERROR
+    glDeleteShader( fs ); CHECK_GL_ERROR
 
     return program;
 }
@@ -837,17 +873,17 @@ bool OpenGLESRenderDevice::linkShaderProgram( uint32 programObj )
 
     _shaderLog = "";
 
-    glLinkProgram( programObj );
-    glGetProgramiv( programObj, GL_INFO_LOG_LENGTH, &infologLength );
+    glLinkProgram( programObj ); CHECK_GL_ERROR
+    glGetProgramiv( programObj, GL_INFO_LOG_LENGTH, &infologLength ); CHECK_GL_ERROR
     if( infologLength > 1 )
     {
         infoLog = new char[infologLength];
-        glGetProgramInfoLog( programObj, infologLength, &charsWritten, infoLog );
+        glGetProgramInfoLog( programObj, infologLength, &charsWritten, infoLog ); CHECK_GL_ERROR
         _shaderLog = _shaderLog + "[Linking]\n" + infoLog;
         delete[] infoLog; infoLog = 0x0;
     }
 
-    glGetProgramiv( programObj, GL_LINK_STATUS, &status );
+    glGetProgramiv( programObj, GL_LINK_STATUS, &status ); CHECK_GL_ERROR
     if( !status ) return false;
 
     return true;
@@ -866,7 +902,7 @@ uint32 OpenGLESRenderDevice::createShader( const char *vertexShaderSrc, const ch
     shader.oglProgramObj = programObj;
 
     int attribCount;
-    glGetProgramiv( programObj, GL_ACTIVE_ATTRIBUTES, &attribCount );
+    glGetProgramiv( programObj, GL_ACTIVE_ATTRIBUTES, &attribCount ); CHECK_GL_ERROR
 
     for( uint32 i = 0; i < _numVertexLayouts; ++i )
     {
@@ -880,7 +916,7 @@ uint32 OpenGLESRenderDevice::createShader( const char *vertexShaderSrc, const ch
         {
             char name[32];
             uint32 size, type;
-            glGetActiveAttrib( programObj, j, 32, 0x0, (int *)&size, &type, name );
+            glGetActiveAttrib( programObj, j, 32, 0x0, (int *)&size, &type, name ); CHECK_GL_ERROR
 
             bool attribFound = false;
             for( uint32 k = 0; k < vl.numAttribs; ++k )
@@ -911,7 +947,7 @@ void OpenGLESRenderDevice::destroyShader( uint32 shaderId )
     if( shaderId == 0 ) return;
 
     RDIShader &shader = _shaders.getRef( shaderId );
-    glDeleteProgram( shader.oglProgramObj );
+    glDeleteProgram( shader.oglProgramObj ); CHECK_GL_ERROR
     _shaders.remove( shaderId );
 }
 
@@ -921,11 +957,11 @@ void OpenGLESRenderDevice::bindShader( uint32 shaderId )
     if( shaderId != 0 )
     {
         RDIShader &shader = _shaders.getRef( shaderId );
-        glUseProgram( shader.oglProgramObj );
+        glUseProgram( shader.oglProgramObj ); CHECK_GL_ERROR
     }
     else
     {
-        glUseProgram( 0 );
+        glUseProgram( 0 ); CHECK_GL_ERROR
     }
 
     _curShaderId = shaderId;
@@ -952,22 +988,22 @@ void OpenGLESRenderDevice::setShaderConst( int loc, RDIShaderConstType type, voi
     switch( type )
     {
     case CONST_FLOAT:
-        glUniform1fv( loc, count, (float *)values );
+        glUniform1fv( loc, count, (float *)values ); CHECK_GL_ERROR
         break;
     case CONST_FLOAT2:
-        glUniform2fv( loc, count, (float *)values );
+        glUniform2fv( loc, count, (float *)values ); CHECK_GL_ERROR
         break;
     case CONST_FLOAT3:
-        glUniform3fv( loc, count, (float *)values );
+        glUniform3fv( loc, count, (float *)values ); CHECK_GL_ERROR
         break;
     case CONST_FLOAT4:
-        glUniform4fv( loc, count, (float *)values );
+        glUniform4fv( loc, count, (float *)values ); CHECK_GL_ERROR
         break;
     case CONST_FLOAT44:
-        glUniformMatrix4fv( loc, count, false, (float *)values );
+        glUniformMatrix4fv( loc, count, false, (float *)values ); CHECK_GL_ERROR
         break;
     case CONST_FLOAT33:
-        glUniformMatrix3fv( loc, count, false, (float *)values );
+        glUniformMatrix3fv( loc, count, false, (float *)values ); CHECK_GL_ERROR
         break;
     }
 }
@@ -975,7 +1011,7 @@ void OpenGLESRenderDevice::setShaderConst( int loc, RDIShaderConstType type, voi
 
 void OpenGLESRenderDevice::setShaderSampler( int loc, uint32 texUnit )
 {
-    glUniform1i( loc, (int)texUnit );
+    glUniform1i( loc, (int)texUnit ); CHECK_GL_ERROR
 }
 
 
@@ -997,12 +1033,13 @@ uint32 OpenGLESRenderDevice::createRenderBuffer( uint32 width, uint32 height, Te
     if( _caps.rtMultisampling )
     {
         GLint value = 0;
-        if (glExt::ANGLE_framebuffer_multisample)
-            glGetIntegerv( GL_MAX_SAMPLES_ANGLE, &value );
-        else if (glExt::APPLE_framebuffer_multisample)
-            glGetIntegerv( GL_MAX_SAMPLES_APPLE, &value );
-        else if (glExt::IMG_multisampled_render_to_texture)
-            glGetIntegerv( GL_MAX_SAMPLES_IMG, &value );
+        if (glExt::ANGLE_framebuffer_multisample) {
+            glGetIntegerv( GL_MAX_SAMPLES_ANGLE, &value ); CHECK_GL_ERROR
+         } else if (glExt::APPLE_framebuffer_multisample) {
+            glGetIntegerv( GL_MAX_SAMPLES_APPLE, &value ); CHECK_GL_ERROR
+        } else if (glExt::IMG_multisampled_render_to_texture) {
+            glGetIntegerv( GL_MAX_SAMPLES_IMG, &value ); CHECK_GL_ERROR
+        }
 
         maxSamples = (uint32)value;
     }
@@ -1018,7 +1055,7 @@ uint32 OpenGLESRenderDevice::createRenderBuffer( uint32 width, uint32 height, Te
     rb.samples = samples;
 
     // Create framebuffers
-    glGenFramebuffers( 1, &rb.fbo );
+    glGenFramebuffers( 1, &rb.fbo ); CHECK_GL_ERROR
     if( samples > 0 ) glGenFramebuffers( 1, &rb.fboMS );
 
     if( numColBufs > 0 )
@@ -1026,50 +1063,51 @@ uint32 OpenGLESRenderDevice::createRenderBuffer( uint32 width, uint32 height, Te
         // Attach color buffers
         for( uint32 j = 0; j < numColBufs; ++j )
         {
-            glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
+            glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo ); CHECK_GL_ERROR
             // Create a color texture
             uint32 texObj = createTexture( TextureTypes::Tex2D, rb.width, rb.height, 1, format, false, false, false, false );
             ASSERT( texObj != 0 );
-            uploadTextureData( texObj, 0, 0, 0x0 );
+            uploadTextureData( texObj, 0, 0, 0x0 ); CHECK_GL_ERROR
             rb.colTexs[j] = texObj;
             RDITexture &tex = _textures.getRef( texObj );
             // Attach the texture
-            glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + j, GL_TEXTURE_2D, tex.glObj, 0 );
+            glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + j, GL_TEXTURE_2D, tex.glObj, 0 ); CHECK_GL_ERROR
 
             if( samples > 0 )
             {
-                glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS );
+                glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS ); CHECK_GL_ERROR
                 // Create a multisampled renderbuffer
-                glGenRenderbuffers( 1, &rb.colBufs[j] );
-                glBindRenderbuffer( GL_RENDERBUFFER, rb.colBufs[j] );
-                if (glExt::ANGLE_framebuffer_multisample)
-                    glExt::glRenderbufferStorageMultisampleANGLE( GL_RENDERBUFFER, rb.samples, tex.glFmt, rb.width, rb.height );
-                else if (glExt::APPLE_framebuffer_multisample)
-                    glExt::glRenderbufferStorageMultisampleAPPLE( GL_RENDERBUFFER, rb.samples, tex.glFmt, rb.width, rb.height );
-                else if (glExt::IMG_multisampled_render_to_texture)
-                    glExt::glRenderbufferStorageMultisampleIMG( GL_RENDERBUFFER, rb.samples, tex.glFmt, rb.width, rb.height );
+                glGenRenderbuffers( 1, &rb.colBufs[j] ); CHECK_GL_ERROR
+                glBindRenderbuffer( GL_RENDERBUFFER, rb.colBufs[j] ); CHECK_GL_ERROR
+                if (glExt::ANGLE_framebuffer_multisample) {
+                    glExt::glRenderbufferStorageMultisampleANGLE( GL_RENDERBUFFER, rb.samples, tex.glFmt, rb.width, rb.height ); CHECK_GL_ERROR
+                } else if (glExt::APPLE_framebuffer_multisample) {
+                    glExt::glRenderbufferStorageMultisampleAPPLE( GL_RENDERBUFFER, rb.samples, tex.glFmt, rb.width, rb.height ); CHECK_GL_ERROR
+                } else if (glExt::IMG_multisampled_render_to_texture) {
+                    glExt::glRenderbufferStorageMultisampleIMG( GL_RENDERBUFFER, rb.samples, tex.glFmt, rb.width, rb.height ); CHECK_GL_ERROR
+                }
                 // Attach the renderbuffer
                 glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + j,
-                                           GL_RENDERBUFFER, rb.colBufs[j] );
+                                           GL_RENDERBUFFER, rb.colBufs[j] ); CHECK_GL_ERROR
             }
         }
 
 //        uint32 buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0 + 1,
 //                             GL_COLOR_ATTACHMENT0 + 2, GL_COLOR_ATTACHMENT0 + 3 };
-        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo ); CHECK_GL_ERROR
 
         if( samples > 0 )
         {
-            glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS );
+            glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS ); CHECK_GL_ERROR
         }
     }
     else
     {
-        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo ); CHECK_GL_ERROR
 
         if( samples > 0 )
         {
-            glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS );
+            glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS ); CHECK_GL_ERROR
             //            glDrawBuffer( GL_NONE );
             //            glReadBuffer( GL_NONE );
         }
@@ -1078,7 +1116,7 @@ uint32 OpenGLESRenderDevice::createRenderBuffer( uint32 width, uint32 height, Te
     // Attach depth buffer
     if( depth )
     {
-        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo ); CHECK_GL_ERROR
         // Create a depth texture
         uint32 texObj = createTexture( TextureTypes::Tex2D, rb.width, rb.height, 1, TextureFormats::DEPTH, false, false, false, false );
         ASSERT( texObj != 0 );
@@ -1087,23 +1125,24 @@ uint32 OpenGLESRenderDevice::createRenderBuffer( uint32 width, uint32 height, Te
         rb.depthTex = texObj;
         RDITexture &tex = _textures.getRef( texObj );
         // Attach the texture
-        glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex.glObj, 0 );
+        glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex.glObj, 0 ); CHECK_GL_ERROR
 
         if( samples > 0 )
         {
-            glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS );
+            glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS ); CHECK_GL_ERROR
             // Create a multisampled renderbuffer
-            glGenRenderbuffers( 1, &rb.depthBuf );
-            glBindRenderbuffer( GL_RENDERBUFFER, rb.depthBuf );
-            if (glExt::ANGLE_framebuffer_multisample)
-                glExt::glRenderbufferStorageMultisampleANGLE( GL_RENDERBUFFER, rb.samples, _depthFormat, rb.width, rb.height );
-            else if (glExt::APPLE_framebuffer_multisample)
-                glExt::glRenderbufferStorageMultisampleAPPLE( GL_RENDERBUFFER, rb.samples, _depthFormat, rb.width, rb.height );
-            else if (glExt::IMG_multisampled_render_to_texture)
-                glExt::glRenderbufferStorageMultisampleIMG( GL_RENDERBUFFER, rb.samples, _depthFormat, rb.width, rb.height );
+            glGenRenderbuffers( 1, &rb.depthBuf ); CHECK_GL_ERROR
+            glBindRenderbuffer( GL_RENDERBUFFER, rb.depthBuf ); CHECK_GL_ERROR
+            if (glExt::ANGLE_framebuffer_multisample) {
+                glExt::glRenderbufferStorageMultisampleANGLE( GL_RENDERBUFFER, rb.samples, _depthFormat, rb.width, rb.height ); CHECK_GL_ERROR
+             } else if (glExt::APPLE_framebuffer_multisample) {
+                glExt::glRenderbufferStorageMultisampleAPPLE( GL_RENDERBUFFER, rb.samples, _depthFormat, rb.width, rb.height ); CHECK_GL_ERROR
+            } else if (glExt::IMG_multisampled_render_to_texture) {
+                glExt::glRenderbufferStorageMultisampleIMG( GL_RENDERBUFFER, rb.samples, _depthFormat, rb.width, rb.height ); CHECK_GL_ERROR
+            }
             // Attach the renderbuffer
             glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                                       GL_RENDERBUFFER, rb.depthBuf );
+                                       GL_RENDERBUFFER, rb.depthBuf ); CHECK_GL_ERROR
         }
     }
 
@@ -1111,16 +1150,16 @@ uint32 OpenGLESRenderDevice::createRenderBuffer( uint32 width, uint32 height, Te
 
     // Check if FBO is complete
     bool valid = true;
-    glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
-    uint32 status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
-    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
+    glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo ); CHECK_GL_ERROR
+    uint32 status = glCheckFramebufferStatus( GL_FRAMEBUFFER ); CHECK_GL_ERROR
+    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO ); CHECK_GL_ERROR
     if( status != GL_FRAMEBUFFER_COMPLETE ) valid = false;
 
     if( samples > 0 )
     {
-        glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS );
-        status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
-        glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS ); CHECK_GL_ERROR
+        status = glCheckFramebufferStatus( GL_FRAMEBUFFER ); CHECK_GL_ERROR
+        glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO ); CHECK_GL_ERROR
         if( status != GL_FRAMEBUFFER_COMPLETE ) valid = false;
     }
 
@@ -1139,7 +1178,7 @@ void OpenGLESRenderDevice::destroyRenderBuffer( uint32 rbObj )
 {
     RDIRenderBuffer &rb = _rendBufs.getRef( rbObj );
 
-    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
+    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO ); CHECK_GL_ERROR
 
     if( rb.depthTex != 0 ) destroyTexture( rb.depthTex );
     if( rb.depthBuf != 0 ) glDeleteRenderbuffers( 1, &rb.depthBuf );
@@ -1220,7 +1259,7 @@ void OpenGLESRenderDevice::setRenderBuffer( uint32 rbObj )
 
     if( rbObj == 0 )
     {
-        glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
+        glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO ); CHECK_GL_ERROR
         //		if( _defaultFBO == 0 ) glDrawBuffer( _outputBufferIndex == 1 ? GL_BACK_RIGHT : GL_BACK_LEFT );
         _fbWidth = _vpWidth + _vpX;
         _fbHeight = _vpHeight + _vpY;
@@ -1234,7 +1273,7 @@ void OpenGLESRenderDevice::setRenderBuffer( uint32 rbObj )
 
         RDIRenderBuffer &rb = _rendBufs.getRef( rbObj );
 
-        glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS != 0 ? rb.fboMS : rb.fbo );
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fboMS != 0 ? rb.fboMS : rb.fbo ); CHECK_GL_ERROR
         //        ASSERT( glCheckFramebufferStatus( GL_FRAMEBUFFER ) == GL_FRAMEBUFFER_COMPLETE_EXT );
         _fbWidth = rb.width;
         _fbHeight = rb.height;
@@ -1252,7 +1291,7 @@ bool OpenGLESRenderDevice::getRenderBufferData( uint32 rbObj, int bufIndex, int 
     int format = GL_RGBA;
     int type = GL_FLOAT;
     beginRendering();
-    glPixelStorei( GL_PACK_ALIGNMENT, 4 );
+    glPixelStorei( GL_PACK_ALIGNMENT, 4 ); CHECK_GL_ERROR
 
     if( rbObj == 0 )
     {
@@ -1262,7 +1301,7 @@ bool OpenGLESRenderDevice::getRenderBufferData( uint32 rbObj, int bufIndex, int 
 
         x = _vpX; y = _vpY; w = _vpWidth; h = _vpHeight;
 
-        glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
+        glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO ); CHECK_GL_ERROR
         //		if( bufIndex != 32 ) glReadBuffer( GL_BACK_LEFT );
         //format = GL_BGRA;
         //type = GL_UNSIGNED_BYTE;
@@ -1283,7 +1322,7 @@ bool OpenGLESRenderDevice::getRenderBufferData( uint32 rbObj, int bufIndex, int 
 
         x = 0; y = 0; w = rb.width; h = rb.height;
 
-        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo );
+        glBindFramebuffer( GL_FRAMEBUFFER, rb.fbo ); CHECK_GL_ERROR
         //		if( bufIndex != 32 ) glReadBuffer( GL_COLOR_ATTACHMENT0_EXT + bufIndex );
     }
 
@@ -1300,11 +1339,11 @@ bool OpenGLESRenderDevice::getRenderBufferData( uint32 rbObj, int bufIndex, int 
     if( dataBuffer != 0x0 &&
             bufferSize >= w * h * comps * (type == GL_FLOAT ? 4 : 1) )
     {
-        glFinish();
-        glReadPixels( x, y, w, h, format, type, dataBuffer );
+        glFinish(); CHECK_GL_ERROR
+        glReadPixels( x, y, w, h, format, type, dataBuffer ); CHECK_GL_ERROR
         retVal = true;
     }
-    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
+    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO ); CHECK_GL_ERROR
 
     return retVal;
 }
@@ -1354,13 +1393,17 @@ uint32 OpenGLESRenderDevice::getQueryResult( uint32 queryObj )
 // Internal state management
 // =================================================================================================
 
-void OpenGLESRenderDevice::checkGLError()
+void OpenGLESRenderDevice::checkGLError(const char* file, int line)
 {
     uint32 error = glGetError();
-    ASSERT( error != GL_INVALID_ENUM );
-    ASSERT( error != GL_INVALID_VALUE );
-    ASSERT( error != GL_INVALID_OPERATION );
-    ASSERT( error != GL_OUT_OF_MEMORY );
+    if (error == GL_INVALID_ENUM) std::cerr << "GL_INVALID_ENUM in file: " << file <<" , line: " << line << std::endl;
+//    ASSERT( error != GL_INVALID_ENUM );
+    if (error == GL_INVALID_VALUE) std::cerr << "GL_INVALID_VALUE in file: " << file <<" , line: " << line << std::endl;
+//    ASSERT( error != GL_INVALID_VALUE );
+    if (error == GL_INVALID_OPERATION) std::cerr << "GL_INVALID_OPERATION in file: " << file <<" , line: " << line << std::endl;
+//    ASSERT( error != GL_INVALID_OPERATION );
+    if (error == GL_OUT_OF_MEMORY) std::cerr << "GL_OUT_OF_MEMORY in file: " << file <<" , line: " << line << std::endl;
+//    ASSERT( error != GL_OUT_OF_MEMORY );
     //	ASSERT( error != GL_STACK_OVERFLOW && error != GL_STACK_UNDERFLOW );
 }
 
@@ -1389,9 +1432,9 @@ bool OpenGLESRenderDevice::applyVertexLayout()
             ASSERT( _buffers.getRef( _vertBufSlots[attrib.vbSlot].vbObj ).glObj != 0 &&
                     _buffers.getRef( _vertBufSlots[attrib.vbSlot].vbObj ).type == GL_ARRAY_BUFFER );
 
-            glBindBuffer( GL_ARRAY_BUFFER, _buffers.getRef( _vertBufSlots[attrib.vbSlot].vbObj ).glObj );
+            glBindBuffer( GL_ARRAY_BUFFER, _buffers.getRef( _vertBufSlots[attrib.vbSlot].vbObj ).glObj ); CHECK_GL_ERROR
             glVertexAttribPointer( attribIndex, attrib.size, GL_FLOAT, GL_FALSE,
-                                   vbSlot.stride, (char *)0 + vbSlot.offset + attrib.offset );
+                                   vbSlot.stride, (char *)0 + vbSlot.offset + attrib.offset ); CHECK_GL_ERROR
 
             newVertexAttribMask |= 1 << attribIndex;
         }
@@ -1422,20 +1465,21 @@ void OpenGLESRenderDevice::applySamplerState( RDITexture &tex )
     const uint32 maxAniso[] = { 1, 2, 4, 0, 8, 0, 0, 0, 16 };
     const uint32 wrapModes[] = { GL_CLAMP_TO_EDGE, GL_REPEAT, GL_CLAMP_TO_EDGE };
 
-    if( tex.hasMips )
-        glTexParameteri( target, GL_TEXTURE_MIN_FILTER, minFiltersMips[(state & SS_FILTER_MASK) >> SS_FILTER_START] );
-    else
-        glTexParameteri( target, GL_TEXTURE_MIN_FILTER, magFilters[(state & SS_FILTER_MASK) >> SS_FILTER_START] );
+    if( tex.hasMips ) {
+        glTexParameteri( target, GL_TEXTURE_MIN_FILTER, minFiltersMips[(state & SS_FILTER_MASK) >> SS_FILTER_START] ); CHECK_GL_ERROR
+    } else {
+        glTexParameteri( target, GL_TEXTURE_MIN_FILTER, magFilters[(state & SS_FILTER_MASK) >> SS_FILTER_START] ); CHECK_GL_ERROR
+    }
 
-    glTexParameteri( target, GL_TEXTURE_MAG_FILTER, magFilters[(state & SS_FILTER_MASK) >> SS_FILTER_START] );
+    glTexParameteri( target, GL_TEXTURE_MAG_FILTER, magFilters[(state & SS_FILTER_MASK) >> SS_FILTER_START] ); CHECK_GL_ERROR
 
     if (glExt::EXT_texture_filter_anisotropic)
-        glTexParameteri( target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso[(state & SS_ANISO_MASK) >> SS_ANISO_START] );
+        glTexParameteri( target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso[(state & SS_ANISO_MASK) >> SS_ANISO_START] ); CHECK_GL_ERROR
 
-    glTexParameteri( target, GL_TEXTURE_WRAP_S, wrapModes[(state & SS_ADDRU_MASK) >> SS_ADDRU_START] );
-    glTexParameteri( target, GL_TEXTURE_WRAP_T, wrapModes[(state & SS_ADDRV_MASK) >> SS_ADDRV_START] );
+    glTexParameteri( target, GL_TEXTURE_WRAP_S, wrapModes[(state & SS_ADDRU_MASK) >> SS_ADDRU_START] ); CHECK_GL_ERROR
+    glTexParameteri( target, GL_TEXTURE_WRAP_T, wrapModes[(state & SS_ADDRV_MASK) >> SS_ADDRV_START] ); CHECK_GL_ERROR
     if (glExt::OES_texture_3D)
-        glTexParameteri( target, GL_TEXTURE_WRAP_R_OES, wrapModes[(state & SS_ADDRW_MASK) >> SS_ADDRW_START] );
+        glTexParameteri( target, GL_TEXTURE_WRAP_R_OES, wrapModes[(state & SS_ADDRW_MASK) >> SS_ADDRW_START] ); CHECK_GL_ERROR
 
     if( !(state & SS_COMP_LEQUAL) )
     {
@@ -1458,14 +1502,14 @@ bool OpenGLESRenderDevice::commitStates( uint32 filter )
         // Set viewport
         if( mask & PM_VIEWPORT )
         {
-            glViewport( _vpX, _vpY, _vpWidth, _vpHeight );
+            glViewport( _vpX, _vpY, _vpWidth, _vpHeight ); CHECK_GL_ERROR
             _pendingMask &= ~PM_VIEWPORT;
         }
 
         // Set scissor rect
         if( mask & PM_SCISSOR )
         {
-            glScissor( _scX, _scY, _scWidth, _scHeight );
+            glScissor( _scX, _scY, _scWidth, _scHeight ); CHECK_GL_ERROR
             _pendingMask &= ~PM_SCISSOR;
         }
 
@@ -1474,10 +1518,11 @@ bool OpenGLESRenderDevice::commitStates( uint32 filter )
         {
             if( _newIndexBuf != _curIndexBuf )
             {
-                if( _newIndexBuf != 0 )
-                    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _buffers.getRef( _newIndexBuf ).glObj );
-                else
-                    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+                if( _newIndexBuf != 0 ) {
+                    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _buffers.getRef( _newIndexBuf ).glObj ); CHECK_GL_ERROR
+                } else {
+                    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 ); CHECK_GL_ERROR
+                }
 
                 _curIndexBuf = _newIndexBuf;
                 _pendingMask &= ~PM_INDEXBUF;
@@ -1507,7 +1552,7 @@ bool OpenGLESRenderDevice::commitStates( uint32 filter )
                 if( _texSlots[i].texObj != 0 )
                 {
                     RDITexture &tex = _textures.getRef( _texSlots[i].texObj );
-                    glBindTexture( tex.type, tex.glObj );
+                    glBindTexture( getNativeTextureType(tex.type), tex.glObj ); CHECK_GL_ERROR
 
                     // Apply sampler state
                     if( tex.samplerState != _texSlots[i].samplerState )
@@ -1518,10 +1563,10 @@ bool OpenGLESRenderDevice::commitStates( uint32 filter )
                 }
                 else
                 {
-                    glBindTexture( GL_TEXTURE_CUBE_MAP, 0 );
+                    glBindTexture( GL_TEXTURE_CUBE_MAP, 0 ); CHECK_GL_ERROR
                     if (glExt::OES_texture_3D)
-                        glBindTexture( GL_TEXTURE_3D_OES, 0 );
-                    glBindTexture( GL_TEXTURE_2D, 0 );
+                        glBindTexture( GL_TEXTURE_3D_OES, 0 ); CHECK_GL_ERROR
+                    glBindTexture( GL_TEXTURE_2D, 0 ); CHECK_GL_ERROR
                 }
             }
 
@@ -1539,7 +1584,7 @@ void OpenGLESRenderDevice::resetStates()
 {
     static int maxVertexAttribs = 0;
     if( maxVertexAttribs == 0 )
-        glGetIntegerv( GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs );
+        glGetIntegerv( GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs ); CHECK_GL_ERROR
 
     _curIndexBuf = 1; _newIndexBuf = 0;
     _curVertLayout = 1; _newVertLayout = 0;
@@ -1550,9 +1595,9 @@ void OpenGLESRenderDevice::resetStates()
     _activeVertexAttribsMask = 0;
 
     for( uint32 i = 0; i < (uint32)maxVertexAttribs; ++i )
-        glDisableVertexAttribArray( i );
+        glDisableVertexAttribArray( i ); CHECK_GL_ERROR
 
-    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO );
+    glBindFramebuffer( GL_FRAMEBUFFER, _defaultFBO ); CHECK_GL_ERROR
 
     _pendingMask = 0xFFFFFFFF;
     commitStates();
@@ -1593,7 +1638,7 @@ void OpenGLESRenderDevice::draw( RDIPrimType primType, uint32 firstVert, uint32 
 {
     if( commitStates() )
     {
-        glDrawArrays( (uint32)primType, firstVert, numVerts );
+        glDrawArrays( getNativePrimitiveType(primType), firstVert, numVerts );
     }
 
     CHECK_GL_ERROR
@@ -1606,7 +1651,7 @@ void OpenGLESRenderDevice::drawIndexed( RDIPrimType primType, uint32 firstIndex,
     if( commitStates() )
     {
         firstIndex *= (_indexFormat == IDXFMT_16) ? sizeof( short ) : sizeof( int );
-        glDrawElements( (uint32)primType, numIndices, _indexFormat, (char *)0 + firstIndex );
+        glDrawElements( getNativePrimitiveType(primType), numIndices, getNativeIndexType(_indexFormat), (char *)0 + firstIndex );
     }
 
     CHECK_GL_ERROR

@@ -213,7 +213,19 @@ enum PVRShellKeyName
 	PVRShellKeyNameDOWN,
 	PVRShellKeyNameLEFT,
 	PVRShellKeyNameRIGHT,
-	PVRShellKeyNameScreenshot
+    PVRShellKeyNameScreenshot,
+    PVRShellKeyNameF1,
+    PVRShellKeyNameF2,
+    PVRShellKeyNameF3,
+    PVRShellKeyNameF4,
+    PVRShellKeyNameF5,
+    PVRShellKeyNameF6,
+    PVRShellKeyNameF7,
+    PVRShellKeyNameF8,
+    PVRShellKeyNameF9,
+    PVRShellKeyNameF10,
+    PVRShellKeyNameF11,
+    PVRShellKeyNameF12
 };
 
 enum PVRShellKeyRotate

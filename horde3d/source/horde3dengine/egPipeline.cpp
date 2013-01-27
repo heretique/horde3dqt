@@ -41,7 +41,7 @@ PipelineResource::~PipelineResource()
 
 void PipelineResource::initDefault()
 {
-	_baseWidth = 320; _baseHeight = 240;
+    _baseWidth = 512; _baseHeight = 512;
 }
 
 
