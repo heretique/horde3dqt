@@ -94,6 +94,40 @@ void Application::keyStateHandler()
         if( _statMode > H3DUTMaxStatMode ) _statMode = 0;
     }
 
+
+    float curVel = _velocity / _curFPS;
+
+//    if( _keys[287] ) curVel *= 5;	// LShift
+
+    if( PVRShellIsKeyPressed(PVRShellKeyNameW) )
+    {
+        // Move forward
+        _x -= sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+        _y -= sinf( -degToRad( _rx ) ) * curVel;
+        _z -= cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+    }
+    if( PVRShellIsKeyPressed(PVRShellKeyNameS) )
+    {
+        // Move backward
+        _x += sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+        _y += sinf( -degToRad( _rx ) ) * curVel;
+        _z += cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+    }
+    if( PVRShellIsKeyPressed(PVRShellKeyNameA) )
+    {
+        // Strafe left
+        _x += sinf( degToRad( _ry - 90) ) * curVel;
+        _z += cosf( degToRad( _ry - 90 ) ) * curVel;
+    }
+    if( PVRShellIsKeyPressed(PVRShellKeyNameD) )
+    {
+        // Strafe right
+        _x += sinf( degToRad( _ry + 90 ) ) * curVel;
+        _z += cosf( degToRad( _ry + 90 ) ) * curVel;
+    }
+
+
+
     // --------------
     // Key-down state
     // --------------
@@ -144,35 +178,23 @@ void Application::keyStateHandler()
 //    }
 }
 
-void Application::mouseStateHandler()
-{
-    float *touchLocation = (float*)PVRShellGet( prefPointerLocation);
-    if (touchLocation)
-    {
-        float dx = touchLocation[0] - _touchLocation[0];
-        float dy = touchLocation[1] - _touchLocation[1];
-        mouseMoveEvent(dx, dy);
-        _touchLocation[0] = touchLocation[0];
-        _touchLocation[1] = touchLocation[1];
-    }
-}
-
-
-void Application::mouseMoveEvent( float dX, float dY )
+void Application::TouchMoved( float dX, float dY )
 {
     if( _freezeMode == 2 ) return;
 
     // Look left/right
-    _ry -= dX * 30;
+    _ry -= dX * 100;
 
     // Loop up/down but only in a limited range
-    _rx += dY * 30;
+    _rx += dY * 100;
     if( _rx > 90 ) _rx = 90;
     if( _rx < -90 ) _rx = -90;
 }
 
 bool Application::InitApplication()
 {
+    PVRShellSet(prefWidth, 1280);
+    PVRShellSet(prefHeight, 720);
     return true;
 }
 
@@ -249,6 +271,8 @@ bool Application::InitView()
     h3dSetMaterialUniform( matRes, "hdrBrightThres", 0.5f, 0, 0, 0 );
     h3dSetMaterialUniform( matRes, "hdrBrightOffset", 0.08f, 0, 0, 0 );
 
+    resize(PVRShellGet(prefWidth), PVRShellGet(prefHeight));
+
     return true;
 }
 
@@ -269,7 +293,6 @@ bool Application::RenderScene()
     _curFPS = 60.0f;
 
     keyStateHandler();
-    mouseStateHandler();
 
     h3dSetOption( H3DOptions::DebugViewMode, _debugViewMode ? 1.0f : 0.0f );
     h3dSetOption( H3DOptions::WireframeMode, _wireframeMode ? 1.0f : 0.0f );

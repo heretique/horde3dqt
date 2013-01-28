@@ -178,7 +178,7 @@ public:
 	EPVRShellState	m_eState;			/*!< Current PVRShell state */
 
 	// Key handling
-	PVRShellKeyName	nLastKeyPressed;	/*!< Holds the last key pressed */
+    bool	nLastKeysPressed[256];	/*!< Holds the last key pressed */
 	PVRShellKeyName m_eKeyMapLEFT;		/*!< Holds the value to be returned when PVRShellKeyNameLEFT is requested */
 	PVRShellKeyName m_eKeyMapUP;		/*!< Holds the value to be returned when PVRShellKeyNameUP is requested */
 	PVRShellKeyName m_eKeyMapRIGHT;		/*!< Holds the value to be returned when PVRShellKeyNameRIGHT is requested */
@@ -257,6 +257,7 @@ public:
 	 @description	Used by the OS-specific code to tell the Shell that a key has been pressed.
 	*************************************************************************/
 	void KeyPressed(PVRShellKeyName key);
+    void KeyReleased(PVRShellKeyName key);
 
 	/*!***********************************************************************
 	 @Function		TouchBegan

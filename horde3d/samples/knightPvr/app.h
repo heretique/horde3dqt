@@ -34,8 +34,7 @@ public:
 	
 	void resize( int width, int height );
 	void keyStateHandler();
-    void mouseStateHandler();
-	void mouseMoveEvent( float dX, float dY );
+    void TouchMoved(float dX, float dY);
 
 private:
 	bool               _keys[320], _prevKeys[320];

@@ -58,6 +58,9 @@
 	Declarations
 *****************************************************************************/
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
+void HandleKeyPressed(PVRShellInit*, WPARAM);
+void HandleKeyReleased(PVRShellInit*, WPARAM);
+
 
 /*!***************************************************************************
 	Class: PVRShellInit
@@ -703,85 +706,192 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		pData->m_bHaveFocus = false;
 		return 0;
 	case WM_KEYDOWN:
-	{
-		switch(wParam)
-		{
-		case VK_ESCAPE:
-		case 0xC1:
-			pData->KeyPressed(PVRShellKeyNameQUIT);
-			break;
-		case VK_UP:
-		case 0x35:
-			pData->KeyPressed(pData->m_eKeyMapUP);
-			break;
-		case VK_DOWN:
-		case 0x30:
-			pData->KeyPressed(pData->m_eKeyMapDOWN);
-			break;
-		case VK_LEFT:
-		case 0x37:
-			pData->KeyPressed(pData->m_eKeyMapLEFT);
-			break;
-		case VK_RIGHT:
-		case 0x39:
-			pData->KeyPressed(pData->m_eKeyMapRIGHT);
-			break;
-		case VK_SPACE:
-		case 0x38:
-			pData->KeyPressed(PVRShellKeyNameSELECT);
-			break;
-		case '1':
-		case 0x34:
-			pData->KeyPressed(PVRShellKeyNameACTION1);
-			break;
-		case '2':
-		case 0x36:
-			pData->KeyPressed(PVRShellKeyNameACTION2);
-			break;
-        case VK_F1:
-            pData->KeyPressed(PVRShellKeyNameF1);
-            break;
-        case VK_F2:
-            pData->KeyPressed(PVRShellKeyNameF2);
-            break;
-        case VK_F3:
-            pData->KeyPressed(PVRShellKeyNameF3);
-            break;
-        case VK_F4:
-            pData->KeyPressed(PVRShellKeyNameF4);
-            break;
-        case VK_F5:
-            pData->KeyPressed(PVRShellKeyNameF5);
-            break;
-        case VK_F6:
-            pData->KeyPressed(PVRShellKeyNameF6);
-            break;
-        case VK_F7:
-            pData->KeyPressed(PVRShellKeyNameF7);
-            break;
-        case VK_F8:
-            pData->KeyPressed(PVRShellKeyNameF8);
-            break;
-        case VK_F9:
-            pData->KeyPressed(PVRShellKeyNameF9);
-            break;
-        case VK_F10:
-            pData->KeyPressed(PVRShellKeyNameF10);
-            break;
-        case VK_F11:
-        case 0xC2:
-            pData->KeyPressed(PVRShellKeyNameScreenshot);
-            break;
-        case VK_F12:
-            pData->KeyPressed(PVRShellKeyNameF12);
-            break;
-		}
-	}
+        HandleKeyPressed(pData, wParam);
+        break;
+    case WM_KEYUP:
+        HandleKeyReleased(pData, wParam);
+        break;
 	default:
 		break;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+void HandleKeyPressed(PVRShellInit *pData, WPARAM wparam)
+{
+    switch(wparam)
+    {
+    case VK_ESCAPE:
+    case 0xC1:
+        pData->KeyPressed(PVRShellKeyNameQUIT);
+        break;
+    case VK_UP:
+    case 0x35:
+        pData->KeyPressed(pData->m_eKeyMapUP);
+        break;
+    case VK_DOWN:
+    case 0x30:
+        pData->KeyPressed(pData->m_eKeyMapDOWN);
+        break;
+    case VK_LEFT:
+    case 0x37:
+        pData->KeyPressed(pData->m_eKeyMapLEFT);
+        break;
+    case VK_RIGHT:
+    case 0x39:
+        pData->KeyPressed(pData->m_eKeyMapRIGHT);
+        break;
+    case VK_SPACE:
+    case 0x38:
+        pData->KeyPressed(PVRShellKeyNameSELECT);
+        break;
+    case '1':
+    case 0x34:
+        pData->KeyPressed(PVRShellKeyNameACTION1);
+        break;
+    case '2':
+    case 0x36:
+        pData->KeyPressed(PVRShellKeyNameACTION2);
+        break;
+    case 0x57: // W
+        pData->KeyPressed(PVRShellKeyNameW);
+        break;
+    case 0x41: // A
+        pData->KeyPressed(PVRShellKeyNameA);
+        break;
+    case 0x53: // S
+        pData->KeyPressed(PVRShellKeyNameS);
+        break;
+    case 0x44: // D
+        pData->KeyPressed(PVRShellKeyNameD);
+        break;
+    case VK_F1:
+        pData->KeyPressed(PVRShellKeyNameF1);
+        break;
+    case VK_F2:
+        pData->KeyPressed(PVRShellKeyNameF2);
+        break;
+    case VK_F3:
+        pData->KeyPressed(PVRShellKeyNameF3);
+        break;
+    case VK_F4:
+        pData->KeyPressed(PVRShellKeyNameF4);
+        break;
+    case VK_F5:
+        pData->KeyPressed(PVRShellKeyNameF5);
+        break;
+    case VK_F6:
+        pData->KeyPressed(PVRShellKeyNameF6);
+        break;
+    case VK_F7:
+        pData->KeyPressed(PVRShellKeyNameF7);
+        break;
+    case VK_F8:
+        pData->KeyPressed(PVRShellKeyNameF8);
+        break;
+    case VK_F9:
+        pData->KeyPressed(PVRShellKeyNameF9);
+        break;
+    case VK_F10:
+        pData->KeyPressed(PVRShellKeyNameF10);
+        break;
+    case VK_F11:
+    case 0xC2:
+        pData->KeyPressed(PVRShellKeyNameScreenshot);
+        break;
+    case VK_F12:
+        pData->KeyPressed(PVRShellKeyNameF12);
+        break;
+    }
+}
+
+void HandleKeyReleased(PVRShellInit *pData, WPARAM wparam)
+{
+    switch(wparam)
+    {
+    case VK_ESCAPE:
+    case 0xC1:
+        pData->KeyReleased(PVRShellKeyNameQUIT);
+        break;
+    case VK_UP:
+    case 0x35:
+        pData->KeyReleased(pData->m_eKeyMapUP);
+        break;
+    case VK_DOWN:
+    case 0x30:
+        pData->KeyReleased(pData->m_eKeyMapDOWN);
+        break;
+    case VK_LEFT:
+    case 0x37:
+        pData->KeyReleased(pData->m_eKeyMapLEFT);
+        break;
+    case VK_RIGHT:
+    case 0x39:
+        pData->KeyReleased(pData->m_eKeyMapRIGHT);
+        break;
+    case VK_SPACE:
+    case 0x38:
+        pData->KeyReleased(PVRShellKeyNameSELECT);
+        break;
+    case '1':
+    case 0x34:
+        pData->KeyReleased(PVRShellKeyNameACTION1);
+        break;
+    case '2':
+    case 0x36:
+        pData->KeyReleased(PVRShellKeyNameACTION2);
+        break;
+    case 0x57: // W
+        pData->KeyReleased(PVRShellKeyNameW);
+        break;
+    case 0x41: // A
+        pData->KeyReleased(PVRShellKeyNameA);
+        break;
+    case 0x53: // S
+        pData->KeyReleased(PVRShellKeyNameS);
+        break;
+    case 0x44: // D
+        pData->KeyReleased(PVRShellKeyNameD);
+        break;
+    case VK_F1:
+        pData->KeyReleased(PVRShellKeyNameF1);
+        break;
+    case VK_F2:
+        pData->KeyReleased(PVRShellKeyNameF2);
+        break;
+    case VK_F3:
+        pData->KeyReleased(PVRShellKeyNameF3);
+        break;
+    case VK_F4:
+        pData->KeyReleased(PVRShellKeyNameF4);
+        break;
+    case VK_F5:
+        pData->KeyReleased(PVRShellKeyNameF5);
+        break;
+    case VK_F6:
+        pData->KeyReleased(PVRShellKeyNameF6);
+        break;
+    case VK_F7:
+        pData->KeyReleased(PVRShellKeyNameF7);
+        break;
+    case VK_F8:
+        pData->KeyReleased(PVRShellKeyNameF8);
+        break;
+    case VK_F9:
+        pData->KeyReleased(PVRShellKeyNameF9);
+        break;
+    case VK_F10:
+        pData->KeyReleased(PVRShellKeyNameF10);
+        break;
+    case VK_F11:
+    case 0xC2:
+        pData->KeyReleased(PVRShellKeyNameScreenshot);
+        break;
+    case VK_F12:
+        pData->KeyReleased(PVRShellKeyNameF12);
+        break;
+    }
 }
 
 /*!***************************************************************************
