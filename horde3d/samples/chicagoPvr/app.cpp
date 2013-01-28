@@ -59,7 +59,7 @@ void Application::resize( int width, int height )
 	
 	// Set virtual camera parameters
 	h3dSetupCameraView( _cam, 45.0f, (float)width / height, 0.1f, 1000.0f );
-	h3dResizePipelineBuffers( _deferredPipeRes, width, height );
+//	h3dResizePipelineBuffers( _deferredPipeRes, width, height );
 	h3dResizePipelineBuffers( _forwardPipeRes, width, height );
 }
 
@@ -77,7 +77,7 @@ void Application::keyStateHandler()
 	if( _keys[260] && !_prevKeys[260] )  // F3
 	{
 		if( h3dGetNodeParamI( _cam, H3DCamera::PipeResI ) == _forwardPipeRes )
-			h3dSetNodeParamI( _cam, H3DCamera::PipeResI, _deferredPipeRes );
+            h3dSetNodeParamI( _cam, H3DCamera::PipeResI, _deferredPipeRes );
 		else
 			h3dSetNodeParamI( _cam, H3DCamera::PipeResI, _forwardPipeRes );
 	}
@@ -171,7 +171,7 @@ bool Application::InitView()
     // Add resources
     // Pipelines
     _forwardPipeRes = h3dAddResource( H3DResTypes::Pipeline, "pipelines/forward.pipeline.xml", 0 );
-    _deferredPipeRes = h3dAddResource( H3DResTypes::Pipeline, "pipelines/deferred.pipeline.xml", 0 );
+//    _deferredPipeRes = h3dAddResource( H3DResTypes::Pipeline, "pipelines/deferred.pipeline.xml", 0 );
     // Overlays
     _fontMatRes = h3dAddResource( H3DResTypes::Material, "overlays/font.material.xml", 0 );
     _panelMatRes = h3dAddResource( H3DResTypes::Material, "overlays/panel.material.xml", 0 );

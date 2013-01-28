@@ -225,7 +225,11 @@ enum PVRShellKeyName
     PVRShellKeyNameF9,
     PVRShellKeyNameF10,
     PVRShellKeyNameF11,
-    PVRShellKeyNameF12
+    PVRShellKeyNameF12,
+    PVRShellKeyNameW,
+    PVRShellKeyNameA,
+    PVRShellKeyNameS,
+    PVRShellKeyNameD
 };
 
 enum PVRShellKeyRotate
@@ -664,6 +668,10 @@ public:
 	 map to your device's input device.
 	*************************************************************************/
 	bool PVRShellIsKeyPressed(const PVRShellKeyName key);
+
+    virtual void TouchBegan(float x, float y) {}
+    virtual void TouchMoved(float dX, float dY) {}
+    virtual void TouchEnded(float x, float y) {}
 };
 
 /****************************************************************************

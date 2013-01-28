@@ -1250,7 +1250,7 @@ bool PVRShellInit::Init()
 	m_eKeyMapLEFT = PVRShellKeyNameLEFT;
 	m_eKeyMapUP = PVRShellKeyNameUP;
 	m_eKeyMapRIGHT = PVRShellKeyNameRIGHT;
-	nLastKeyPressed = PVRShellKeyNameNull;
+    memset(nLastKeysPressed, 0, sizeof(nLastKeysPressed));
 
 	OsInit();
 
@@ -1317,10 +1317,9 @@ void PVRShellInit::CommandLine(int argc, char **argv)
 *************************************************************************/
 bool PVRShellInit::DoIsKeyPressed(const PVRShellKeyName key)
 {
-	if(key == nLastKeyPressed)
+    if(key < 256)
 	{
-		nLastKeyPressed = PVRShellKeyNameNull;
-		return true;
+        return nLastKeysPressed[key];
 	}
 	else
 	{
@@ -1335,7 +1334,14 @@ bool PVRShellInit::DoIsKeyPressed(const PVRShellKeyName key)
 *************************************************************************/
 void PVRShellInit::KeyPressed(PVRShellKeyName nKey)
 {
-	nLastKeyPressed = nKey;
+    if (nKey < 256)
+        nLastKeysPressed[nKey] = true;
+}
+
+void PVRShellInit::KeyReleased(PVRShellKeyName nKey)
+{
+    if (nKey < 256)
+        nLastKeysPressed[nKey] = false;
 }
 
 /*!***********************************************************************
@@ -1350,6 +1356,7 @@ void PVRShellInit::TouchBegan(const float vec2Location[2])
 	m_bTouching = true;
 	m_vec2PointerLocationStart[0] = m_vec2PointerLocation[0] = vec2Location[0];
 	m_vec2PointerLocationStart[1] = m_vec2PointerLocation[1] = vec2Location[1];
+    m_pShell->TouchBegan(m_vec2PointerLocationStart[0], m_vec2PointerLocationStart[1]);
 }
 
 /*!***********************************************************************
@@ -1362,6 +1369,9 @@ void PVRShellInit::TouchMoved(const float vec2Location[2])
 {
 	if(m_bTouching)
 	{
+        float dX = vec2Location[0] - m_vec2PointerLocation[0];
+        float dY = m_vec2PointerLocation[1] - vec2Location[1];
+        m_pShell->TouchMoved(dX, dY);
 		m_vec2PointerLocation[0] = vec2Location[0];
 		m_vec2PointerLocation[1] = vec2Location[1];
 	}
@@ -1381,6 +1391,7 @@ void PVRShellInit::TouchEnded(const float vec2Location[2])
 		m_bTouching = false;
 		m_vec2PointerLocationEnd[0] = m_vec2PointerLocation[0] = vec2Location[0];
 		m_vec2PointerLocationEnd[1] = m_vec2PointerLocation[1] = vec2Location[1];
+        m_pShell->TouchEnded(m_vec2PointerLocationEnd[0], m_vec2PointerLocationEnd[1]);
 
 #if !defined(DISABLE_SWIPE_MAPPING)
 		float fX = m_vec2PointerLocationEnd[0] - m_vec2PointerLocationStart[0];
