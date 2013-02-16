@@ -31,12 +31,6 @@ inline float degToRad( float f )
 
 Application::Application( const std::string &appPath )
 {
-	for( unsigned int i = 0; i < 320; ++i )
-	{	
-		_keys[i] = false;
-		_prevKeys[i] = false;
-	}
-
 	_x = 15; _y = 3; _z = 20; _rx = -10; _ry = 60; _velocity = 10.0f;
 	_curFPS = 30;
 
@@ -69,12 +63,12 @@ void Application::keyStateHandler()
 	// ----------------
 	// Key-press events
 	// ----------------
-	if( _keys[32] && !_prevKeys[32] )  // Space
-	{
-		if( ++_freezeMode == 3 ) _freezeMode = 0;
-	}
+//	if( _keys[32] && !_prevKeys[32] )  // Space
+//	{
+//		if( ++_freezeMode == 3 ) _freezeMode = 0;
+//	}
 	
-	if( _keys[260] && !_prevKeys[260] )  // F3
+    if( PVRShellIsKeyPressed(PVRShellKeyNameF3) )  // F3
 	{
 		if( h3dGetNodeParamI( _cam, H3DCamera::PipeResI ) == _forwardPipeRes )
             h3dSetNodeParamI( _cam, H3DCamera::PipeResI, _deferredPipeRes );
@@ -82,72 +76,68 @@ void Application::keyStateHandler()
 			h3dSetNodeParamI( _cam, H3DCamera::PipeResI, _forwardPipeRes );
 	}
 	
-	if( _keys[264] && !_prevKeys[264] )  // F7
-		_debugViewMode = !_debugViewMode;
+    if( PVRShellIsKeyPressed(PVRShellKeyNameF7) )  // F7
+        _debugViewMode = !_debugViewMode;
 
-	if( _keys[265] && !_prevKeys[265] )  // F8
-		_wireframeMode = !_wireframeMode;
-	
-	if( _keys[263] && !_prevKeys[263] )  // F6
-	{
-		_statMode += 1;
-		if( _statMode > H3DUTMaxStatMode ) _statMode = 0;
-	}
+    if( PVRShellIsKeyPressed(PVRShellKeyNameF8) )  // F8
+        _wireframeMode = !_wireframeMode;
 
-	// --------------
-	// Key-down state
-	// --------------
-	if( _freezeMode != 2 )
-	{
-		float curVel = _velocity / _curFPS;
-		
-		if( _keys[287] ) curVel *= 5;	// LShift
-		
-		if( _keys['W'] )
-		{
-			// Move forward
-			_x -= sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-			_y -= sinf( -degToRad( _rx ) ) * curVel;
-			_z -= cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-		}
-		if( _keys['S'] )
-		{
-			// Move backward
-			_x += sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-			_y += sinf( -degToRad( _rx ) ) * curVel;
-			_z += cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-		}
-		if( _keys['A'] )
-		{
-			// Strafe left
-			_x += sinf( degToRad( _ry - 90) ) * curVel;
-			_z += cosf( degToRad( _ry - 90 ) ) * curVel;
-		}
-		if( _keys['D'] )
-		{
-			// Strafe right
-			_x += sinf( degToRad( _ry + 90 ) ) * curVel;
-			_z += cosf( degToRad( _ry + 90 ) ) * curVel;
-		}
-	}
+    if( PVRShellIsKeyPressed(PVRShellKeyNameF6) )  // F6
+    {
+        _statMode += 1;
+        if( _statMode > H3DUTMaxStatMode ) _statMode = 0;
+    }
+
+    float curVel = _velocity / _curFPS;
+
+//    if( _keys[287] ) curVel *= 5;	// LShift
+
+    if( PVRShellIsKeyPressed(PVRShellKeyNameW) )
+    {
+        // Move forward
+        _x -= sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+        _y -= sinf( -degToRad( _rx ) ) * curVel;
+        _z -= cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+    }
+    if( PVRShellIsKeyPressed(PVRShellKeyNameS) )
+    {
+        // Move backward
+        _x += sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+        _y += sinf( -degToRad( _rx ) ) * curVel;
+        _z += cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
+    }
+    if( PVRShellIsKeyPressed(PVRShellKeyNameA) )
+    {
+        // Strafe left
+        _x += sinf( degToRad( _ry - 90) ) * curVel;
+        _z += cosf( degToRad( _ry - 90 ) ) * curVel;
+    }
+    if( PVRShellIsKeyPressed(PVRShellKeyNameD) )
+    {
+        // Strafe right
+        _x += sinf( degToRad( _ry + 90 ) ) * curVel;
+        _z += cosf( degToRad( _ry + 90 ) ) * curVel;
+    }
 }
 
 
-void Application::mouseMoveEvent( float dX, float dY )
+void Application::TouchMoved( float dX, float dY )
 {
 	if( _freezeMode == 2 ) return;
 	
-	// Look left/right
-	_ry -= dX / 100 * 30;
-	
-	// Loop up/down but only in a limited range
-	_rx += dY / 100 * 30;
+    // Look left/right
+    _ry -= dX * 200;
+
+    // Loop up/down but only in a limited range
+    _rx += dY * 200;
 	if( _rx > 90 ) _rx = 90; 
 	if( _rx < -90 ) _rx = -90;
 }
 
 bool Application::InitApplication()
 {
+    PVRShellSet(prefWidth, 1280);
+    PVRShellSet(prefHeight, 720);
     return true;
 }
 
@@ -175,9 +165,9 @@ bool Application::InitView()
     // Overlays
     _fontMatRes = h3dAddResource( H3DResTypes::Material, "overlays/font.material.xml", 0 );
     _panelMatRes = h3dAddResource( H3DResTypes::Material, "overlays/panel.material.xml", 0 );
-    _logoMatRes = h3dAddResource( H3DResTypes::Material, "overlays/logo.material.xml", 0 );
+//    _logoMatRes = h3dAddResource( H3DResTypes::Material, "overlays/logo.material.xml", 0 );
     // Shader for deferred shading
-    H3DRes lightMatRes = h3dAddResource( H3DResTypes::Material, "materials/light.material.xml", 0 );
+//    H3DRes lightMatRes = h3dAddResource( H3DResTypes::Material, "materials/light.material.xml", 0 );
     // Environment
     H3DRes envRes = h3dAddResource( H3DResTypes::SceneGraph, "models/platform/platform.scene.xml", 0 );
     // Skybox
@@ -198,7 +188,7 @@ bool Application::InitView()
     h3dSetNodeTransform( sky, 0, 0, 0, 0, 0, 0, 210, 50, 210 );
     h3dSetNodeFlags( sky, H3DNodeFlags::NoCastShadow, true );
     // Add light source
-    H3DNode light = h3dAddLightNode( H3DRootNode, "Light1", lightMatRes, "LIGHTING", "SHADOWMAP" );
+    H3DNode light = h3dAddLightNode( H3DRootNode, "Light1", 0, "LIGHTING", "SHADOWMAP" );
     h3dSetNodeTransform( light, 0, 20, 50, -30, 0, 0, 1, 1, 1 );
     h3dSetNodeParamF( light, H3DLight::RadiusF, 0, 200 );
     h3dSetNodeParamF( light, H3DLight::FovF, 0, 90 );
@@ -211,6 +201,8 @@ bool Application::InitView()
 
     _crowdSim = new CrowdSim( _contentDir );
     _crowdSim->init();
+
+    resize(PVRShellGet(prefWidth), PVRShellGet(prefHeight));
 
     return true;
 }
@@ -231,7 +223,9 @@ bool Application::QuitApplication()
 
 bool Application::RenderScene()
 {
-    _curFPS = 0;
+    _curFPS = 60.0f;
+
+    keyStateHandler();
 
     h3dSetOption( H3DOptions::DebugViewMode, _debugViewMode ? 1.0f : 0.0f );
     h3dSetOption( H3DOptions::WireframeMode, _wireframeMode ? 1.0f : 0.0f );
@@ -255,10 +249,10 @@ bool Application::RenderScene()
     }
 
     // Show logo
-    const float ww = (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportWidthI ) /
-                     (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportHeightI );
-    const float ovLogo[] = { ww-0.4f, 0.8f, 0, 1,  ww-0.4f, 1, 0, 0,  ww, 1, 1, 0,  ww, 0.8f, 1, 1 };
-    h3dShowOverlays( ovLogo, 4, 1.f, 1.f, 1.f, 1.f, _logoMatRes, 0 );
+//    const float ww = (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportWidthI ) /
+//                     (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportHeightI );
+//    const float ovLogo[] = { ww-0.4f, 0.8f, 0, 1,  ww-0.4f, 1, 0, 0,  ww, 1, 1, 0,  ww, 0.8f, 1, 1 };
+//    h3dShowOverlays( ovLogo, 4, 1.f, 1.f, 1.f, 1.f, _logoMatRes, 0 );
 
     // Render scene
     h3dRender( _cam );

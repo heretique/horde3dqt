@@ -15,7 +15,7 @@ uniform mediump	vec3 viewerPos;
 uniform mediump	vec4 lightPos;
 uniform mediump	vec4 lightDir;
 uniform mediump	vec3 lightColor;
-// uniform sampler2DShadow shadowMap;
+uniform mediump sampler2D shadowMap;
 uniform mediump	vec4 shadowSplitDists;
 uniform mediump	mat4 shadowMats[4];
 uniform mediump	float shadowMapSize;
@@ -41,6 +41,21 @@ mediump float unpack( mediump vec4 packedZValue)
 	
 // 	return shadow / 5.0;
 // }
+
+mediump float calcShadow( const mediump vec4 projShadow )
+{
+	mediump float offset = 1.0 / shadowMapSize;
+	mediump float depth = texture2D(shadowMap, projShadow.st).r;
+	mediump float shadow = 1.0;
+	if (depth < projShadow.z)
+		shadow = 0.0;
+
+	return shadow;
+}
+mediump vec3 showDepth(const mediump vec4 projShadow)
+{
+	return texture2D(shadowMap, projShadow.st).rgb;
+}
 
 mediump vec3 calcPhongSpotLight( const mediump vec3 pos, const mediump vec3 normal, const mediump vec3 albedo, const mediump vec3 specColor,
 						 const mediump float gloss, const mediump float viewDist, const mediump float ambientIntensity )
@@ -71,20 +86,22 @@ mediump vec3 calcPhongSpotLight( const mediump vec3 pos, const mediump vec3 norm
 	
 	// Shadow
 	mediump float shadowTerm = 1.0;
-    /*
+    
 	if( atten * (shadowMapSize - 4.0) > 0.0 )  // Skip shadow mapping if default shadow map (size==4) is bound
 	{
-		mediump vec4 projShadow = shadowMats[3] * mediump vec4( pos, 1.0 );
-		if( viewDist < shadowSplitDists.x ) projShadow = shadowMats[0] * mediump vec4( pos, 1.0 );
-		else if( viewDist < shadowSplitDists.y ) projShadow = shadowMats[1] * mediump vec4( pos, 1.0 );
-		else if( viewDist < shadowSplitDists.z ) projShadow = shadowMats[2] * mediump vec4( pos, 1.0 );
+		mediump vec4 projShadow = shadowMats[3] * vec4( pos, 1.0 );
+		if( viewDist < shadowSplitDists.x ) projShadow = shadowMats[0] * vec4( pos, 1.0 );
+		else if( viewDist < shadowSplitDists.y ) projShadow = shadowMats[1] * vec4( pos, 1.0 );
+		else if( viewDist < shadowSplitDists.z ) projShadow = shadowMats[2] * vec4( pos, 1.0 );
 		
-		projShadow.z = lightDepth;
-		projShadow.xy /= projShadow.w;
+		// projShadow.z = lightDepth;
+		projShadow.xyz /= projShadow.w;
 		
-		shadowTerm = max( PCF( projShadow ), ambientIntensity );
+		shadowTerm = max( calcShadow( projShadow ), ambientIntensity );
+		// shadowTerm = calcShadow(projShadow);
 	}
-	*/
+	
+	// return showDepth(projShadow);
 	// Final color
 	return (albedo + specular) * lightColor * atten * shadowTerm;
 }

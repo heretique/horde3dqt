@@ -31,12 +31,6 @@ inline float degToRad( float f )
 
 Application::Application( const std::string &appPath )
 {
-    for( unsigned int i = 0; i < 320; ++i )
-    {
-        _keys[i] = false;
-        _prevKeys[i] = false;
-    }
-
     _x = 5; _y = 3; _z = 19; _rx = 7; _ry = 15; _velocity = 10.0f;
     _curFPS = 30;
 
@@ -128,41 +122,6 @@ void Application::keyStateHandler()
 
 
 
-    // --------------
-    // Key-down state
-    // --------------
-//    if( _freezeMode != 2 )
-//    {
-//        float curVel = _velocity / _curFPS;
-
-//        if( _keys[287] ) curVel *= 5;	// LShift
-
-//        if( _keys['W'] )
-//        {
-//            // Move forward
-//            _x -= sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-//            _y -= sinf( -degToRad( _rx ) ) * curVel;
-//            _z -= cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-//        }
-//        if( _keys['S'] )
-//        {
-//            // Move backward
-//            _x += sinf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-//            _y += sinf( -degToRad( _rx ) ) * curVel;
-//            _z += cosf( degToRad( _ry ) ) * cosf( -degToRad( _rx ) ) * curVel;
-//        }
-//        if( _keys['A'] )
-//        {
-//            // Strafe left
-//            _x += sinf( degToRad( _ry - 90) ) * curVel;
-//            _z += cosf( degToRad( _ry - 90 ) ) * curVel;
-//        }
-//        if( _keys['D'] )
-//        {
-//            // Strafe right
-//            _x += sinf( degToRad( _ry + 90 ) ) * curVel;
-//            _z += cosf( degToRad( _ry + 90 ) ) * curVel;
-//        }
 //        if( _keys['1'] )
 //        {
 //            // Change blend weight
@@ -175,7 +134,6 @@ void Application::keyStateHandler()
 //            _weight -= 2 / _curFPS;
 //            if( _weight < 0 ) _weight = 0;
 //        }
-//    }
 }
 
 void Application::TouchMoved( float dX, float dY )
@@ -222,7 +180,7 @@ bool Application::InitView()
     // Overlays
     _fontMatRes = h3dAddResource( H3DResTypes::Material, "overlays/font.material.xml", 0 );
     _panelMatRes = h3dAddResource( H3DResTypes::Material, "overlays/panel.material.xml", 0 );
-    _logoMatRes = h3dAddResource( H3DResTypes::Material, "overlays/logo.material.xml", 0 );
+//    _logoMatRes = h3dAddResource( H3DResTypes::Material, "overlays/logo.material.xml", 0 );
     // Environment
     H3DRes envRes = h3dAddResource( H3DResTypes::SceneGraph, "models/sphere/sphere.scene.xml", 0 );
     // Knight
@@ -326,10 +284,10 @@ bool Application::RenderScene()
     }
 
     // Show logo
-    const float ww = (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportWidthI ) /
-            (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportHeightI );
-    const float ovLogo[] = { ww-0.4f, 0.8f, 0, 1,  ww-0.4f, 1, 0, 0,  ww, 1, 1, 0,  ww, 0.8f, 1, 1 };
-    h3dShowOverlays( ovLogo, 4, 1.f, 1.f, 1.f, 1.f, _logoMatRes, 0 );
+//    const float ww = (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportWidthI ) /
+//            (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportHeightI );
+//    const float ovLogo[] = { ww-0.4f, 0.8f, 0, 1,  ww-0.4f, 1, 0, 0,  ww, 1, 1, 0,  ww, 0.8f, 1, 1 };
+//    h3dShowOverlays( ovLogo, 4, 1.f, 1.f, 1.f, 1.f, _logoMatRes, 0 );
 
     // Render scene
     h3dRender( _cam );

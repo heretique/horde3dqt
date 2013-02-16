@@ -669,9 +669,9 @@ public:
 	*************************************************************************/
 	bool PVRShellIsKeyPressed(const PVRShellKeyName key);
 
-    virtual void TouchBegan(float x, float y) {}
-    virtual void TouchMoved(float dX, float dY) {}
-    virtual void TouchEnded(float x, float y) {}
+    virtual void TouchBegan(float, float) {}
+    virtual void TouchMoved(float, float) {}
+    virtual void TouchEnded(float, float) {}
 };
 
 /****************************************************************************
