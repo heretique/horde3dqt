@@ -5,7 +5,7 @@
 			<ClearTarget depthBuf="true" colBuf0="true" />
 			
 			<DrawGeometry context="AMBIENT" class="~Translucent" />
-			<DoForwardLightLoop class="~Translucent" noShadows="true" />
+			<DoForwardLightLoop class="~Translucent" />
 			
 			<DrawGeometry context="TRANSLUCENT" class="Translucent" order="BACK_TO_FRONT" />
 		</Stage>

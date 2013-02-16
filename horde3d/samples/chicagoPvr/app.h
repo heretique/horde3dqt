@@ -27,21 +27,14 @@ class Application: public PVRShell
 public:
 	Application( const std::string &appPath );
 	
-	void setKeyState( int key, bool state ) { _prevKeys[key] = _keys[key]; _keys[key] = state; }
-
 	const char *getTitle() { return "Chicago - Horde3D Sample"; }
 	
 	void resize( int width, int height );
 
 	void keyStateHandler();
-	void mouseMoveEvent( float dX, float dY );
+    void TouchMoved(float dX, float dY);
 
 private:
-	void keyHandler();
-
-private:
-	bool         _keys[320], _prevKeys[320];
-
 	float        _x, _y, _z, _rx, _ry;  // Viewer position and orientation
 	float        _velocity;  // Velocity for movement
 	float        _curFPS;
@@ -54,7 +47,7 @@ private:
 	
 	// Engine objects
 	H3DRes       _fontMatRes, _panelMatRes;
-	H3DRes       _logoMatRes, _forwardPipeRes, _deferredPipeRes;
+    H3DRes       _logoMatRes, _forwardPipeRes, _deferredPipeRes;
 	H3DNode      _cam;
 
 	std::string  _contentDir;

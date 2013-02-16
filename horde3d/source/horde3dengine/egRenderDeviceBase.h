@@ -155,6 +155,7 @@ namespace Horde3D
 		enum List
 		{
 			Unknown,
+            RGBA,
 			BGRA8,
 			DXT1,
 			DXT3,

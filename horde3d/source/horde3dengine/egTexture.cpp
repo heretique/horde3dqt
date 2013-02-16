@@ -759,12 +759,12 @@ bool TextureResource::loadSTBI( const char *data, int size )
 		return raiseError( "Invalid image format (" + string( stbi_failure_reason() ) + ")" );
 
 	// Swizzle RGBA -> BGRA
-	uint32 *ptr = (uint32 *)pixels;
-	for( uint32 i = 0, si = _width * _height; i < si; ++i )
-	{
-		uint32 col = *ptr;
-		*ptr++ = (col & 0xFF00FF00) | ((col & 0x000000FF) << 16) | ((col & 0x00FF0000) >> 16);
-	}
+//	uint32 *ptr = (uint32 *)pixels;
+//	for( uint32 i = 0, si = _width * _height; i < si; ++i )
+//	{
+//		uint32 col = *ptr;
+//		*ptr++ = (col & 0xFF00FF00) | ((col & 0x000000FF) << 16) | ((col & 0x00FF0000) >> 16);
+//	}
 	
 	_texType = TextureTypes::Tex2D;
 	_texFormat = hdr ? TextureFormats::RGBA16F : TextureFormats::BGRA8;

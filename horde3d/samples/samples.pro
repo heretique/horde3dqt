@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    chicago \
+#    chicago \
     chicagoPvr \
-    knight \
+#    knight \
     knightPvr

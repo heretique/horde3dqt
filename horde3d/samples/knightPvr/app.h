@@ -28,17 +28,13 @@ class Application : public PVRShell
 public:
 	Application( const std::string &appPath );
 	
-	void setKeyState( int key, bool state ) { _prevKeys[key] = _keys[key]; _keys[key] = state; }
-
 	const char *getTitle() { return "Knight - Horde3D Sample"; }
 	
 	void resize( int width, int height );
 	void keyStateHandler();
     void TouchMoved(float dX, float dY);
 
-private:
-	bool               _keys[320], _prevKeys[320];
-	
+private:	
 	float              _x, _y, _z, _rx, _ry;  // Viewer position and orientation
 	float              _velocity;  // Velocity for movement
 	float              _curFPS;
