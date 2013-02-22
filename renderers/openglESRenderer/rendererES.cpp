@@ -6,6 +6,7 @@
 #include "egCamera.h"
 #include "egModules.h"
 #include "egCom.h"
+#include "Shiny.h"
 #include <cstring>
 
 #include "utDebug.h"
@@ -106,6 +107,8 @@ unsigned char *OpenGLESRenderer::useScratchBuf( uint32 minSize )
 
 bool OpenGLESRenderer::init()
 {
+    PROFILE_FUNC();
+
     _rd = new OpenGLESRenderDevice();
     // Init Render Device Interface
     if( !_rd->init() ) return false;
@@ -323,6 +326,8 @@ void OpenGLESRenderer::createPrimitives()
 
 void OpenGLESRenderer::drawAABB( const Vec3f &bbMin, const Vec3f &bbMax )
 {
+    PROFILE_FUNC();
+
     ASSERT( _curShader != 0x0 );
 
     Matrix4f mat = Matrix4f::TransMat( bbMin.x, bbMin.y, bbMin.z ) *
@@ -339,6 +344,8 @@ void OpenGLESRenderer::drawAABB( const Vec3f &bbMin, const Vec3f &bbMax )
 
 void OpenGLESRenderer::drawSphere( const Vec3f &pos, float radius )
 {
+    PROFILE_FUNC();
+
     ASSERT( _curShader != 0x0 );
 
     Matrix4f mat = Matrix4f::TransMat( pos.x, pos.y, pos.z ) *
@@ -355,6 +362,8 @@ void OpenGLESRenderer::drawSphere( const Vec3f &pos, float radius )
 
 void OpenGLESRenderer::drawCone( float height, float radius, const Matrix4f &transMat )
 {
+    PROFILE_FUNC();
+
     ASSERT( _curShader != 0x0 );
 
     Matrix4f mat = transMat * Matrix4f::ScaleMat( radius, radius, height );
@@ -374,6 +383,8 @@ void OpenGLESRenderer::drawCone( float height, float radius, const Matrix4f &tra
 
 bool OpenGLESRenderer::createShaderComb( const char *vertexShader, const char *fragmentShader, ShaderCombination &sc )
 {
+    PROFILE_FUNC();
+
     // Create shader program
     uint32 shdObj = _rd->createShader( vertexShader, fragmentShader );
     if( shdObj == 0 ) return false;
@@ -426,12 +437,16 @@ bool OpenGLESRenderer::createShaderComb( const char *vertexShader, const char *f
 
 void OpenGLESRenderer::releaseShaderComb( ShaderCombination &sc )
 {
+    PROFILE_FUNC();
+
     _rd->destroyShader( sc.shaderObj );
 }
 
 
 void OpenGLESRenderer::setShaderComb( ShaderCombination *sc )
 {
+    PROFILE_FUNC();
+
     if( _curShader != sc )
     {
         if( sc == 0x0 ) _rd->bindShader( 0 );
@@ -444,6 +459,8 @@ void OpenGLESRenderer::setShaderComb( ShaderCombination *sc )
 
 void OpenGLESRenderer::commitGeneralUniforms()
 {
+    PROFILE_FUNC();
+
     ASSERT( _curShader != 0x0 );
 
     // Note: Make sure that all functions which modify one of the following params increase the stamp
@@ -521,6 +538,8 @@ void OpenGLESRenderer::commitGeneralUniforms()
 bool OpenGLESRenderer::setMaterialRec( MaterialResource *materialRes, const string &shaderContext,
                                        ShaderResource *shaderRes )
 {
+    PROFILE_FUNC();
+
     if( materialRes == 0x0 ) return false;
 
     bool firstRec = (shaderRes == 0x0);
@@ -763,6 +782,8 @@ bool OpenGLESRenderer::setMaterialRec( MaterialResource *materialRes, const stri
 
 bool OpenGLESRenderer::setMaterial( MaterialResource *materialRes, const string &shaderContext )
 {
+    PROFILE_FUNC();
+
     if( materialRes == 0x0 )
     {
         setShaderComb( 0x0 );
@@ -790,6 +811,8 @@ bool OpenGLESRenderer::setMaterial( MaterialResource *materialRes, const string 
 
 bool OpenGLESRenderer::createShadowRB( uint32 width, uint32 height )
 {
+    PROFILE_FUNC();
+
     _shadowRB = _rd->createRenderBuffer( width, height, TextureFormats::BGRA8, true, 0, 0 );
 
     return _shadowRB != 0;
@@ -798,12 +821,16 @@ bool OpenGLESRenderer::createShadowRB( uint32 width, uint32 height )
 
 void OpenGLESRenderer::releaseShadowRB()
 {
+    PROFILE_FUNC();
+
     if( _shadowRB ) _rd->destroyRenderBuffer( _shadowRB );
 }
 
 
 void OpenGLESRenderer::setupShadowMap( bool noShadows )
 {
+    PROFILE_FUNC();
+
     uint32 sampState = SS_FILTER_BILINEAR | SS_ANISO1 | SS_ADDR_CLAMPCOL | SS_COMP_LEQUAL;
 
     // Bind shadow map
@@ -822,6 +849,8 @@ void OpenGLESRenderer::setupShadowMap( bool noShadows )
 
 Matrix4f OpenGLESRenderer::calcCropMatrix( const Frustum &frustSlice, const Vec3f lightPos, const Matrix4f &lightViewProjMat )
 {
+    PROFILE_FUNC();
+
     float frustMinX =  Math::MaxFloat, bbMinX =  Math::MaxFloat;
     float frustMinY =  Math::MaxFloat, bbMinY =  Math::MaxFloat;
     float frustMinZ =  Math::MaxFloat, bbMinZ =  Math::MaxFloat;
@@ -916,6 +945,8 @@ Matrix4f OpenGLESRenderer::calcCropMatrix( const Frustum &frustSlice, const Vec3
 
 void OpenGLESRenderer::updateShadowMap()
 {
+    PROFILE_FUNC();
+
     if( _curLight == 0x0 ) return;
 
     uint32 prevRendBuf = _rd->currentRenderBufferHandle();
@@ -1058,6 +1089,8 @@ void OpenGLESRenderer::updateShadowMap()
 
 int OpenGLESRenderer::registerOccSet()
 {
+    PROFILE_FUNC();
+
     for( int i = 0; i < (int)_occSets.size(); ++i )
     {
         if( _occSets[i] == 0 )
@@ -1081,6 +1114,8 @@ void OpenGLESRenderer::unregisterOccSet( int occSet )
 
 void OpenGLESRenderer::drawOccProxies( uint32 list )
 {
+    PROFILE_FUNC();
+
     ASSERT( list < 2 );
 
     GLboolean colMask[4], depthMask;
@@ -1129,6 +1164,8 @@ void OpenGLESRenderer::drawOccProxies( uint32 list )
 void OpenGLESRenderer::showOverlays( const float *verts, uint32 vertCount, float *colRGBA,
                                      MaterialResource *matRes, int flags )
 {
+    PROFILE_FUNC();
+
     uint32 numOverlayVerts = 0;
     if( !_overlayBatches.empty() )
         numOverlayVerts = _overlayBatches.back().firstVert + _overlayBatches.back().vertCount;
@@ -1156,12 +1193,16 @@ void OpenGLESRenderer::showOverlays( const float *verts, uint32 vertCount, float
 
 void OpenGLESRenderer::clearOverlays()
 {
+    PROFILE_FUNC();
+
     _overlayBatches.resize( 0 );
 }
 
 
 void OpenGLESRenderer::drawOverlays( const string &shaderContext )
 {
+    PROFILE_FUNC();
+
     uint32 numOverlayVerts = 0;
     if( !_overlayBatches.empty() )
         numOverlayVerts = _overlayBatches.back().firstVert + _overlayBatches.back().vertCount;
@@ -1206,6 +1247,8 @@ void OpenGLESRenderer::drawOverlays( const string &shaderContext )
 
 void OpenGLESRenderer::bindPipeBuffer( uint32 rbObj, const string &sampler, uint32 bufIndex )
 {
+    PROFILE_FUNC();
+
     if( rbObj == 0 )
     {
         // Clear buffer bindings
@@ -1238,6 +1281,8 @@ void OpenGLESRenderer::bindPipeBuffer( uint32 rbObj, const string &sampler, uint
 void OpenGLESRenderer::clear( bool depth, bool buf0, bool buf1, bool buf2, bool buf3,
                               float r, float g, float b, float a )
 {
+    PROFILE_FUNC();
+
     uint32 mask = 0;
     uint32 prevBuffers[4] = { 0 };
     float clrColor[] = { r, g, b, a };
@@ -1285,6 +1330,8 @@ void OpenGLESRenderer::clear( bool depth, bool buf0, bool buf1, bool buf2, bool 
 
 void OpenGLESRenderer::drawFSQuad( Resource *matRes, const string &shaderContext )
 {
+    PROFILE_FUNC();
+
     if( matRes == 0x0 || matRes->getType() != ResourceTypes::Material ) return;
 
     setupViewMatrices( _curCamera->getViewMat(), Matrix4f::OrthoMat( 0, 1, 0, 1, -1, 1 ) );
@@ -1302,6 +1349,8 @@ void OpenGLESRenderer::drawFSQuad( Resource *matRes, const string &shaderContext
 void OpenGLESRenderer::drawGeometry( const string &shaderContext, const string &theClass,
                                      RenderingOrder::List order, int occSet )
 {
+    PROFILE_FUNC();
+
     Modules::sceneMan().updateQueues( _curCamera->getFrustum(), 0x0, order,
                                       SceneNodeFlags::NoDraw , false, true );
 
@@ -1313,6 +1362,8 @@ void OpenGLESRenderer::drawGeometry( const string &shaderContext, const string &
 void OpenGLESRenderer::drawLightGeometry( const string &shaderContext, const string &theClass,
                                           bool noShadows, RenderingOrder::List order, int occSet )
 {
+    PROFILE_FUNC();
+
     Modules::sceneMan().updateQueues( _curCamera->getFrustum(), 0x0, RenderingOrder::None,
                                       SceneNodeFlags::NoDraw, true, false );
 
@@ -1425,6 +1476,8 @@ void OpenGLESRenderer::drawLightGeometry( const string &shaderContext, const str
 
 void OpenGLESRenderer::drawLightShapes( const string &shaderContext, bool noShadows, int occSet )
 {
+    PROFILE_FUNC();
+
     MaterialResource *curMatRes = 0x0;
 
     Modules::sceneMan().updateQueues( _curCamera->getFrustum(), 0x0, RenderingOrder::None,
@@ -1556,6 +1609,8 @@ void OpenGLESRenderer::drawRenderables( const string &shaderContext, const strin
                                         const Frustum *frust1, const Frustum *frust2, RenderingOrder::List order,
                                         int occSet )
 {
+    PROFILE_FUNC();
+
     ASSERT( _curCamera != 0x0 );
 
     const RenderQueue &renderQueue = Modules::sceneMan().getRenderQueue();
@@ -1608,6 +1663,8 @@ void OpenGLESRenderer::drawMeshes( uint32 firstItem, uint32 lastItem, const stri
                                    bool debugView, const Frustum *frust1, const Frustum *frust2, RenderingOrder::List order,
                                    int occSet )
 {
+    PROFILE_FUNC();
+
     if( frust1 == 0x0 ) return;
 
     // we know this is the renderer otherwise the method is not called for this class
@@ -1795,6 +1852,8 @@ void OpenGLESRenderer::drawParticles( uint32 firstItem, uint32 lastItem, const s
                                       bool debugView, const Frustum *frust1, const Frustum * /*frust2*/, RenderingOrder::List /*order*/,
                                       int occSet )
 {
+    PROFILE_FUNC();
+
     // we know this is the renderer otherwise the method is not called for this class
     OpenGLESRenderer& renderer = static_cast< OpenGLESRenderer& >( Modules::renderer() );
 
@@ -1965,6 +2024,8 @@ void OpenGLESRenderer::drawParticles( uint32 firstItem, uint32 lastItem, const s
 
 void OpenGLESRenderer::render( CameraNode *camNode )
 {
+    PROFILE_FUNC();
+
     _curCamera = camNode;
     if( _curCamera == 0x0 ) return;
 
@@ -2085,6 +2146,8 @@ void OpenGLESRenderer::render( CameraNode *camNode )
 
 void OpenGLESRenderer::finalizeFrame()
 {
+    PROFILE_FUNC();
+
     ++_frameID;
 
     // Reset frame timer
@@ -2098,6 +2161,8 @@ void OpenGLESRenderer::finalizeFrame()
 
 void OpenGLESRenderer::renderDebugView()
 {
+    PROFILE_FUNC();
+
     float color[4] = { 0 };
 
     _rd->setRenderBuffer( 0 );
@@ -2193,6 +2258,8 @@ void OpenGLESRenderer::renderDebugView()
 
 void OpenGLESRenderer::finishRendering()
 {
+    PROFILE_FUNC();
+
     _rd->setRenderBuffer( 0 );
     setMaterial( 0x0, "" );
     _rd->resetStates();

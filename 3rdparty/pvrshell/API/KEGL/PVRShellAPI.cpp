@@ -342,6 +342,7 @@ bool PVRShellInit::ApiInitAPI()
 		Done - activate requested features
 	*/
 	ApiActivatePreferences();
+    m_pShell->PVRShellOutputDebug("PVRShell API Initialized.");
 	return true;
 }
 

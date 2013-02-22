@@ -39,7 +39,7 @@ EngineConfig::EngineConfig()
 	sampleCount = 0;
 	wireframeMode = false;
 	debugViewMode = false;
-	dumpFailedShaders = false;
+    dumpFailedShaders = true;
 	gatherTimeStats = true;
 }
 
@@ -169,32 +169,35 @@ EngineLog::EngineLog()
 
 void EngineLog::pushMessage( int level, const char *msg, va_list args )
 {
-	float time = _timer.getElapsedTimeMS() / 1000.0f;
+    float time = _timer.getElapsedTimeMS() / 1000.0f;
 
 #if defined( PLATFORM_WIN )
 #pragma warning( push )
 #pragma warning( disable:4996 )
-	vsnprintf( _textBuf, 2048, msg, args );
+    vsnprintf( _textBuf, 2048, msg, args );
 #pragma warning( pop )
 #else
-	vsnprintf( _textBuf, 2048, msg, args );
+    vsnprintf( _textBuf, 2048, msg, args );
 #endif
 	
-	if( _messages.size() < _maxNumMessages - 1 )
-	{
-		_messages.push( LogMessage( _textBuf, level, time ) );
-	}
-	else if( _messages.size() == _maxNumMessages - 1 )
-	{
-		_messages.push( LogMessage( "Message queue is full", 1, time ) );
-	}
+    if( _messages.size() < _maxNumMessages - 1 )
+    {
+        _messages.push( LogMessage( _textBuf, level, time ) );
+    }
+    else if( _messages.size() == _maxNumMessages - 1 )
+    {
+        _messages.push( LogMessage( "Message queue is full", 1, time ) );
+    }
 
 #if defined( PLATFORM_WIN ) && defined( H3D_DEBUGGER_OUTPUT )
-	const TCHAR *headers[6] = { TEXT(""), TEXT("  [h3d-err] "), TEXT("  [h3d-warn] "), TEXT("[h3d] "), TEXT("  [h3d-dbg] "), TEXT("[h3d- ] ")};
+    const TCHAR *headers[6] = { TEXT(""), TEXT("  [h3d-err] "), TEXT("  [h3d-warn] "), TEXT("[h3d] "), TEXT("  [h3d-dbg] "), TEXT("[h3d- ] ")};
 	
-	OutputDebugString( headers[std::min( (uint32)level, (uint32)5 )] );
-	OutputDebugStringA( _textBuf );
-	OutputDebugString( TEXT("\r\n") );
+    OutputDebugString( headers[std::min( (uint32)level, (uint32)5 )] );
+    OutputDebugStringA( _textBuf );
+    OutputDebugString( TEXT("\r\n") );
+#else
+    printf(_textBuf);
+    printf("\r\n");
 #endif
 }
 
