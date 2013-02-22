@@ -3,6 +3,7 @@
 
 #include "egPrerequisites.h"
 #include <vector>
+#include <string>
 
 namespace Horde3D
 {
@@ -91,6 +92,11 @@ namespace Horde3D
         bool  texS3TC;
         bool  occQuery;
         bool  timerQuery;
+        int   maxTexSize;
+        int   maxFragUniforms;
+        int   maxVertUniforms;
+        int   maxVertVaryings;
+        int   maxVertAttribs;
 	};
 
 

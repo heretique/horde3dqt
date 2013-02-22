@@ -19,6 +19,7 @@
 #include "egCamera.h"
 #include "egParticle.h"
 #include "egTexture.h"
+#include "Shiny.h"
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -117,6 +118,7 @@ DLLEXP void h3dRender( NodeHandle cameraNode )
 DLLEXP void h3dFinalizeFrame()
 {
 	Modules::renderer().finalizeFrame();
+    PROFILER_UPDATE(); // update all profiles
 }
 
 

@@ -4,4 +4,5 @@ SUBDIRS = \
     3rdparty \
     renderers \
     extensions \
-    horde3d
+    tests \
+    horde3d 

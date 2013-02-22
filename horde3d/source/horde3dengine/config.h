@@ -24,7 +24,10 @@
 #define H3D_DEBUGGER_OUTPUT
 
 // Check for errors and invalid data during each drawcall (requires DEBUG config)
-#define H3D_VALIDATE_DRAWCALLS
+//#define H3D_VALIDATE_DRAWCALLS
+
+// Enable or disable shiny profiling
+#define SHINY_PROFILER TRUE
 
 
 #endif // _h3d_config_H_

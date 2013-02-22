@@ -22,9 +22,9 @@
 #	endif
 #	include <windows.h>
 #endif
-#ifndef PLATFORM_MAC
-#	include <GL/gl.h>
-#endif
+//#ifndef PLATFORM_MAC
+//#	include <GL/gl.h>
+//#endif
 #include <cstdlib>
 #include <cstring>
 #include <string>

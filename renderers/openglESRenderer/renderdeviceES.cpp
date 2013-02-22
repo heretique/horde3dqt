@@ -300,6 +300,13 @@ bool OpenGLESRenderDevice::init()
     if (glExt::OES_depth32)
         _depthFormat = GL_DEPTH_COMPONENT32_OES;
 
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_caps.maxTexSize);
+    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, &_caps.maxFragUniforms);
+    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &_caps.maxVertUniforms);
+    glGetIntegerv(GL_MAX_VARYING_VECTORS, &_caps.maxVertVaryings);
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &_caps.maxVertAttribs);
+
+
     initStates();
     resetStates();
 
@@ -1024,6 +1031,7 @@ uint32 OpenGLESRenderDevice::createRenderBuffer( uint32 width, uint32 height, Te
 {
     if( (format == TextureFormats::RGBA16F || format == TextureFormats::RGBA32F) && !_caps.texFloat )
     {
+        Modules::log().writeWarning("A float format renderbuffer was requested but float textures not supported");
         return 0;
     }
 

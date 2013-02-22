@@ -2,30 +2,32 @@ QT       -= core gui
 
 TARGET = horde3dutils
 TEMPLATE = lib
-DESTDIR = $$PWD/../../../Libs
+win32 {
+    DESTDIR = $$PWD/../../../Libs
+}
 
+unix {
+    DESTDIR = /home/user/opt/rasp-pi-rootfs/home/pi/horde3d
+    target.path = /home/pi/horde3d
+    INSTALLS += target
+}
 
 INCLUDEPATH += ../shared \
     ../../bindings/c++
 
 SOURCES += main.cpp
 
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/lib
-    }
-    INSTALLS += target
-}
-
 INCLUDEPATH += $$PWD/../../.. $$PWD/../../../Libs
 DEPENDPATH += $$PWD/../../../Libs
 
 unix|win32: LIBS += -L$$PWD/../../../Libs -lhorde3d
-LIBS += -lopengl32
+#LIBS += -lopengl32
 
 win32 {
 LIBS += -lgdi32
+}
+
+unix {
+LIBS += -L/home/user/opt/rasp-pi-rootfs/home/pi/horde3d
 }
 

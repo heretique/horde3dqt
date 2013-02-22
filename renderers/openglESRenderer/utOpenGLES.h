@@ -39,7 +39,7 @@
         #endif
         #include <GLES2/gl2.h>
         #include <GLES2/gl2ext.h>
-        #include <GLES2/gl2extimg.h>
+//        #include <GLES2/gl2extimg.h>
     #endif
 #elif defined(BUILD_OGLES3)
     #include <GLES3/gl3.h>

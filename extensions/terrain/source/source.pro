@@ -3,7 +3,17 @@ QT       -= core gui
 TARGET = terrainExtension
 TEMPLATE = lib
 CONFIG += staticlib
-DESTDIR = $$PWD/../../../Libs
+
+win32 {
+    DESTDIR = $$PWD/../../Libs
+}
+
+unix {
+    DESTDIR = /home/pi/horde3d
+    target.path = /home/pi/horde3d
+    INSTALLS += target
+}
+
 
 INCLUDEPATH += ../../../horde3d/source/shared \
     ../../../horde3d/source/horde3dengine
@@ -14,12 +24,3 @@ SOURCES += extension.cpp \
 
 HEADERS += extension.h \
     terrain.h
-
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/lib
-    }
-    INSTALLS += target
-}

@@ -23,6 +23,7 @@
 #include "egPipeline.h"
 #include "egExtensions.h"
 #include "utDebug.h"
+#include "Shiny.h"
 #ifdef USE_OPENGL_RENDERER
 #include "renderers/openglRenderer/renderer.h"
 #include "renderers/openglRenderer/renderdevice.h"
@@ -72,16 +73,17 @@ bool Modules::init(int rendererType)
 {
 	// Create modules (order is important because of dependencies)
 	_rendererType = rendererType;
-	if( _engineLog == 0x0 ) _engineLog = new EngineLog();
-	if( _renderManager == 0x0 ) _renderManager = new RenderManager();
+    if( _engineConfig == 0x0 ) _engineConfig = new EngineConfig();
+    if( _engineLog == 0x0 ) _engineLog = new EngineLog();
+    Modules::log().writeInfo("Modules::init - in");
+    if( _renderManager == 0x0 ) _renderManager = new RenderManager();
 
-	installRenderers();
+    installRenderers();
 
-	if( _extensionManager == 0x0 ) _extensionManager = new ExtensionManager();
-	if( _engineConfig == 0x0 ) _engineConfig = new EngineConfig();
-	if( _sceneManager == 0x0 ) _sceneManager = new SceneManager();
-	if( _resourceManager == 0x0 ) _resourceManager = new ResourceManager();
-	if( _renderer == 0x0 ) _renderer = rdMan().createRenderer(_rendererType);
+    if( _extensionManager == 0x0 ) _extensionManager = new ExtensionManager();
+    if( _sceneManager == 0x0 ) _sceneManager = new SceneManager();
+    if( _resourceManager == 0x0 ) _resourceManager = new ResourceManager();
+    if( _renderer == 0x0 ) _renderer = rdMan().createRenderer(_rendererType);
     if (_renderer == 0x0)
     {
         log().writeError("Renderer: %d, not found or not supported", _rendererType);
@@ -179,6 +181,7 @@ bool Modules::init(int rendererType)
 
 void Modules::release()
 {
+    PROFILER_OUTPUT("profile.txt"); // print to cout
 	// Remove overlays since they reference resources and resource manager is removed before renderer
 	if( _renderer ) _renderer->clearOverlays();
 	

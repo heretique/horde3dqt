@@ -180,6 +180,8 @@ void *platGetProcAddress( const char *funcName )
 	CFRelease( functionName );
    
 	return function; 
+#elif defined( PLATFORM_LINUX )
+    return (void *)eglGetProcAddress( funcName );
 #else
 	return (void *)glXGetProcAddressARB( (const GLubyte *)funcName );
 #endif
@@ -238,7 +240,7 @@ bool initOpenGLExtensions()
     glExt::OES_texture_float_linear = isExtensionSupported( "GL_OES_texture_float_linear" );
     glExt::OES_texture_half_float = isExtensionSupported( "GL_OES_texture_half_float" );
     glExt::OES_texture_half_float_linear = isExtensionSupported( "GL_OES_texture_half_float_linear" );
-    glExt::OES_texture_npot = isExtensionSupported( "GL_OOES_texture_npot" );
+    glExt::OES_texture_npot = isExtensionSupported( "GL_OES_texture_npot" );
     glExt::OES_vertex_array_object = isExtensionSupported( "GL_OES_vertex_array_object" );
     if (glExt::OES_vertex_array_object)
     {
