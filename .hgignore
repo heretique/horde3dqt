@@ -47,3 +47,6 @@ horde3d/binaries/Win32/knightPvr.exe_manifest.res
 horde3d/binaries/Win32/knightPvr.ilk
 horde3d/binaries/Win32/knightPvr.pdb
 *.pvrt
+extensions/Libs/terrainExtension.lib
+horde3d/binaries/Win32/profile.txt
+libs/shiny.lib
