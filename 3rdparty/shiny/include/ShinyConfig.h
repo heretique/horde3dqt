@@ -69,10 +69,14 @@ restrictions:
 
 #define SHINY_COMPILER_MSVC		0x1
 #define SHINY_COMPILER_GNUC		0x2
-#define SHINY_COMPILER_OTHER	0x3
+#define SHINY_COMPILER_MINGW    0x3
+#define SHINY_COMPILER_OTHER	0x4
 
 #if defined (_MSC_VER)
 #   define SHINY_COMPILER	SHINY_COMPILER_MSVC
+
+#elif defined (__MINGW32__)
+#   define SHINY_COMPILER   SHINY_COMPILER_MINGW
 
 #elif defined (__GNUG__)
 #   define SHINY_COMPILER	SHINY_COMPILER_GNUC

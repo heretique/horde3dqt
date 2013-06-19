@@ -26,7 +26,7 @@ restrictions:
 
 #include "ShinyConfig.h"
 
-#if SHINY_PLATFORM == SHINY_PLATFORM_POSIX
+#if (SHINY_PLATFORM == SHINY_PLATFORM_POSIX) || (SHINY_COMPILER == SHINY_COMPILER_MINGW)
 #include <sys/types.h>
 #endif
 
@@ -51,18 +51,22 @@ namespace Shiny {
 #	define SHINY_INLINE		__forceinline
 #	define SHINY_UNUSED		
 
-#elif SHINY_PLATFORM == SHINY_COMPILER_GNUC
+#elif SHINY_COMPILER == SHINY_COMPILER_MINGW
+#	define SHINY_INLINE		inline
+#	define SHINY_UNUSED
+
+#elif SHINY_COMPILER == SHINY_COMPILER_GNUC
 #	define SHINY_INLINE		__inline
 #	define SHINY_UNUSED		__attribute__ ((unused))
 
-#elif SHINY_PLATFORM == SHINY_COMPILER_OTHER
+#elif SHINY_COMPILER == SHINY_COMPILER_OTHER
 #	define SHINY_INLINE		inline
 #	define SHINY_UNUSED		
 #endif
 
 //-----------------------------------------------------------------------------
 
-#if SHINY_COMPILER == SHINY_COMPILER_MSVC
+#if (SHINY_COMPILER == SHINY_COMPILER_MSVC) || (SHINY_COMPILER == SHINY_COMPILER_MINGW)
 	typedef int					int32_t;
 	typedef unsigned int		uint32_t;
 

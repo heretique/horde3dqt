@@ -29,7 +29,11 @@
 
 #if !(WINVER >= 0x0500)
 	#define COMPILE_MULTIMON_STUBS
+#if defined (__MINGW32__)
+    #include <windows.h>
+#else
 	#include <multimon.h>
+#endif
 #endif
 
 /****************************************************************************
@@ -189,6 +193,7 @@ bool PVRShellInit::OsInitOS()
 		MonitorFromWindow() doesn't work, because the window hasn't been
 		created yet.
 	*/
+#if !defined(__MINGW32__)
 	{
 		HMONITOR	hMonitor;
 		BOOL		bRet;
@@ -200,6 +205,10 @@ bool PVRShellInit::OsInitOS()
 		bRet = GetMonitorInfo(hMonitor, &sMInfo);
 		_ASSERT(bRet);
 	}
+#else
+    RECT rect = {0, 0, 1920, 1080};
+    sMInfo.rcMonitor = rect;
+#endif
 
 	/*
 		Reduce the window size until it fits on screen
@@ -911,7 +920,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, TCHAR *lpCmdLin
 
 	PVRSHELL_UNREFERENCED_PARAMETER(hPrevInstance);
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined (__MINGW32__)
 	// Enable memory-leak reports
 	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG));
 #endif

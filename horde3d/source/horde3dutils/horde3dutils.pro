@@ -20,10 +20,11 @@ SOURCES += main.cpp
 INCLUDEPATH += $$PWD/../../.. $$PWD/../../../Libs
 DEPENDPATH += $$PWD/../../../Libs
 
-unix|win32: LIBS += -L$$PWD/../../../Libs -lhorde3d 
+unix|win32: LIBS += -L$$PWD/../../../Libs -lhorde3d
+#LIBS += -lopengl32
 
 win32 {
-LIBS += -lgdi32 -lopengl32
+LIBS += -lgdi32
 }
 
 unix {

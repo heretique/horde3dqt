@@ -5,11 +5,11 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 win32 {
-    DESTDIR = $$PWD/../../Libs
+    DESTDIR = $$PWD/../../../Libs
 }
 
 unix {
-    DESTDIR = /home/pi/horde3d
+    DESTDIR = /home/user/opt/rasp-pi-rootfs/home/pi/horde3d
     target.path = /home/pi/horde3d
     INSTALLS += target
 }
