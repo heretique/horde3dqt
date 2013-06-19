@@ -85,7 +85,8 @@ contains(DEFINES, USE_OPENGL_RENDERER) {
     INCLUDEPATH += $$PWD/../../../renderers/openglRenderer
     DEPENDPATH += $$PWD/../../../renderers/openglRenderer
 
-    win32: PRE_TARGETDEPS += $$PWD/../../../Libs/openglRenderer.lib
+    win32-msvc*: PRE_TARGETDEPS += $$PWD/../../../Libs/openglRenderer.lib
+    else:win32-g++: PRE_TARGETDEPS += $$PWD/../../../Libs/libopenglRenderer.a
     else:unix: PRE_TARGETDEPS += /home/pi/horde3d/libopenglRenderer.a
 
     LIBS += -lopengl32
@@ -98,7 +99,8 @@ contains(DEFINES, USE_OPENGLES_RENDERER) {
     DEPENDPATH += $$PWD/../../../renderers/openglESRenderer
 
     win32 {
-        PRE_TARGETDEPS += $$PWD/../../../Libs/openglESRenderer.lib
+        win32-msvc*: PRE_TARGETDEPS += $$PWD/../../../Libs/openglESRenderer.lib
+        else:win32-g++: PRE_TARGETDEPS += $$PWD/../../../Libs/libopenglESRenderer.a
         LIBS += -L$$PWD/../../../Libs/GLES2 -llibEGL -llibGLESv2
         INCLUDEPATH += $$PWD/../../../Libs/GLES2
         DEPENDPATH += $$PWD/../../../Libs/GLES2
@@ -116,6 +118,7 @@ contains(DEFINES, USE_TERRAIN_EXT) {
     INCLUDEPATH += $$PWD/../../../Libs $$PWD/../../../extensions/terrain/source
     DEPENDPATH += $$PWD/../../../extensions/terrain/source
 
-    win32: PRE_TARGETDEPS += $$PWD/../../../Libs/terrainExtension.lib
+    win32-msvc*: PRE_TARGETDEPS += $$PWD/../../../Libs/terrainExtension.lib
+    else:win32-g++: PRE_TARGETDEPS += $$PWD/../../../Libs/libterrainExtension.a
     else:unix: PRE_TARGETDEPS += /home/pi/horde3d/libterrainExtension.a
 }

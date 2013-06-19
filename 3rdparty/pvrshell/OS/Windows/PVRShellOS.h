@@ -20,7 +20,7 @@
 #include <windows.h>
 
 // The following defines are for Windows PC platforms only
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(__MINGW32__)
 // Enable the following 2 lines for memory leak checking - also see WinMain()
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>

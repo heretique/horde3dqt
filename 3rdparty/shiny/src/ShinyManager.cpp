@@ -26,6 +26,9 @@ restrictions:
 #include <fstream>
 #include <memory.h>
 #include <stdio.h>
+#if SHINY_COMPILER == SHINY_COMPILER_MINGW
+#include <malloc.h>
+#endif
 
 #if SHINY_PROFILER == TRUE
 namespace Shiny {
