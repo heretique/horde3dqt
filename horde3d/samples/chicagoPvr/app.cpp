@@ -277,7 +277,7 @@ MyGameWindow::MyGameWindow(const QString appPath, QWidget *parent /* = 0 */)
     _freezeMode = 0; _debugViewMode = false; _wireframeMode = false;
     _cam = 0;
 
-    _contentDir = appPath + "../Content";
+    _contentDir = "e:/horde3dContent/Content";
 }
 
 
@@ -397,36 +397,6 @@ void MyGameWindow::keyStateHandler()
 */
 void MyGameWindow::onUpdate(const float frameDelta)
 {
-    _curFPS = 60.0f;
-
-    keyStateHandler();
-
-    h3dSetOption( H3DOptions::DebugViewMode, _debugViewMode ? 1.0f : 0.0f );
-    h3dSetOption( H3DOptions::WireframeMode, _wireframeMode ? 1.0f : 0.0f );
-
-    if( !_freezeMode )
-    {
-        _crowdSim->update( _curFPS );
-    }
-
-    // Set camera parameters
-    h3dSetNodeTransform( _cam, _x, _y, _z, _rx ,_ry, 0, 1, 1, 1 );
-
-    // Show stats
-    h3dutShowFrameStats( _fontMatRes, _panelMatRes, _statMode );
-    if( _statMode > 0 )
-    {
-        if( h3dGetNodeParamI( _cam, H3DCamera::PipeResI ) == _forwardPipeRes )
-            h3dutShowText( "Pipeline: forward", 0.03f, 0.24f, 0.026f, 1, 1, 1, _fontMatRes );
-        else
-            h3dutShowText( "Pipeline: deferred", 0.03f, 0.24f, 0.026f, 1, 1, 1, _fontMatRes );
-    }
-
-    // Show logo
-//    const float ww = (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportWidthI ) /
-//                     (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportHeightI );
-//    const float ovLogo[] = { ww-0.4f, 0.8f, 0, 1,  ww-0.4f, 1, 0, 0,  ww, 1, 1, 0,  ww, 0.8f, 1, 1 };
-//    h3dShowOverlays( ovLogo, 4, 1.f, 1.f, 1.f, 1.f, _logoMatRes, 0 );
 }
 
 void MyGameWindow::mouseMoveEvent(QMouseEvent *e)
@@ -462,6 +432,36 @@ void MyGameWindow::mousePressEvent(QMouseEvent *e) {
 void MyGameWindow::onRender()
 {
 
+    _curFPS = 60.0f;
+
+    keyStateHandler();
+
+    h3dSetOption( H3DOptions::DebugViewMode, _debugViewMode ? 1.0f : 0.0f );
+    h3dSetOption( H3DOptions::WireframeMode, _wireframeMode ? 1.0f : 0.0f );
+
+    if( !_freezeMode )
+    {
+        _crowdSim->update( _curFPS );
+    }
+
+    // Set camera parameters
+    h3dSetNodeTransform( _cam, _x, _y, _z, _rx ,_ry, 0, 1, 1, 1 );
+
+    // Show stats
+    h3dutShowFrameStats( _fontMatRes, _panelMatRes, _statMode );
+    if( _statMode > 0 )
+    {
+        if( h3dGetNodeParamI( _cam, H3DCamera::PipeResI ) == _forwardPipeRes )
+            h3dutShowText( "Pipeline: forward", 0.03f, 0.24f, 0.026f, 1, 1, 1, _fontMatRes );
+        else
+            h3dutShowText( "Pipeline: deferred", 0.03f, 0.24f, 0.026f, 1, 1, 1, _fontMatRes );
+    }
+
+    // Show logo
+//    const float ww = (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportWidthI ) /
+//                     (float)h3dGetNodeParamI( _cam, H3DCamera::ViewportHeightI );
+//    const float ovLogo[] = { ww-0.4f, 0.8f, 0, 1,  ww-0.4f, 1, 0, 0,  ww, 1, 1, 0,  ww, 0.8f, 1, 1 };
+//    h3dShowOverlays( ovLogo, 4, 1.f, 1.f, 1.f, 1.f, _logoMatRes, 0 );
 
     // Render scene
     h3dRender( _cam );

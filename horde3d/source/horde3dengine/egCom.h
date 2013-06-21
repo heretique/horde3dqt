@@ -102,7 +102,7 @@ class EngineLog
 {
 public:
     EngineLog();
-
+    void init();
     void writeError( const char *msg, ... );
     void writeWarning( const char *msg, ... );
     void writeInfo( const char *msg, ... );

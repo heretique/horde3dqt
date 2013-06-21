@@ -4,6 +4,7 @@ TEMPLATE = app
 QT += core gui
 
 DEFINES -= UNICODE
+DEFINES += Q_LOGGING
 
 include(../../../3rdparty/qtgameenabler/qtgameenabler.pri)
 
@@ -20,7 +21,9 @@ HEADERS += app.h \
 INCLUDEPATH += $$PWD/../../../Libs \
     $$PWD/../../bindings/c++ \
     $$PWD/../../source/horde3dengine \
-    $$PWD/../../source/horde3dutils
+    $$PWD/../../source/horde3dutils \
+    ../../../3rdparty/genlog
+
 
 DEPENDPATH += $$PWD/../../../Libs \
     $$PWD/../../source/horde3dengine \
@@ -50,7 +53,11 @@ symbian {
 
     ICON = ../../../3rdparty/qtgameenabler/icons/qtgameenabler.svg
 
-    LIBS += -lhorde3d -lhorde3dutils -lshiny -lopenglESRenderer -lterrainExtension
+    LIBS += -lhorde3d -lhorde3dutils -lshiny -lopenglESRenderer -lterrainExtension -lgenlog
+
+        addFiles.sources = ../../binaries/Content
+        addFiles.path = e:/horde3dContent
+        DEPLOYMENT += addFiles
 }
 
 win32 {
