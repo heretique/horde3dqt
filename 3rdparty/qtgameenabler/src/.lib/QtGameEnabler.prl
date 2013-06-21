@@ -1,0 +1,4 @@
+QMAKE_PRL_BUILD_DIR = C:/Workspace/horde3dqt/3rdparty/qtgameenabler/src
+QMAKE_PRO_INPUT = src.pro
+QMAKE_PRL_TARGET = QtGameEnabler
+QMAKE_PRL_CONFIG = lex yacc warn_on debug uic resources prepend_includepath qt warn_on release incremental link_prl sis_targets run_on_phone debug shared stl exceptions rtti def_files create_prl mobility epocallowdlldata dll shared qtmain moc thread opengl

@@ -2,14 +2,14 @@
 
 namespace Horde3D
 {
-	IGPUTimer::~IGPUTimer()
-	{
+//	IGPUTimer::~IGPUTimer()
+//	{
 
-	}
+//	}
 
-	IRenderDevice::~IRenderDevice()
-	{
+//	IRenderDevice::~IRenderDevice()
+//	{
 
-	}
+//	}
 }
 

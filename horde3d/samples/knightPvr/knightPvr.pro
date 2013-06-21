@@ -31,7 +31,7 @@ win32 {
     LIBS += -L$$PWD/../../../Libs/GLES2 -lhorde3d -lhorde3dutils -llibegl -llibGLESv2 -luser32 -lgdi32
 }
 
-    unix {
+    unix:!symbian {
         DESTDIR = /home/user/opt/rasp-pi-rootfs/home/pi/horde3d
         target.path = /home/pi/horde3d
         INSTALLS += target
@@ -42,3 +42,22 @@ win32 {
                 -lhorde3d -lhorde3dutils -lEGL -lGLESv2
     }
 
+symbian {
+    DEFINES += "PVR_UID=0xE077F809"
+    TARGET.UID3 = 0xE077F809
+    INCLUDEPATH += $$EPOCROOT/epoc32/include/platform \
+                   $$EPOCROOT/epoc32/include/platform/mw \
+                   $$EPOCROOT/epoc32/include/mw
+    LIBS += -leuser \
+            -lavkon \
+            -leikcore \
+            -lws32 \
+            -leiksrv \
+            -lefsrv \
+            -lcone \
+            -lapparc \
+            -laknnotify \
+            -llibEGL \
+            -llibGLESv2 \
+            -lhorde3d -lhorde3dutils
+}

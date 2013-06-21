@@ -15,9 +15,9 @@
 namespace Horde3D {
 
 
-	IRenderer::~IRenderer()
-	{
+//	IRenderer::~IRenderer()
+//	{
 
-	}
+//	}
 
 }  // namespace

@@ -30,13 +30,17 @@
 #   if !defined( PLATFORM_MAC )
 #      define PLATFORM_MAC
 #   endif
+#elif defined(__SYMBIAN32__)
+#   if !defined( PLATFORM_SYMBIAN )
+#      define PLATFORM_SYMBIAN
+#   endif
 #else
 #	if !defined( PLATFORM_LINUX )
 #		define PLATFORM_LINUX
 #	endif
 #endif
 
-
+#ifndef BUILD_STATIC
 #ifndef DLLEXP
 #	ifdef PLATFORM_WIN
 #		define DLLEXP extern "C" __declspec( dllexport )
@@ -47,6 +51,9 @@
 #		  define DLLEXP extern "C"
 #   	endif
 #	endif
+#endif
+#else
+#   define DLLEXP extern "C"
 #endif
 
 

@@ -1554,17 +1554,22 @@ bool PVRShellInit::Run()
 
 			if(pString)
 			{
+#if defined(__SYMBIAN32__) || defined(UITRON) || defined(_UITRON_)
+				sprintf(pString, "%s%s", pPath, pCL);
+#else
 				snprintf(pString, nSize, "%s%s", pPath, pCL);
-
+#endif
 				if(!m_CommandLine.PrefixFromFile(pString))
 				{
 					delete[] pString;
 					pPath = (const char*) m_pShell->PVRShellGet(prefWritePath);
 					nSize = strlen(pPath) + strlen(pCL) + 1;
 					pString = new char[nSize];
-
+#if defined(__SYMBIAN32__) || defined(UITRON) || defined(_UITRON_)
+					sprintf(pString, "%s%s", pPath, pCL);
+#else
 					snprintf(pString, nSize, "%s%s", pPath, pCL);
-
+#endif
 					if(m_CommandLine.PrefixFromFile(pString))
 						m_pShell->PVRShellOutputDebug("Loaded command-line options from %s.\n", pString);
 				}

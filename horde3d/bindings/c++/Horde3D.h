@@ -14,6 +14,7 @@
 
 #pragma once
 
+#ifndef BUILD_STATIC
 #ifndef DLL
 #	if defined( WIN32 ) || defined( _WINDOWS )
 #		define DLL extern "C" __declspec( dllimport )
@@ -24,6 +25,9 @@
 #		define DLL extern "C"
 #  endif
 #	endif
+#endif
+#else
+#   define DLL extern "C"
 #endif
 
 
