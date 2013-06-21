@@ -14,8 +14,10 @@
 #include "utMath.h"
 #include "egModules.h"
 #include "egRenderManager.h"
+#include "genlog.h"
 #include <stdarg.h>
 #include <stdio.h>
+
 
 #include "utDebug.h"
 
@@ -166,7 +168,6 @@ EngineLog::EngineLog()
 	_maxNumMessages = 512;
 }
 
-
 void EngineLog::pushMessage( int level, const char *msg, va_list args )
 {
     float time = _timer.getElapsedTimeMS() / 1000.0f;
@@ -196,8 +197,8 @@ void EngineLog::pushMessage( int level, const char *msg, va_list args )
     OutputDebugStringA( _textBuf );
     OutputDebugString( TEXT("\r\n") );
 #else
-    printf(_textBuf);
-    printf("\r\n");
+    QLOG_DEBUG(_textBuf);
+//    printf("\r\n");
 #endif
 }
 

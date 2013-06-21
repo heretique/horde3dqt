@@ -1,4 +1,4 @@
-QT       -= core gui
+QT       -= gui
 
 TARGET = horde3d
 TEMPLATE = lib
@@ -18,12 +18,14 @@ unix {
 DEFINES += \
     USE_OPENGLES_RENDERER \
 #    USE_OPENGL_RENDERER \
-    USE_TERRAIN_EXT
+    USE_TERRAIN_EXT \
+    Q_LOGGING
 
 
 INCLUDEPATH += ../shared \
     ../../bindings/c++ \
-    ../../../3rdparty/shiny/include
+    ../../../3rdparty/shiny/include \
+    ../../../3rdparty/genlog
 
 SOURCES += egAnimatables.cpp \
     egAnimation.cpp \

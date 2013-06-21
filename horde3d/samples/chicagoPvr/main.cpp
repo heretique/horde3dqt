@@ -16,6 +16,10 @@
 
 #include <QtGui/QApplication>
 #include <QPaintEngine>
+#include "genlog.h"
+#include "genlogdest.h"
+#include <QCoreApplication>
+#include <QFileInfo>
 #include "app.h"
 
 #ifdef Q_OS_SYMBIAN
@@ -30,6 +34,19 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+
+#if defined(Q_LOGGING) || defined(Q_LOGGING_PROFILE)
+    QLogging::Logger& logger = QLogging::Logger::instance();
+    logger.setLoggingLevel(QLogging::LogALLLevel);
+    const QString logPath("E:\\logs\\" + QFileInfo(
+            QCoreApplication::applicationFilePath()).baseName() + ".log");
+    QLogging::DestinationPtr fileDestination(
+            QLogging::DestinationFactory::MakeFileDestination(logPath));
+    QLogging::DestinationPtr debugDestination(
+            QLogging::DestinationFactory::MakeDebugOutputDestination());
+    logger.addDestination(debugDestination.get());
+    logger.addDestination(fileDestination.get());
+#endif
 
 #ifdef Q_OS_SYMBIAN
     // Lock orientation to landscape

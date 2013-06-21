@@ -250,6 +250,7 @@ bool OpenGLESRenderDevice::init()
     }
 
     // Get capabilities
+    Modules::log().writeInfo("--Capabilities--");
     _caps.texFloat = glExt::OES_texture_float ? 1 : 0;
     _caps.texNPOT = glExt::OES_texture_npot ? 1 : 0;
 
@@ -305,6 +306,12 @@ bool OpenGLESRenderDevice::init()
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &_caps.maxVertUniforms);
     glGetIntegerv(GL_MAX_VARYING_VECTORS, &_caps.maxVertVaryings);
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &_caps.maxVertAttribs);
+
+    Modules::log().writeInfo("Max texture size: %d", _caps.maxTexSize);
+    Modules::log().writeInfo("Max fragment uniforms: %d", _caps.maxFragUniforms);
+    Modules::log().writeInfo("Max vertex uniforms: %d", _caps.maxVertUniforms);
+    Modules::log().writeInfo("Max vertex varyings: %d", _caps.maxVertVaryings);
+    Modules::log().writeInfo("Max vertex attributes: %d", _caps.maxVertAttribs);
 
 
     initStates();
