@@ -27,6 +27,11 @@
         #include <GLES2/gl2.h>
         #include <GLES2/gl2ext.h>
         #include <GLES2/gl2extimg.h>
+    #elif defined (PLATFORM_SYMBIAN)
+        #include <EGL/egl.h>
+        #include <GLES2/gl2.h>
+        #include <GLES2/gl2ext.h>
+//        #include <GLES2/gl2extimg.h>
     #else
         #if defined( PLATFORM_WIN ) || defined( PLATFORM_WIN_CE )
         #   define WIN32_LEAN_AND_MEAN 1

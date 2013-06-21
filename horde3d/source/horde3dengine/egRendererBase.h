@@ -116,7 +116,7 @@ namespace Horde3D {
 	class IRenderer
 	{
 	public:
-		virtual ~IRenderer();
+        virtual ~IRenderer() {}
 		virtual IRenderDevice* renderDevice() = 0;
 		virtual void registerRenderFunc( int nodeType, RenderFunc rf ) = 0;
 

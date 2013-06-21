@@ -4,4 +4,4 @@ SUBDIRS += \
 #    chicago \
     chicagoPvr \
 #    knight \
-    knightPvr
+#    knightPvr

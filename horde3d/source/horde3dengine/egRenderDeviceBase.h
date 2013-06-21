@@ -12,7 +12,7 @@ namespace Horde3D
 	class IGPUTimer
 	{
 	public:
-		virtual ~IGPUTimer();
+        virtual ~IGPUTimer() {}
 
 		virtual void beginQuery( uint32 frameID ) = 0;
 		virtual void endQuery() = 0;
@@ -335,7 +335,7 @@ namespace Horde3D
 	class IRenderDevice
 	{
 	public:
-		virtual ~IRenderDevice();
+        virtual ~IRenderDevice() {}
 
 		virtual void initStates() = 0;
 		virtual bool init() = 0;

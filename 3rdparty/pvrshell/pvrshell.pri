@@ -18,13 +18,19 @@ win32 {
     INCLUDEPATH += $$PWD/OS/Windows
 }
 
-unix {
+unix:!symbian {
     SOURCES += $$PWD/OS/LinuxRaw/PVRShellOS.cpp
     HEADERS += $$PWD/OS/LinuxRaw/PVRShellOS.h
     INCLUDEPATH += $$PWD/OS/LinuxRaw \
                     /home/user/opt/rasp-pi-rootfs/opt/vc/include \
                     /home/user/opt/rasp-pi-rootfs/opt/vc/include/interface/vcos/pthreads
     LIBS += -L/home/user/opt/rasp-pi-rootfs/opt/vc/lib -lbcm_host
+}
+
+symbian {
+    SOURCES += $$PWD/OS/Symbian/PVRShellOS.cpp
+    HEADERS += $$PWD/OS/Symbian/PVRShellOS.h
+    INCLUDEPATH += $$PWD/OS/Symbian
 }
 
 contains(DEFINES, BUILD_OGLES2) {

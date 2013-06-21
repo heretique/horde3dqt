@@ -25,9 +25,9 @@
 
 // Check for errors and invalid data during each drawcall (requires DEBUG config)
 //#define H3D_VALIDATE_DRAWCALLS
-
+#ifndef __SYMBIAN32__
 // Enable or disable shiny profiling
 #define SHINY_PROFILER TRUE
-
+#endif
 
 #endif // _h3d_config_H_

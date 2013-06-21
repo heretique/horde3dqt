@@ -165,7 +165,7 @@ void getOpenGLESVersion()
 
 void *platGetProcAddress( const char *funcName )
 {
-#if defined( PLATFORM_WIN )
+#if defined( PLATFORM_WIN ) || defined( __SYMBIAN32__ )
 	return (void *)eglGetProcAddress( funcName );
 #elif defined( PLATFORM_MAC )
 	CFStringRef functionName = CFStringCreateWithCString( kCFAllocatorDefault, funcName, kCFStringEncodingASCII );

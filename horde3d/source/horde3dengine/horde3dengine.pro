@@ -2,6 +2,8 @@ QT       -= core gui
 
 TARGET = horde3d
 TEMPLATE = lib
+CONFIG += staticlib
+DEFINES += BUILD_STATIC
 win32 {
     DESTDIR = $$PWD/../../../Libs
 }
@@ -93,7 +95,9 @@ contains(DEFINES, USE_OPENGL_RENDERER) {
 }
 
 contains(DEFINES, USE_OPENGLES_RENDERER) {
-    LIBS += -L$$PWD/../../../Libs -lopenglESRenderer
+    symbian: QT += opengl
+    symbian: LIBS += -lopenglESRenderer
+    else:unix|win32: LIBS += -L$$PWD/../../../Libs -lopenglESRenderer
 
     INCLUDEPATH += $$PWD/../../../Libs $$PWD/../../../renderers/openglESRenderer
     DEPENDPATH += $$PWD/../../../renderers/openglESRenderer
@@ -106,19 +110,46 @@ contains(DEFINES, USE_OPENGLES_RENDERER) {
         DEPENDPATH += $$PWD/../../../Libs/GLES2
     }
 
-    unix {
+    unix:!symbian {
         PRE_TARGETDEPS += /home/user/opt/rasp-pi-rootfs/home/pi/horde3d/libopenglESRenderer.a
         LIBS += -L/home/user/opt/rasp-pi-rootfs/home/pi/horde3d -L/home/user/opt/rasp-pi-rootfs/opt/vc/lib -lEGL -lGLESv2
     }
 }
 
 contains(DEFINES, USE_TERRAIN_EXT) {
-    unix|win32: LIBS += -L$$PWD/../../../Libs -lterrainExtension
+    symbian: LIBS += -lterrainExtension
+    else:unix|win32: LIBS += -L$$PWD/../../../Libs -lterrainExtension
 
     INCLUDEPATH += $$PWD/../../../Libs $$PWD/../../../extensions/terrain/source
     DEPENDPATH += $$PWD/../../../extensions/terrain/source
 
     win32-msvc*: PRE_TARGETDEPS += $$PWD/../../../Libs/terrainExtension.lib
     else:win32-g++: PRE_TARGETDEPS += $$PWD/../../../Libs/libterrainExtension.a
-    else:unix: PRE_TARGETDEPS += /home/pi/horde3d/libterrainExtension.a
+    else:unix:!symbian PRE_TARGETDEPS += /home/pi/horde3d/libterrainExtension.a
+}
+
+!contains(DEFINES, BUILD_STATIC) {
+    symbian {
+        TARGET.UID3 = 0xE8AB120a
+        TARGET.CAPABILITY += NetworkServices \
+                            LocalServices \
+                            ReadUserData \
+                            WriteUserData \
+                            UserEnvironment \
+                            Location \
+                            ReadDeviceData \
+                            WriteDeviceData \
+                            SwEvent \
+                            ProtServ \
+                            PowerMgmt \
+                            TrustedUI \
+                            SurroundingsDD
+
+        TARGET.EPOCALLOWDLLDATA = 1
+        MMP_RULES += EXPORTUNFROZEN
+
+        addFiles.sources = $${TARGET}.dll
+        addFiles.path = !:/sys/bin
+        DEPLOYMENT += addFiles
+    }
 }

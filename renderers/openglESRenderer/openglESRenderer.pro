@@ -8,9 +8,13 @@ win32 {
 }
 
 unix {
-    DESTDIR = /home/user/opt/rasp-pi-rootfs/home/pi/horde3d
-    target.path = /home/pi/horde3d
-    INSTALLS += target
+    maemo5 {
+        target.path = /opt/usr/lib
+    } else {
+        DESTDIR = /home/user/opt/rasp-pi-rootfs/home/pi/horde3d
+        target.path = /home/pi/horde3d
+        INSTALLS += target
+    }
 }
 
 DEFINES += BUILD_OGLES2 \

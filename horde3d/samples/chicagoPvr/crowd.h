@@ -18,8 +18,8 @@
 #define _crowd_H_
 
 #include "Horde3D.h"
-#include <vector>
-#include <string>
+#include <QString>
+#include <QVector>
 
 
 struct Particle
@@ -44,7 +44,7 @@ struct Particle
 class CrowdSim
 {
 public:
-	CrowdSim( const std::string& contentDir ) : _contentDir( contentDir ) {}
+    CrowdSim( QString contentDir ) : _contentDir( contentDir ) {}
 
 	void init();
 	void update( float fps );
@@ -53,8 +53,8 @@ private:
 	void chooseDestination( Particle &p );
 
 private:
-	std::string              _contentDir;
-	std::vector< Particle >  _particles;
+    QString                 _contentDir;
+    QVector< Particle >     _particles;
 };
 
 #endif // _crowd_H_

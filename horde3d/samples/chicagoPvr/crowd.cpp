@@ -41,7 +41,7 @@ void CrowdSim::init()
 	// Load character with walk animation
 	H3DRes characterRes = h3dAddResource( H3DResTypes::SceneGraph, "models/man/man.scene.xml", 0 );
 	H3DRes characterWalkRes = h3dAddResource( H3DResTypes::Animation, "animations/man.anim", 0 );
-	h3dutLoadResourcesFromDisk( _contentDir.c_str() );
+    h3dutLoadResourcesFromDisk( _contentDir.toAscii() );
 	
 	// Add characters
     for( unsigned int i = 0; i < 100; ++i )

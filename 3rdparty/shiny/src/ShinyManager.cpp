@@ -30,7 +30,7 @@ restrictions:
 #include <malloc.h>
 #endif
 
-#if SHINY_PROFILER == TRUE
+//#if SHINY_PROFILER == TRUE
 namespace Shiny {
 
 
@@ -389,4 +389,4 @@ namespace Shiny {
 
 } // namespace Shiny
 
-#endif // if SHINY_PROFILER == TRUE
+//#endif // if SHINY_PROFILER == TRUE
