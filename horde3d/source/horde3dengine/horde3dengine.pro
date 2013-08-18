@@ -2,8 +2,10 @@ QT       -= gui
 
 TARGET = horde3d
 TEMPLATE = lib
-CONFIG += staticlib
-DEFINES += BUILD_STATIC
+symbian {
+    CONFIG += staticlib
+    DEFINES += BUILD_STATIC
+}
 win32 {
     DESTDIR = $$PWD/../../../Libs
 }

@@ -370,9 +370,9 @@ void main( void )
 	newPos += vec3( 0.0, newCoords.p, 0.0 );
 #endif
 	
-	gl_FragColor.rgb =
-		calcPhongSpotLight( newPos, normalize( normal ), albedo.rgb, matSpecParams.rgb,
-		                    matSpecParams.a, -vsPos.z, 0.3 );
+	gl_FragColor.rgb = albedo.rgb;
+		// calcPhongSpotLight( newPos, normalize( normal ), albedo.rgb, matSpecParams.rgb,
+		//                     matSpecParams.a, -vsPos.z, 0.3 );
 }
 
 

@@ -18,6 +18,7 @@
 #include "Horde3D.h"
 #include "Horde3DUtils.h"
 #include <QMouseEvent>
+#include <QCoreApplication>
 
 using namespace std;
 
@@ -273,11 +274,14 @@ MyGameWindow::MyGameWindow(const QString appPath, QWidget *parent /* = 0 */)
     _x = 15; _y = 3; _z = 20; _rx = -10; _ry = 60; _velocity = 10.0f;
     _curFPS = 30;
 
-    _statMode = 0;
+    _statMode = 1;
     _freezeMode = 0; _debugViewMode = false; _wireframeMode = false;
     _cam = 0;
-
+#ifdef __SYMBIAN32__
     _contentDir = "e:/horde3dContent/Content";
+#else
+    _contentDir = "../Content";
+#endif
 }
 
 
@@ -360,16 +364,20 @@ void MyGameWindow::onCreate()
 }
 
 
+void MyGameWindow::onFreeEGL() {
+    delete _crowdSim; _crowdSim = 0x0;
+
+    // Release engine
+    h3dRelease();
+}
+
 /*!
   From GameWindow
   \see gamewindow.cpp
 */
 void MyGameWindow::onDestroy()
 {
-    delete _crowdSim; _crowdSim = 0x0;
 
-    // Release engine
-    h3dRelease();
 }
 
 void MyGameWindow::onSizeChanged(int width, int height)
@@ -414,7 +422,7 @@ void MyGameWindow::mouseMoveEvent(QMouseEvent *e)
 
 void MyGameWindow::mouseReleaseEvent(QMouseEvent *e)
 {
-
+    QCoreApplication::quit();
 }
 
 void MyGameWindow::keyPressEvent(QKeyEvent *e) {

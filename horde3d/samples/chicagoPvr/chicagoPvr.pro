@@ -60,9 +60,10 @@ symbian {
         DEPLOYMENT += addFiles
 }
 
+
 win32 {
     DESTDIR = $$PWD/../../binaries/win32
-    LIBS += -L$$PWD/../../../Libs/GLES2 -lhorde3d -lhorde3dutils
+    LIBS += -L$$PWD/../../../Libs/GLES2 -lhorde3d -lhorde3dutils -lgenlog
 }
 
     unix:!symbian {

@@ -44,7 +44,7 @@ void CrowdSim::init()
     h3dutLoadResourcesFromDisk( _contentDir.toAscii() );
 	
 	// Add characters
-    for( unsigned int i = 0; i < 5; ++i )
+    for( unsigned int i = 0; i < 30; ++i )
 	{
 		Particle p;
 		

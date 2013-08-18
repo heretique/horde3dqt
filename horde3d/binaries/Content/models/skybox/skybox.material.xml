@@ -1,5 +1,5 @@
 <Material>
 	<Shader source="shaders/skybox.shader"/>
 	
-	<Sampler name="albedoMap" map="models/skybox/skybox.pvr" />
+	<Sampler name="albedoMap" map="models/skybox/skybox.tga" />
 </Material>
