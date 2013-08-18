@@ -41,6 +41,7 @@ protected: // From GameWindow
     void onRender();
     void onUpdate(const float frameDelta);
     void onCreate();
+    void onFreeEGL();
     void onDestroy();
     void onSizeChanged(int width, int height);
 
