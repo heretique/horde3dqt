@@ -29,7 +29,7 @@ unix|win32:!symbian: LIBS += -L$$PWD/../../../Libs -lhorde3d
 #LIBS += -lopengl32
 
 win32 {
-LIBS += -lgdi32
+LIBS += -lgdi32 -lopengl32
 }
 
 unix:!symbian {

@@ -272,8 +272,8 @@ struct H3DGeoRes
 		GeoIndices16I,
 		GeoIndexStream,
 		GeoVertPosStream,
-		GeoVertTanStream,
-		GeoVertStaticStream
+        GeoVertTanStream,
+        GeoVertStaticStream
 	};
 };
 
@@ -311,7 +311,7 @@ struct H3DMatRes
 	enum List
 	{
 		MaterialElem = 400,
-		SamplerElem,
+        SamplerElem,
 		UniformElem,
 		MatClassStr,
 		MatLinkI,
