@@ -129,3 +129,4 @@ horde3d/samples/luaPvr/moc/moc_audioeffect.cpp
 horde3d/samples/luaPvr/moc/moc_audiobufferplayinstance.cpp
 horde3d/samples/luaPvr/moc/moc_app.cpp
 horde3d/binaries/Win32/luaPvr.exe
+3rdparty/qtgameenabler/src/.lib/QtGameEnabler.prl
