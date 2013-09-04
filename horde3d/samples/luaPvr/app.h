@@ -46,7 +46,7 @@ protected: // From GameWindow
     void onSizeChanged(int width, int height);
 
 private:
-    lua_State   *_L;
+    lua_State   *L;
     QString _luaFile;
 };
 
