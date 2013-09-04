@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<Material>
+	<Shader source="shaders\model.shader"/>
+	<Sampler map="textures\models\lualogo.png" name="albedoMap"/>
+</Material>
