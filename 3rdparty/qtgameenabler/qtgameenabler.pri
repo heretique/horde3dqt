@@ -63,7 +63,7 @@ windows {
     INCLUDEPATH += $$PWD/../OGLES2
     LIBS += -L$$PWD/../../libs/GLES2
 
-    LIBS += -llibEGL -llibGLESv2
+    LIBS += -llibEGL -llibGLESv2 -luser32
 }
 
 message($$INCLUDEPATH)
