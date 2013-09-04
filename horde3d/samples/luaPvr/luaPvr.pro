@@ -54,7 +54,7 @@ symbian {
 
     ICON = ../../../3rdparty/qtgameenabler/icons/qtgameenabler.svg
 
-    LIBS += -lhorde3d -lhorde3dutils -lshiny -lopenglESRenderer -lterrainExtension -lgenlog
+    LIBS += -lhorde3d -lhorde3dutils -lshiny -lopenglESRenderer.lib -lterrainExtension -lgenlog
     LIBS += -llibluajit.lib
 
         addFiles.sources = ../../binaries/Content

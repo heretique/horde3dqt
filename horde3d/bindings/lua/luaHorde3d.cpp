@@ -35,7 +35,7 @@ void addH3DOptionsConsts(lua_State* L)
     ADD_CONSTANT(counter++, "DebugViewMode");
     ADD_CONSTANT(counter++, "DumpFailedShaders");
     ADD_CONSTANT(counter++, "GatherTimeStats")
-            lua_setglobal(L, "H3DOptions");
+    lua_setglobal(L, "H3DOptions");
 }
 
 void addH3DStatsConsts(lua_State* L)
@@ -276,7 +276,7 @@ void addH3DJointConsts(lua_State* L)
     lua_setglobal(L, "H3DJoint");
 }
 
-void H3DLight(lua_State* L)
+void addH3DLightConsts(lua_State* L)
 {
     lua_newtable(L);
     int counter=H3DLight::MatResI;
@@ -626,11 +626,6 @@ static int lua_h3dAddResource(lua_State* L)
     lua_pop(L, 3);
 
     result=(H3DRes)h3dAddResource(type, name, flags);
-    if(result==0)
-    {
-        return 0;
-    }
-
     lua_pushnumber(L,result);
     return 1;
 }
@@ -650,10 +645,6 @@ static int lua_h3dCloneResource(lua_State* L)
     lua_pop(L, 2);
 
     result=(H3DRes)h3dCloneResource(originalHandle, name);
-    if(result==0)
-    {
-        return 0;
-    }
 
     lua_pushnumber(L, result);
     return 1;
@@ -673,11 +664,6 @@ static int lua_h3dRemoveResource(lua_State* L)
     lua_pop(L, 1);
 
     result=h3dRemoveResource(handle);
-    if(result==0)
-    {
-        return 0;
-    }
-
     lua_pushnumber(L, result);
     return 1;
 }
@@ -1193,11 +1179,6 @@ static int lua_h3dAddNodes(lua_State* L)
     lua_pop(L,2);
 
     result=h3dAddNodes(parent, sceneGraph);
-    if(result==0)
-    {
-        return 0;
-    }
-
     lua_pushnumber(L, result);
     return 1;
 }
@@ -1281,7 +1262,7 @@ static int lua_h3dSetNodeTransform(lua_State* L)
         return 0;
     }
 
-    handle=lua_tonumber(L, 1);
+    handle=lua_tointeger(L, 1);
     tx=lua_tonumber(L, 2);
     ty=lua_tonumber(L, 3);
     tz=lua_tonumber(L, 4);
@@ -2388,6 +2369,7 @@ int luaopen_Horde3d(lua_State* L)
     addH3DModelConsts(L);
     addH3DMeshConsts(L);
     addH3DJointConsts(L);
+    addH3DLightConsts(L);
     addH3DCameraConsts(L);
     addH3DEmitterConsts(L);
     addH3DModelUpdateFlagsConsts(L);
