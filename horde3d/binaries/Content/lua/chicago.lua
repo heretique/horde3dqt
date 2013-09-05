@@ -1,13 +1,21 @@
+package.path = package.path .. ";c:/apps/ZeroBrane/lualibs/mobdebug/?.lua"
+require('mobdebug').start()
 require("h3d")
 require("h3du")
 
 local app = {
+
 }
-app._contentDir = "e:/horde3dContent/Content"
+app._contentDir = "../Content"
 
 local crowd = {
 	
 }
+
+function degToRad( f ) 
+	return f * (3.1415926 / 180.0);
+end
+
 
 function crowd.Init()
 	print "Crowd Init"
@@ -36,6 +44,7 @@ function onCreate()
     local skyBoxRes = h3d.AddResource( H3DResTypes.SceneGraph, "models/skybox/skybox.scene.xml", 0 )
     -- LuaCube
     local luacubeRes = h3d.AddResource(H3DResTypes.SceneGraph, "models/LuaCube/LuaCube.scene.xml", 0)
+    local spinyRes = h3d.AddResource(H3DResTypes.SceneGraph, "models/Spiny/spiny.scene.xml", 0)
     -- Load resources
     h3du.LoadResourcesFromDisk( app._contentDir );
 
@@ -55,6 +64,8 @@ function onCreate()
     h3d.SetNodeTransform( luacube, 0, 2.5, 0, 0, 0, 0, 2, 2, 2 )
     luacubeRot = 0
     h3d.SetNodeFlags( luacube, H3DNodeFlags.NoCastShadow, true )
+    spiny = h3d.AddNodes( h3d.RootNode, spinyRes)
+     h3d.SetNodeTransform( spiny, 10, .5, 0, 0, 0, 0, 2, 2, 2 )
     -- Add light source
     local light = h3d.AddLightNode( h3d.RootNode, "Light1", 0, "LIGHTING", "SHADOWMAP" )
     h3d.SetNodeTransform( light, 0, 20, 50, -30, 0, 0, 1, 1, 1 )
@@ -100,7 +111,7 @@ end
 function onRender()
 	--print("onRender")
 	-- Render scene
-	h3d.SetNodeTransform( app._cam, 15, 3, 20, -10 ,60, 0, 1, 1, 1 )
+	h3d.SetNodeTransform( app._cam, 15, 3, 20, -10 ,30, 0, 1, 1, 1 )
 	luacubeRot = luacubeRot + 2
     h3d.SetNodeTransform( luacube, 0, 2.5, 0, luacubeRot, luacubeRot, luacubeRot, 2, 2, 2 )
 	h3du.ShowFrameStats( app._fontMatRes, app._panelMatRes, 1 )
@@ -112,4 +123,22 @@ function onRender()
 
     -- Remove all overlays
     h3d.ClearOverlays()
+end
+
+
+function keyPressEvent(key)
+	print("keyPressEvent: " .. key)
+end
+
+function keyReleaseEvent(key)
+	print("keyReleaseEvent: " .. key)
+end
+
+function mousePressEvent(buttons, posX, poxY)
+end
+
+function mouseMoveEvent(posX, posY)
+end
+
+function mouseReleaseEvent(buttons, posX, poxY)
 end
