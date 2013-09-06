@@ -1,6 +1,7 @@
 #include "luaHorde3d.h"
 #include "Horde3D.h"
 #include "Horde3DUtils.h"
+#include <qnamespace.h>
 
 #include "lua.hpp"
 
@@ -336,6 +337,110 @@ void addH3DModelUpdateFlagsConsts(lua_State* L)
     ADD_CONSTANT(H3DModelUpdateFlags::Animation, "Animation");
     ADD_CONSTANT(H3DModelUpdateFlags::Geometry, "Geometry");
     lua_setglobal(L, "H3DModelUpdateFlags");
+}
+
+void addQtKeysConsts(lua_State* L)
+{
+    lua_newtable(L);
+    ADD_CONSTANT(Qt::Key_Escape, "Key_Escape");
+    ADD_CONSTANT(Qt::Key_Backtab, "Key_Backtab");
+    ADD_CONSTANT(Qt::Key_Backspace, "Key_Backspace");
+    ADD_CONSTANT(Qt::Key_Return, "Key_Return");
+    ADD_CONSTANT(Qt::Key_Enter, "Key_Enter");
+    ADD_CONSTANT(Qt::Key_Insert, "Key_Insert");
+    ADD_CONSTANT(Qt::Key_Delete, "Key_Delete");
+    ADD_CONSTANT(Qt::Key_Pause, "Key_Pause");
+    ADD_CONSTANT(Qt::Key_Print, "Key_Print");
+    ADD_CONSTANT(Qt::Key_SysReq, "Key_SysReq");
+    ADD_CONSTANT(Qt::Key_Clear, "Key_Clear");
+    ADD_CONSTANT(Qt::Key_Home , "Key_Home");
+    ADD_CONSTANT(Qt::Key_End, "Key_End");
+    ADD_CONSTANT(Qt::Key_Left, "Key_Left");
+    ADD_CONSTANT(Qt::Key_Up, "Key_Up");
+    ADD_CONSTANT(Qt::Key_Right, "Key_Right");
+    ADD_CONSTANT(Qt::Key_Down, "Key_Down");
+    ADD_CONSTANT(Qt::Key_PageUp, "Key_PageUp");
+    ADD_CONSTANT(Qt::Key_PageDown, "Key_PageDown");
+    ADD_CONSTANT(Qt::Key_Shift, "Key_Shift");
+    ADD_CONSTANT(Qt::Key_Control, "Key_Control");
+    ADD_CONSTANT(Qt::Key_Meta, "Key_Meta");
+    ADD_CONSTANT(Qt::Key_Alt, "Key_Alt");
+    ADD_CONSTANT(Qt::Key_CapsLock, "Key_CapsLock");
+    ADD_CONSTANT(Qt::Key_NumLock, "Key_NumLock");
+    ADD_CONSTANT(Qt::Key_ScrollLock, "Key_ScrollLock");
+    ADD_CONSTANT(Qt::Key_F1, "Key_F1");
+    ADD_CONSTANT(Qt::Key_F2, "Key_F2");
+    ADD_CONSTANT(Qt::Key_F3 , "Key_F3");
+    ADD_CONSTANT(Qt::Key_F4, "Key_F4");
+    ADD_CONSTANT(Qt::Key_F5, "Key_F5");
+    ADD_CONSTANT(Qt::Key_F6, "Key_F6");
+    ADD_CONSTANT(Qt::Key_F7, "Key_F7");
+    ADD_CONSTANT(Qt::Key_F8, "Key_F8");
+    ADD_CONSTANT(Qt::Key_F9, "Key_F9");
+    ADD_CONSTANT(Qt::Key_F10, "Key_F10");
+    ADD_CONSTANT(Qt::Key_F11, "Key_F11");
+    ADD_CONSTANT(Qt::Key_F12, "Key_F12");
+    ADD_CONSTANT(Qt::Key_Space, "Key_Space");
+    ADD_CONSTANT(Qt::Key_Exclam, "Key_Exclam");
+    ADD_CONSTANT(Qt::Key_QuoteDbl, "Key_QuoteDbl");
+    ADD_CONSTANT(Qt::Key_NumberSign, "Key_NumberSign");
+    ADD_CONSTANT(Qt::Key_Dollar, "Key_Dollar");
+    ADD_CONSTANT(Qt::Key_Percent, "Key_Percent");
+    ADD_CONSTANT(Qt::Key_Ampersand, "Key_Ampersand");
+    ADD_CONSTANT(Qt::Key_Apostrophe, "Key_Apostrophe");
+    ADD_CONSTANT(Qt::Key_ParenLeft, "Key_ParenLeft");
+    ADD_CONSTANT(Qt::Key_ParenRight, "Key_ParenRight");
+    ADD_CONSTANT(Qt::Key_Asterisk, "Key_Asterisk");
+    ADD_CONSTANT(Qt::Key_Plus, "Key_Plus");
+    ADD_CONSTANT(Qt::Key_Comma, "Key_Comma");
+    ADD_CONSTANT(Qt::Key_Minus, "Key_Minus");
+    ADD_CONSTANT(Qt::Key_Period, "Key_Period");
+    ADD_CONSTANT(Qt::Key_Slash, "Key_Slash");
+    ADD_CONSTANT(Qt::Key_0, "Key_0");
+    ADD_CONSTANT(Qt::Key_1, "Key_1");
+    ADD_CONSTANT(Qt::Key_2, "Key_2");
+    ADD_CONSTANT(Qt::Key_3, "Key_3");
+    ADD_CONSTANT(Qt::Key_4, "Key_4");
+    ADD_CONSTANT(Qt::Key_5, "Key_5");
+    ADD_CONSTANT(Qt::Key_6, "Key_6");
+    ADD_CONSTANT(Qt::Key_7, "Key_7");
+    ADD_CONSTANT(Qt::Key_8, "Key_8");
+    ADD_CONSTANT(Qt::Key_9, "Key_9");
+    ADD_CONSTANT(Qt::Key_Colon, "Key_Colon");
+    ADD_CONSTANT(Qt::Key_Semicolon, "Key_Semicolon");
+    ADD_CONSTANT(Qt::Key_Less, "Key_Less");
+    ADD_CONSTANT(Qt::Key_Equal, "Key_Equal");
+    ADD_CONSTANT(Qt::Key_Greater, "Key_Greater");
+    ADD_CONSTANT(Qt::Key_Question, "Key_Question");
+    ADD_CONSTANT(Qt::Key_At, "Key_At");
+    ADD_CONSTANT(Qt::Key_A, "Key_A");
+    ADD_CONSTANT(Qt::Key_B, "Key_B");
+    ADD_CONSTANT(Qt::Key_C, "Key_C");
+    ADD_CONSTANT(Qt::Key_D, "Key_D");
+    ADD_CONSTANT(Qt::Key_E, "Key_E");
+    ADD_CONSTANT(Qt::Key_F, "Key_F");
+    ADD_CONSTANT(Qt::Key_G, "Key_G");
+    ADD_CONSTANT(Qt::Key_H, "Key_H");
+    ADD_CONSTANT(Qt::Key_I, "Key_I");
+    ADD_CONSTANT(Qt::Key_J, "Key_J");
+    ADD_CONSTANT(Qt::Key_K, "Key_K");
+    ADD_CONSTANT(Qt::Key_L, "Key_L");
+    ADD_CONSTANT(Qt::Key_M, "Key_M");
+    ADD_CONSTANT(Qt::Key_N, "Key_N");
+    ADD_CONSTANT(Qt::Key_O, "Key_O");
+    ADD_CONSTANT(Qt::Key_P, "Key_P");
+    ADD_CONSTANT(Qt::Key_Q, "Key_Q");
+    ADD_CONSTANT(Qt::Key_R, "Key_R");
+    ADD_CONSTANT(Qt::Key_S, "Key_S");
+    ADD_CONSTANT(Qt::Key_T, "Key_T");
+    ADD_CONSTANT(Qt::Key_U, "Key_U");
+    ADD_CONSTANT(Qt::Key_V, "Key_V");
+    ADD_CONSTANT(Qt::Key_W, "Key_W");
+    ADD_CONSTANT(Qt::Key_X, "Key_X");
+    ADD_CONSTANT(Qt::Key_Y, "Key_Y");
+    ADD_CONSTANT(Qt::Key_Z, "Key_Z");
+
+    lua_setglobal(L, "Key");
 }
 
 static int lua_h3dGetVersionString(lua_State* L)
@@ -2372,6 +2477,7 @@ int luaopen_Horde3d(lua_State* L)
     addH3DLightConsts(L);
     addH3DCameraConsts(L);
     addH3DEmitterConsts(L);
+    addQtKeysConsts(L);
     addH3DModelUpdateFlagsConsts(L);
 
     return 0;

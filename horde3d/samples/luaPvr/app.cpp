@@ -23,19 +23,24 @@
 
 
 
-#define LUA_CHECKS_ENABLED 1
-#ifdef LUA_CHECKS_ENABLED
+//#define LUA_METHOD_CHECKS 1
+#define LUA_CALL_CHECKS 1
+
+#ifdef LUA_METHOD_CHECKS
 #define LUA_METHOD_CHECK     if (lua_isnoneornil(L, -1)) { \
                                 qDebug() << "Lua method not found."; \
                                 lua_pop(L, 1); \
                                 return; \
                              }
+#else
+#define LUA_METHOD_CHECK
+#endif
+#ifdef LUA_CALL_CHECKS
 #define LUA_CALL_CHECK     if (_luaError) { \
                             qDebug() << lua_tostring(L, -1); \
                             lua_pop(L, 1); /* pop error message from the stack */ \
                            }
 #else
-#define LUA_METHOD_CHECK
 #define LUA_CALL_CHECK
 #endif
 
