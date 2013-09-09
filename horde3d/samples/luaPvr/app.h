@@ -19,6 +19,7 @@
 
 #include <gamewindow.h>
 #include <string>
+#include <QPoint>
 #include "lua.hpp"
 
 
@@ -49,6 +50,8 @@ private:
     lua_State   *L;
     QString _luaFile;
     int _luaError;
+    QPointF _mouseLastPos;
+    QPoint _screenSize;
 };
 
 #endif // _app_H_

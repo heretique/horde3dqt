@@ -144,7 +144,8 @@ function mousePressEvent(buttons, posX, poxY)
 end
 
 function mouseMoveEvent(dX, dY)
-	app._ry = app._ry - (dX / 100 * 30)
+	--print("mouseMoveEvent: (" .. dX .. ", " .. dY .. ")")
+	app._ry = app._ry + (dX / 100 * 30)
 	
 	-- Loop up/down but only in a limited range
 	app._rx = app._rx + (dY / 100 * 30)

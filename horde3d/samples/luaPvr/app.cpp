@@ -111,6 +111,7 @@ void MyGameWindow::onDestroy()
 
 void MyGameWindow::onSizeChanged(int width, int height)
 {
+    _screenSize = QPoint(width, height);
     lua_getglobal(L, "onSizeChanged");
     LUA_METHOD_CHECK;
 
@@ -135,6 +136,7 @@ void MyGameWindow::onUpdate(const float frameDelta)
 }
 
 void MyGameWindow::mousePressEvent(QMouseEvent *e) {
+    _mouseLastPos = e->pos();
     lua_getglobal(L, "mousePressEvent");
     LUA_METHOD_CHECK;
     lua_pushinteger(L, e->buttons());
@@ -147,10 +149,11 @@ void MyGameWindow::mousePressEvent(QMouseEvent *e) {
 void MyGameWindow::mouseMoveEvent(QMouseEvent *e) {
     lua_getglobal(L, "mouseMoveEvent");
     LUA_METHOD_CHECK;
-    lua_pushinteger(L, e->x());
-    lua_pushinteger(L, e->y());
+    lua_pushnumber(L, _mouseLastPos.x() - e->pos().x());
+    lua_pushnumber(L, _mouseLastPos.y() - e->pos().y());
     _luaError = lua_pcall(L, 2, 0, 0);
     LUA_CALL_CHECK;
+    _mouseLastPos = e->pos();
 }
 
 void MyGameWindow::mouseReleaseEvent(QMouseEvent *e) {
