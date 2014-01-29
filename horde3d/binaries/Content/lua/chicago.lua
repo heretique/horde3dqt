@@ -1,5 +1,5 @@
-package.path = package.path .. ";c:/apps/ZeroBrane/lualibs/mobdebug/?.lua"
-require('mobdebug').start()
+-- package.path = package.path .. ";c:/apps/ZeroBrane/lualibs/mobdebug/?.lua"
+-- require('mobdebug').start()
 require("h3d")
 require("h3du")
 
@@ -65,7 +65,7 @@ function onCreate()
     luacube = h3d.AddNodes( h3d.RootNode, luacubeRes)
     h3d.SetNodeTransform( luacube, 0, 2.5, 0, 0, 0, 0, 2, 2, 2 )
     luacubeRot = 0
-    h3d.SetNodeFlags( luacube, H3DNodeFlags.NoCastShadow, true )
+    -- h3d.SetNodeFlags( luacube, H3DNodeFlags.NoCastShadow, true )
     spiny = h3d.AddNodes( h3d.RootNode, spinyRes)
      h3d.SetNodeTransform( spiny, 10, .5, 0, 0, 0, 0, 2, 2, 2 )
     -- Add light source
@@ -117,6 +117,7 @@ function onRender()
 	h3d.SetNodeTransform( app._cam, app._x, app._y, app._z, app._rx ,app._ry, 0, 1, 1, 1 )
 	luacubeRot = luacubeRot + 2
     h3d.SetNodeTransform( luacube, 0, 2.5, 0, luacubeRot, luacubeRot, luacubeRot, 2, 2, 2 )
+    h3d.SetNodeTransform( spiny, 10, .5, 0, 0, luacubeRot, 0, 2, 2, 2)
 	h3du.ShowFrameStats( app._fontMatRes, app._panelMatRes, 1 )
 	h3du.ShowText( "Pipeline: forward", 0.03, 0.24, 0.026, 1, 1, 1, app._fontMatRes )
     h3d.Render( app._cam )
@@ -130,13 +131,13 @@ end
 
 
 function keyPressEvent(key)
-	print("keyPressEvent: " .. key)
+	--print("keyPressEvent: " .. key)
 	app._keys[key] = true
 
 end
 
 function keyReleaseEvent(key)
-	print("keyReleaseEvent: " .. key)
+	--print("keyReleaseEvent: " .. key)
 	app._keys[key] = nil
 end
 

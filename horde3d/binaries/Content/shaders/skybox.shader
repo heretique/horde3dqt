@@ -1,7 +1,7 @@
 [[FX]]
 
 // Samplers
-samplerCube albedoMap = sampler_state
+sampler2D albedoMap = sampler_state
 {
 	Address = Clamp;
 };
@@ -62,12 +62,12 @@ void main( void )
 [[FS_AMBIENT]]
 // =================================================================================================
 
-uniform samplerCube albedoMap;
+uniform sampler2D albedoMap;
 varying mediump vec3 viewVec;
 
 void main( void )
 {
-	mediump vec3 albedo = textureCube( albedoMap, viewVec ).rgb;
+	mediump vec3 albedo = texture2D( albedoMap, viewVec.xy ).rgb;
 	
 	gl_FragColor.rgb = albedo;
 }

@@ -17,11 +17,10 @@
 #include <QApplication>
 #include <QMetaType>
 #include <QtCore>
-#include <QtGui>
 #include <QTextStream>
 #endif // Q_WS_MAEMO_5
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 #ifndef GE_NOMOBILITY
 #include <QSystemDeviceInfo>
 #endif

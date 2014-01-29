@@ -161,16 +161,16 @@ bool OpenGLESRenderer::init()
     _defColShader_color = _rd->getShaderConstLoc( _defColorShader.shaderObj, "color" );
 
     // Create shadow map render target
-//    if( !createShadowRB( Modules::config().shadowMapSize, Modules::config().shadowMapSize ) )
-//    {
-//        Modules::log().writeError( "Failed to create shadow map" );
-//        return false;
-//    }
+    if( !createShadowRB( Modules::config().shadowMapSize, Modules::config().shadowMapSize ) )
+    {
+        Modules::log().writeError( "Failed to create shadow map" );
+        return false;
+    }
 
     // Create default shadow map
-//    float shadowTex[16] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-//    _defShadowMap = _rd->createTexture( TextureTypes::Tex2D, 4, 4, 1, TextureFormats::DEPTH, false, false, false, false );
-//    _rd->uploadTextureData( _defShadowMap, 0, 0, shadowTex );
+    float shadowTex[16] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+    _defShadowMap = _rd->createTexture( TextureTypes::Tex2D, 4, 4, 1, TextureFormats::DEPTH, false, false, false, false );
+    _rd->uploadTextureData( _defShadowMap, 0, 0, shadowTex );
 
     // Create index buffer used for drawing quads
     uint16 *quadIndices = new uint16[QuadIndexBufCount];
@@ -813,7 +813,7 @@ bool OpenGLESRenderer::createShadowRB( uint32 width, uint32 height )
 {
     PROFILE_FUNC();
 
-//    _shadowRB = _rd->createRenderBuffer( width, height, TextureFormats::BGRA8, true, 0, 0 );
+    _shadowRB = _rd->createRenderBuffer( width, height, TextureFormats::BGRA8, true, 0, 0 );
 
     return _shadowRB != 0;
 }
