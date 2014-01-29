@@ -129,7 +129,7 @@ contains(DEFINES, USE_TERRAIN_EXT) {
 
     win32-msvc*: PRE_TARGETDEPS += $$PWD/../../../Libs/terrainExtension.lib
     else:win32-g++: PRE_TARGETDEPS += $$PWD/../../../Libs/libterrainExtension.a
-    else:unix:!symbian PRE_TARGETDEPS += /home/pi/horde3d/libterrainExtension.a
+    else:unix:!symbian: PRE_TARGETDEPS += /home/pi/horde3d/libterrainExtension.a
 }
 
 !contains(DEFINES, BUILD_STATIC) {

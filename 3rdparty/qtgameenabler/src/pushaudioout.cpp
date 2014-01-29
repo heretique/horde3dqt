@@ -46,8 +46,8 @@ PushAudioOut::PushAudioOut(AudioSource *source, QObject *parent /* = 0 */)
     DEBUG_INFO(this);
 
     QAudioFormat format;
-    format.setFrequency(AUDIO_FREQUENCY);
-    format.setChannels(AUDIO_CHANNELS);
+    format.setSampleRate(AUDIO_FREQUENCY);
+    format.setChannelCount(AUDIO_CHANNELS);
     format.setSampleSize(AUDIO_SAMPLE_BITS);
     format.setCodec(GEDefaultAudioCodec);
     format.setByteOrder(GEByteOrder);

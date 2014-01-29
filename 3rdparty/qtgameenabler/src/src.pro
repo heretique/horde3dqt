@@ -8,6 +8,8 @@ DESTDIR = .lib
 CONFIG += create_prl
 DEFINES += GE_BUILD_LIB
 
+QT += widgets
+
 contains(QT_CONFIG, reduce_exports): CONFIG += hide_symbols
 
 GE_PATH = ../

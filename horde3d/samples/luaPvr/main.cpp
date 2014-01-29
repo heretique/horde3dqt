@@ -14,7 +14,7 @@
 //
 // ************************************************************************************************
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QPaintEngine>
 #include "genlog.h"
 #include "genlogdest.h"

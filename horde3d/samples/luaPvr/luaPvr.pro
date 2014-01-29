@@ -1,7 +1,7 @@
 TEMPLATE = app
 #CONFIG += console
 #CONFIG -= app_bundle
-QT += core gui
+QT += core gui widgets
 
 DEFINES -= UNICODE
 DEFINES += Q_LOGGING

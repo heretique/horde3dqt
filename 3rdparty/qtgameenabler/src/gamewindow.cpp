@@ -8,7 +8,10 @@
  * the distribution.
  */
 
-#include <QtGui>
+#include <QTime>
+#include <QEvent>
+#include <QResizeEvent>
+
 
 #ifdef Q_OS_LINUX
 #include <QX11Info>
@@ -615,7 +618,7 @@ void GameWindow::createEGL()
 #endif // Q_OS_LINUX
 
 #ifdef Q_OS_WIN32
-    HWND hwnd = this->winId();
+    HWND hwnd = (HWND)this->winId();
     HDC dc = GetWindowDC(hwnd);
     eglDisplay = eglGetDisplay((EGLNativeDisplayType)dc);
 #endif // Q_OS_WIN32

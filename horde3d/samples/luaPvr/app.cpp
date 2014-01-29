@@ -76,7 +76,7 @@ void MyGameWindow::onCreate()
     L = luaL_newstate();
     luaL_openlibs(L);
     luaopen_Horde3d(L);
-    luaL_dofile(L, _luaFile.toAscii());
+    luaL_dofile(L, _luaFile.toLatin1());
     lua_getglobal(L, "onCreate");
     LUA_METHOD_CHECK;
 

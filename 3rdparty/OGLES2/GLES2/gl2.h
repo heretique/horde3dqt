@@ -33,6 +33,7 @@ typedef khronos_float_t  GLclampf;
 typedef khronos_int32_t  GLfixed;
 
 /* GL types for handling large vertex buffer objects */
+
 typedef khronos_intptr_t GLintptr;
 typedef khronos_ssize_t  GLsizeiptr;
 
